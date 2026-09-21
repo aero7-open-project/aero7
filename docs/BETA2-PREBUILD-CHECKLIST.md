@@ -63,7 +63,12 @@ publishing or promoting packages is not authorized by a passing local test.
   artifacts. The [cleanup and plan](release-evidence/2026-09-13-build-space-plan.md)
   leave 38.9 GiB host space at the recorded checkpoint, with current guests,
   selected packages and retained sources/evidence protected. Fresh capacity
-  checks remain mandatory before any approved build.
+  checks remain mandatory before any approved build. The
+  [22 September capacity refresh](release-evidence/2026-09-22-final-build-capacity-preflight.md)
+  records the current 18.0 GiB state: online staging passes, offline staging
+  requires 21.6 GiB, and two exact idle superseded r10 disk files form a
+  sufficient approved-build cleanup set without deleting the accepted
+  candidates, current builder or Windows reference VM.
 - [x] Complete the requested login Ease of Access dialog, including its six
   accessibility options and bottom desktop-environment tab. The rebuilt
   [21 September candidates](release-evidence/2026-09-21-rebuilt-online-offline-acceptance.md)
