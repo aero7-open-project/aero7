@@ -84,6 +84,24 @@ earlier candidate evidence; neither is hidden or reclassified as a clean log.
 
 - [installed online desktop](selected-kwallet-candidate-images/online-desktop.png)
 
+## Selected KWin logout guard recheck
+
+The selected KWin `6.7.4-7.3` prepared source was rechecked after the candidate
+acceptance so the launch checklist would not rely on a stale historical status.
+The structural policy guard passes and confirms that the unconditional logout
+deadline remains removed, cancellation fails closed, and logout despite pending
+windows still requires the explicit **Log Out Anyway** action. The controlled
+production-method harness passes all 11 notification-enabled results and all six
+notification-disabled results. This is the exact source used for the selected
+KWin archive, not the older `7.1` checkpoint.
+
+The native installed-VM evidence remains the runtime authority: the
+[unsaved-work logout report](2026-09-09-unsaved-work-logout.md) records survival
+past the former deadline, document preservation, Cancel Logout, notification
+dismissal, explicit override, ordinary logout, normal power-off and cold start.
+It also records the retained unrelated teardown warnings and does not claim a
+universally warning-free shutdown.
+
 ## Result and remaining boundary
 
 The refreshed candidate cycle closes the selected-package and native Vault

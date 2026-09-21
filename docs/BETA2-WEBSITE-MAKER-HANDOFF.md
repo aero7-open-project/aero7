@@ -500,10 +500,19 @@ Use project website download URLs for ISO buttons, not repository archive links.
 - [x] First-login collector manifests pass with zero failed units/coredumps.
 - [x] Optional Programs Center installs and removes through the feature manager.
 - [x] Login/lock branding, SDDM accessibility and session selection pass.
-- [ ] Shutdown and logout complete without the delayed Plasma-close warning.
+- [x] Shutdown and logout complete without the delayed Plasma-close warning.
+  Native KWin evidence covers normal completion, cancellation, explicit
+  override, power-off and cold start; the selected 7.3 source also passes the
+  11-result notification and six-result no-notification control-flow suites.
 - [x] Taskbar, Start, Explorer, Control Panel and screenshot checks pass.
-- [ ] Multi-monitor and recovery/failure-path coverage is recorded accurately.
-- [ ] Physical-hardware limitations and untested backends are explicitly listed.
+- [x] Multi-output and recovery/failure-path coverage is recorded accurately.
+  Three virtual outputs, output disable/re-enable, automatic layout repair,
+  shell crash recovery and disconnected transaction recovery are documented;
+  physical multi-monitor hardware is explicitly outside the VM claim.
+- [x] Physical-hardware limitations and untested backends are explicitly listed.
+  The release copy excludes legacy BIOS, Secure Boot, physical GPU/hotplug,
+  physical multi-monitor, unsupported voice control and unavailable optional
+  backends from the tested claim.
 - [ ] Release package provenance/signing and repository promotion are verified.
 - [ ] Final artifact table, checksum file and screenshot inventory are complete.
 - [ ] Website owner provides the final URLs and explicit publication approval.
