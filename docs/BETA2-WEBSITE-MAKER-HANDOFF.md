@@ -432,6 +432,12 @@ Retain original PNG downloads; responsive web copies may be optimized without
 changing the depicted UI. Add real alt text and do not put essential instructions
 only inside screenshots. Do not publish a missing asset link as if it exists.
 
+**Local handoff integrity check, 22 September:** all 148 relative links across
+this handoff, the release notes, pre-build checklist and QA status resolve. The
+nine intermediate preview PNGs and four fresh-r3 preview PNGs match their
+retained SHA-256 inventories and are all exactly 1920×1080. They remain labeled
+QA/layout previews and do not fill the pending final-image asset directory.
+
 ## 8. Announcement draft — use only after approval
 
 ### Long announcement
