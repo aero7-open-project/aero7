@@ -1,6 +1,6 @@
 # Aero7 Beta 2 — QA status and evidence history
 
-Updated 21 September 2026. This engineering record supports the
+Updated 22 September 2026. This engineering record supports the
 [website maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md). It preserves the distinction
 between frozen-media tests and later component upgrades. Nothing in this record
 authorizes publication. Follow the handoff for website copy and release gates.
@@ -27,6 +27,22 @@ These are accepted **test candidates**, not publication authorization or final
 website artifacts. Physical GPU/hotplug and multi-monitor hardware remain
 outside this VM pass.
 
+**Refreshed selected-KWallet candidate acceptance:** The
+[22 September candidate report](release-evidence/2026-09-22-selected-kwallet-candidate-acceptance.md)
+records newly exported online and offline test images after the required
+`kwallet 6.29.0-1.1` package was selected. Both images pass boot/source release
+verification and fresh installation through OOBE to the installed desktop. The
+installed audits confirm Desktop 33, Explorer 55, Control Panel 55, KWallet
+`6.29.0-1.1`, Vault 7 absent by default, matching optional caches, enabled
+firewalld and no coredumps. The offline helper then installs Vault 7 from its
+verified local cache, and the native first-use/password UI is titled **Aero7
+Credential Vault** with the existing bundled icon. The online graphical boot
+has no error-priority journal entries or failed-unit result. Known image-mode
+package-origin and Plymouth-hold warnings remain recorded. The offline replay
+used embedded package paths but had a virtual NIC available, so it is not
+misrepresented as a new no-NIC run. These are still internal test candidates,
+not final/public artifacts.
+
 **Vault presentation installed-VM checkpoint:** The
 [scoped native-dialog patch](release-evidence/2026-09-13-vault-presentation-source.md)
 builds the real KWallet service and passes 16 presentation results, five source
@@ -36,10 +52,11 @@ then upgrades the test package normally, reboots and exits 0 after real Aero7
 unlock/error/cancel/relock UI, two simultaneous clients and two decoded
 synthetic read/lock cycles. Wallet filenames/non-ciphertext metadata, packages,
 desktop services and final lock state are preserved with no failed units. The
-accepted override is now selected in the source manifest. The 21 September
-candidate images predate that selection, so refreshed online/offline package
-integration and native prompt replay remain open. The rebuilt candidates close
-the separate login Ease of Access gate.
+accepted override is now selected in the source manifest. The refreshed
+22 September candidates integrate that exact package and pass the native
+first-use/password presentation replay described above. This closes the scoped
+vault-presentation pre-build item. The rebuilt candidates also close the
+separate login Ease of Access gate.
 
 **Latest pre-build review:** The [requirement/website review](release-evidence/2026-09-13-prebuild-requirement-review.md)
 reconciles later test evidence with historical pending statements. A fresh run

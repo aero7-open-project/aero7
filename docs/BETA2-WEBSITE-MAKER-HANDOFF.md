@@ -2,7 +2,7 @@
 
 **Working draft — DO NOT PUBLISH OR ENABLE DOWNLOADS YET.**
 
-Updated 21 September 2026. Rebuilt online and offline test candidates have
+Updated 22 September 2026. Rebuilt online and offline test candidates have
 completed clean-install acceptance. They are not final downloads: the owner
 must still approve the final build, artifact upload and website publication.
 This document supplies website copy, implementation requirements and a release
@@ -60,10 +60,12 @@ pass the SDDM Ease of Access dialog and desktop-session selector. These later
 results close the SDDM gate without erasing the historical evidence. The
 [vault presentation source patch](release-evidence/2026-09-13-vault-presentation-source.md)
 builds and passes isolated tests using the existing pack icon. Its accepted
-`kwallet 6.29.0-1.1` package now belongs to the required local transaction, but
-the 21 September candidate images predate that manifest change. Keep the vault
-presentation as engineering progress until refreshed images pass native replay;
-do not describe it as shipped yet.
+`kwallet 6.29.0-1.1` package now belongs to the required local transaction. The
+[22 September refreshed-candidate acceptance](release-evidence/2026-09-22-selected-kwallet-candidate-acceptance.md)
+verifies both new test images, exact installed selection, default-off Vault 7
+state and the native Aero7-titled first-use/password presentation. This closes
+the engineering gate, but do not describe it as shipped until the owner approves
+and the exact final website-hosted images pass the release checks.
 The [native vault follow-up](release-evidence/2026-09-13-vault-native-prompts.md)
 verifies cancellation, retry, client closure and retained synthetic credentials
 through two read/lock cycles. The original ciphertext-hash failure is preserved

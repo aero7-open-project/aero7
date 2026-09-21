@@ -1,6 +1,6 @@
 # Beta 2 pre-build closure checklist
 
-Updated 21 September 2026. Internal working record, not release approval.
+Updated 22 September 2026. Internal working record, not release approval.
 The goal is to finish the bug-fix pass and website-update Markdown, then request
 approval to build the final online and offline images. Building, signing,
 publishing or promoting packages is not authorized by a passing local test.
@@ -68,13 +68,16 @@ publishing or promoting packages is not authorized by a passing local test.
   accessibility options and bottom desktop-environment tab. The rebuilt
   [21 September candidates](release-evidence/2026-09-21-rebuilt-online-offline-acceptance.md)
   pass the lower-left dialog and Aero7/AeroThemePlasma/Plasma session selector.
-- [ ] Resolve the normal-session vault password-dialog ownership/branding gap,
-  or obtain explicit owner deferral. The
+- [x] Resolve the normal-session vault password-dialog ownership/branding gap.
+  The
   [20 September installed-VM replay](release-evidence/2026-09-20-vault-presentation-native-vm.md)
   proves the scoped Aero7 prompt, retry, cancel, overlap and retention behavior,
   and the accepted `kwallet 6.29.0-1.1` override is now selected in the source
-  manifest. Refreshed online/offline image integration and native prompt replay
-  remain required before this item can be checked.
+  manifest. The
+  [22 September refreshed-candidate acceptance](release-evidence/2026-09-22-selected-kwallet-candidate-acceptance.md)
+  verifies both rebuilt image variants, exact installed package selection,
+  default-off Vault state, local optional cache and the native first-use/password
+  presentation titled **Aero7 Credential Vault** with the retained pack icon.
 
 Newly reproduced product defects belong in this list with a regression test and
 native replay where applicable. Passing these actions is the point to notify

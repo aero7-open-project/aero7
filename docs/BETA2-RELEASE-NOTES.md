@@ -1,6 +1,6 @@
 # Aero7 Beta 2 — release notes draft
 
-Updated 21 September 2026. **Not approved for publication or downloads.**
+Updated 22 September 2026. **Not approved for publication or downloads.**
 Rebuilt online and offline test candidates have passed fresh-install acceptance.
 They remain internal candidates until the owner approves the final build and
 website publication; their filenames and hashes are not public release
@@ -138,11 +138,13 @@ Versions were read from all 19 package metadata records referenced by the
 ## Acceptance and release gates
 
 The latest selected manifest adds the accepted Aero7-scoped KWallet presentation
-package to the required local transaction. The earlier 21 September rebuilt
-candidates predate that selection, so their successful clean-install results
-remain evidence for the rest of the stack but do not close the refreshed-image
-vault gate. A new online/offline candidate cycle is required before final-build
-approval.
+package to the required local transaction. The
+[22 September refreshed-candidate cycle](release-evidence/2026-09-22-selected-kwallet-candidate-acceptance.md)
+now verifies both image variants through installation and first-run setup. The
+installed systems report `kwallet 6.29.0-1.1`, retain Vault 7 as an off-by-default
+optional package, and pass the native Aero7-titled first-use/password dialog
+replay. This closes the refreshed-image vault gate without turning the test
+candidates into approved final downloads.
 
 The latest selected manifest passes 155 integration tests, static checks,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
@@ -157,7 +159,7 @@ branding, Explorer identity, optional package install/removal and the complete
 screenshot save/clipboard/notification path. Vault 7 retains its separate native
 overlap, retained-content and isolated backend evidence.
 
-The source and rebuilt-candidate bug-test pass is complete. Before final release:
+The source and refreshed-candidate bug-test pass is complete. Before final release:
 
 1. Obtain approval for the final build, then build both variants from the
    approved sources/packages without bypassing dependency or signature checks.
