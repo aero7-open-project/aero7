@@ -78,6 +78,8 @@ if ((mkarchiso_only)); then
     exit 1
   fi
   archiso_work="$work_root/archiso"
+  python3 "$project_root/scripts/check-build-space.py" \
+    --profile "$profile_root" --work "$work_root" --output "$out_root"
   build_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   # Interrupted build trees are disposable and can consume tens of gigabytes.
   # Keep diagnostics in the build log and start from a clean Archiso workspace.
@@ -127,12 +129,17 @@ if ((mkarchiso_only)); then
     printf 'Expected exactly one staged Aero7 ISO, found %d.\n' "${#staged_images[@]}" >&2
     exit 1
   fi
-  # Keep one current image for each variant. The other variant is a separate
-  # release artifact and must survive this replacement.
-  while IFS= read -r -d '' old_image; do
-    rm -f -- "$old_image"
-  done < <(find "$out_root" -maxdepth 1 -type f -name "aero7-beta2-$variant-*.iso" -print0)
+  # Preserve prior test artifacts and their checksums. A same-day rebuild has
+  # the same filename, so archive that exact collision instead of overwriting
+  # it or deleting every older image of this variant.
   for staged_image in "${staged_images[@]}"; do
+    previous_image="$out_root/${staged_image##*/}"
+    if [[ -e "$previous_image" ]]; then
+      archive_out="$(mktemp -d "$out_root/superseded-$variant-XXXXXX")"
+      mv -- "$previous_image" "$archive_out/"
+      (cd "$archive_out" && sha256sum -- "${staged_image##*/}" > SHA256SUMS)
+      printf 'Preserved previous image in %s\n' "$archive_out"
+    fi
     mv "$staged_image" "$out_root/"
   done
   rmdir "$staging_out"
@@ -211,6 +218,8 @@ install -Dm755 "$project_root/backend/aero7_install_backend.py" \
   "$profile_root/airootfs/usr/lib/aero7/aero7-install-backend"
 install -Dm755 "$project_root/backend/aero7_shell_adapter.py" \
   "$profile_root/airootfs/usr/lib/aero7/aero7_shell_adapter.py"
+install -Dm644 "$project_root/backend/firewall_defaults.py" \
+  "$profile_root/airootfs/usr/lib/aero7/firewall_defaults.py"
 install -Dm755 "$project_root/diagnostics/aero7-collect-logs" \
   "$profile_root/airootfs/usr/lib/aero7/aero7-collect-logs"
 install -Dm644 "$project_root/diagnostics/aero7-diagnostic-collect.service" \
@@ -229,6 +238,7 @@ install -Dm644 "$project_root/config/aero7-packages.txt" \
   "$profile_root/airootfs/usr/share/aero7/aero7-packages.txt"
 printf '%s\n' "$variant" > "$profile_root/airootfs/usr/share/aero7/install-variant"
 local_package_manifest="$project_root/config/beta2-local-packages.sha256"
+python3 "$project_root/scripts/verify-candidate-packages.py" --variant "$variant"
 local_package_names="$project_root/config/beta2-local-package-names.txt"
 optional_package_names="$project_root/config/beta2-optional-package-names.txt"
 [[ -s "$local_package_manifest" && -s "$local_package_names" && -s "$optional_package_names" ]] || {

@@ -1,7 +1,7 @@
 import QtQuick
 import "../components"
 
-Item {
+InstallerScreen {
     id: root
     anchors.fill: parent
 
@@ -11,6 +11,8 @@ Item {
         panelHeight: 560
         title: qsTr("Install Aero7")
         showBack: true
+        backEnabled: root.controller.canGoBack
+        onBackRequested: root.controller.goBack()
         useBackdrop: true
 
         Brand {
@@ -32,7 +34,7 @@ Item {
             anchors.topMargin: 272
             text: qsTr("Install now   ➜")
             font.pixelSize: 15
-            onClicked: controller.goNext()
+            onClicked: root.controller.goNext()
         }
 
         Text {
@@ -144,7 +146,7 @@ Item {
                 text: qsTr("Yes")
                 onClicked: {
                     repairConfirmation.visible = false
-                    controller.openRecoveryShell()
+                    root.controller.openRecoveryShell()
                 }
             }
             AeroButton {

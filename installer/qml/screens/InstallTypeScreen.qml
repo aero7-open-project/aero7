@@ -2,6 +2,7 @@ import QtQuick
 import "../components"
 
 SetupPage {
+    id: root
     anchors.fill: parent
     title: qsTr("Which type of installation do you want?")
     description: ""
@@ -28,30 +29,30 @@ SetupPage {
             AeroChoice {
                 width: parent.width
                 height: 112
-                selected: controller.installType === "erase"
+                selected: root.controller.installType === "erase"
                 iconSource: "qrc:/assets/icons/install-clean.svg"
                 title: qsTr("Custom (advanced)")
                 detail: qsTr("Install a new copy of Aero7. You can erase a complete disk, use unallocated space, format one selected partition, or shrink an NTFS Windows partition after opening Drive options (advanced).")
                 onChosen: {
-                    controller.installType = "erase"
-                    controller.goNext()
+                    root.controller.installType = "erase"
+                    root.controller.goNext()
                 }
             }
 
-            Text {
+            AeroHelpLink {
+                objectName: "installTypeHelp"
                 anchors.left: parent.left
                 anchors.leftMargin: 80
                 text: qsTr("Help me decide")
-                color: "#0067b1"
-                font.pixelSize: 13
-                font.underline: helpMouse.containsMouse
-                MouseArea {
-                    id: helpMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                }
+                onClicked: installHelp.open()
             }
         }
     ]
+
+    SetupHelpDialog {
+        id: installHelp
+        objectName: "installTypeDialog"
+        title: qsTr("Choosing an installation type")
+        message: qsTr("Choose Custom to install a new copy of Aero7. Erasing a complete disk deletes its existing partitions and files. Back up important data first.\n\nDrive options (advanced) offers supported free-space, partition-format and NTFS-shrink choices. Verify the selected disk and the final confirmation carefully; selecting Custom alone does not erase a disk.\n\nIn-place Upgrade is not available from this installation media.")
+    }
 }

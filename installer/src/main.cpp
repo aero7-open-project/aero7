@@ -8,7 +8,6 @@
 #include <QGuiApplication>
 #include <QPixmap>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QQuickWindow>
 #include <QQuickStyle>
 #include <QRegularExpression>
@@ -59,7 +58,6 @@ int main(int argc, char *argv[])
         controller.setAdvancedDriveOptions(true);
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty(QStringLiteral("controller"), &controller);
     int captureWidth = 1024;
     int captureHeight = 768;
     const QRegularExpression sizeExpression(QStringLiteral("^(\\d{3,4})x(\\d{3,4})$"));
@@ -72,10 +70,13 @@ int main(int argc, char *argv[])
     captureHeight = sizeMatch.captured(2).toInt();
     const bool captureMode = parser.isSet(QStringLiteral("screenshot"));
     const bool documentationMode = parser.isSet(QStringLiteral("documentation-screenshot"));
-    engine.rootContext()->setContextProperty(QStringLiteral("captureMode"), captureMode);
-    engine.rootContext()->setContextProperty(QStringLiteral("documentationMode"), documentationMode);
-    engine.rootContext()->setContextProperty(QStringLiteral("captureWidth"), captureWidth);
-    engine.rootContext()->setContextProperty(QStringLiteral("captureHeight"), captureHeight);
+    engine.setInitialProperties({
+        {QStringLiteral("controller"), QVariant::fromValue(&controller)},
+        {QStringLiteral("captureMode"), captureMode},
+        {QStringLiteral("documentationMode"), documentationMode},
+        {QStringLiteral("captureWidth"), captureWidth},
+        {QStringLiteral("captureHeight"), captureHeight},
+    });
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
     if (engine.rootObjects().isEmpty())
         return 1;

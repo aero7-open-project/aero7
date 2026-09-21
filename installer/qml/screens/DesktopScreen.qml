@@ -1,7 +1,7 @@
 import QtQuick
 import "../components"
 
-Item {
+InstallerScreen {
     id: root
     anchors.fill: parent
 
@@ -21,10 +21,11 @@ Item {
         spacing: 1
 
         Image {
+            objectName: "setupRecycleBinIcon"
             anchors.horizontalCenter: parent.horizontalCenter
             width: 52
             height: 58
-            source: "qrc:/assets/icons/recycle-bin.svg"
+            source: "qrc:/assets/icons/recycle-bin.png"
             fillMode: Image.PreserveAspectFit
             smooth: true
         }
@@ -78,13 +79,14 @@ Item {
             Repeater {
                 model: ["qrc:/assets/aero7-logo-plain.png", "qrc:/assets/icons/harddisk.svg"]
                 Rectangle {
+                    id: pinnedApp
                     required property string modelData
                     width: 43
                     height: 40
                     radius: 3
                     color: "#24ffffff"
                     border.color: "#4bffffff"
-                    Image { anchors.centerIn: parent; width: 29; height: 29; source: modelData; fillMode: Image.PreserveAspectFit }
+                    Image { anchors.centerIn: parent; width: 29; height: 29; source: pinnedApp.modelData; fillMode: Image.PreserveAspectFit }
                 }
             }
         }
@@ -145,13 +147,13 @@ Item {
     }
 
     AeroButton {
-        visible: controller.demoMode && !documentationMode
+        visible: root.controller.demoMode && !root.documentationMode
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: 146
         anchors.bottomMargin: 9
         width: 112
         text: qsTr("Run again")
-        onClicked: controller.goNext()
+        onClicked: root.controller.goNext()
     }
 }

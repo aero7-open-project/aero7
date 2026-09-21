@@ -2,6 +2,7 @@ import QtQuick
 import "../components"
 
 SetupPage {
+    id: root
     anchors.fill: parent
     title: ""
     description: ""
@@ -41,17 +42,17 @@ SetupPage {
             Text { text: qsTr("Type a user name (for example, Alex):"); color: "#25323b"; font.pixelSize: 12 }
             AeroTextField {
                 width: parent.width
-                text: controller.username
+                text: root.controller.username
                 placeholderText: qsTr("user name")
-                onTextChanged: controller.username = text
+                onTextChanged: root.controller.username = text
             }
             Item { width: 1; height: 5 }
             Text { text: qsTr("Type a computer name:"); color: "#25323b"; font.pixelSize: 12 }
             AeroTextField {
                 width: parent.width
-                text: controller.computerName
+                text: root.controller.computerName
                 placeholderText: qsTr("aero7-pc")
-                onTextChanged: controller.computerName = text
+                onTextChanged: root.controller.computerName = text
             }
         }
     ]

@@ -1,70 +1,110 @@
-# Screenshot Gallery
+# Aero7 Screenshot Gallery — 1920×1080
 
-These images document the current Aero7 Beta 1 candidate. Installer and OOBE
-screens are deterministic captures rendered from the same Qt/QML sources used
-by the ISO. Desktop and application screens were captured after a clean
-installation, OOBE, and first-login repair in the documented QEMU/KVM test
-profile.
+These are real QEMU/KVM VM captures taken on **5 September 2026**, at native
+**1920×1080**, **100% scale**, with a single virtual display. They are not
+mockups, upscaled images, or retouched composites. Click an image to inspect
+the original PNG. See [Capture Details](Screenshot-Capture-Details) for exact
+packages, preparation, checksums, and visible limitations.
 
-## Desktop
+This is an **updated existing test installation**, not a fresh installation
+from either final Beta 2 ISO. The photos/captures do not close the ISO release
+gate or certify hardware. Older images remain in
+[Historical Beta 1 Screenshots](Historical-Screenshots).
 
-![Aero7 desktop](images/desktop-overview.png)
+## Desktop and Start
 
-| Start menu | All Programs |
-| --- | --- |
-| ![Aero7 Start menu](images/desktop-start-menu.png) | ![Alphabetical All Programs list](images/desktop-all-programs.png) |
+[![Cleanly arranged Aero7 desktop](images/beta2-1080p/desktop.png)](images/beta2-1080p/desktop.png)
 
-| Desktop menu | Jump list |
-| --- | --- |
-| ![Light desktop context menu](images/desktop-context-menu.png) | ![Taskbar jump list](images/desktop-jump-list.png) |
+The arranged desktop shows Recycle Bin and the Start, Command Prompt, File
+Explorer, and browser taskbar order. Native gadgets were stopped for this
+view; see the capture details rather than treating it as a fresh-account test.
 
-| Clock and calendar | Network status |
-| --- | --- |
-| ![Clock and calendar](images/desktop-clock.png) | ![Network status](images/desktop-network.png) |
+[![Start menu on the existing test account](images/beta2-1080p/start-menu.png)](images/beta2-1080p/start-menu.png)
 
-| Volume | Gadgets |
-| --- | --- |
-| ![Volume control](images/desktop-volume.png) | ![Aero7 gadgets](images/desktop-gadgets.png) |
+Start exposes search and familiar places. This retained test profile visibly
+has duplicate Internet Explorer entries and QTerminal wording. Those are
+recorded differences, not claimed to be the final factory Start layout.
 
-| Lock screen | Authentication prompt |
-| --- | --- |
-| ![Aero7 lock screen](images/desktop-lock-screen.png) | ![Aero7 authentication prompt](images/desktop-uac.png) |
+## Control Panel
 
-## Applications
+[![Control Panel category view](images/beta2-1080p/control-panel-home.png)](images/beta2-1080p/control-panel-home.png)
 
-| File Explorer | Photo Viewer |
-| --- | --- |
-| ![File Explorer](images/app-file-explorer.png) | ![Photo Viewer](images/app-photo-viewer.png) |
+Category view groups common settings. Read the
+[Control Panel guide](https://github.com/aero7-open-project/aero7-control-panel-/wiki/Control-Panel-Guide)
+for the behavior of each route.
 
-| Control Panel | Device Manager |
-| --- | --- |
-| ![Control Panel](images/app-control-panel.png) | ![Device Manager](images/app-device-manager.png) |
+[![All Control Panel Items in five columns](images/beta2-1080p/control-panel-all-items.png)](images/beta2-1080p/control-panel-all-items.png)
 
-| Command Prompt | Task Manager |
-| --- | --- |
-| ![Command Prompt](images/app-command-prompt.png) | ![Task Manager](images/app-task-manager.png) |
+The 45 public applet names are arranged in five columns. The screenshot
+records the installed icon mappings, including repeated generic icons; it is
+not a claim of pixel-perfect Windows icon parity. The
+[applet matrix](https://github.com/aero7-open-project/aero7-control-panel-/wiki/Applet-Reference)
+explains real Linux equivalents and unavailable features.
 
-| Media Player | Notepad |
-| --- | --- |
-| ![Media Player](images/app-media-player.png) | ![Notepad](images/app-notepad.png) |
+[![Screen Resolution showing the actual 1920×1080 mode](images/beta2-1080p/screen-resolution.png)](images/beta2-1080p/screen-resolution.png)
 
-| Calculator | Paint |
-| --- | --- |
-| ![Calculator](images/app-calculator.png) | ![Paint](images/app-paint.png) |
+The mode shown is the VM's actual KScreen mode at scale 1, not an image resized
+after capture. This single-output view does not verify physical hotplug or
+mirroring.
 
-| Archive Manager | System Information |
-| --- | --- |
-| ![Archive Manager](images/app-archive-manager.png) | ![Aero7 System Information](images/app-system-information.png) |
+[![Turn Aero7 features on or off and real feature states](images/beta2-1080p/optional-features.png)](images/beta2-1080p/optional-features.png)
 
-## Setup
+The feature manager shows installed, partial, hardware-dependent, and
+unavailable states. This older VM lacks the verified Programs Center cache,
+so Programs Center Beta is shown as unavailable. This screenshot does **not**
+demonstrate a successful offline enable/remove transaction.
 
-The complete ordered setup sequences are kept on their dedicated pages:
+## File Explorer
 
-- [Installer Guide](Installer-Guide.md) — every installer page from language
-  selection through restart;
-- [First Boot and OOBE](First-Boot-and-OOBE.md) — every first-boot page through
-  the desktop handoff.
+[![Computer integrated into File Explorer](images/beta2-1080p/explorer-computer.png)](images/beta2-1080p/explorer-computer.png)
 
-The Snipping Tool uses a background region-selection overlay and copies the
-result directly to the clipboard, so it does not have a persistent application
-window to include here.
+Computer uses live capacity/free-space information and filters implementation
+mounts. The captured build still clips part of the lower hardware-summary
+line; this remains a visual issue, not a polished final-result claim.
+
+[![Libraries in the existing test profile](images/beta2-1080p/explorer-libraries.png)](images/beta2-1080p/explorer-libraries.png)
+
+Libraries are shown in Details view. **New Library** was already in this
+profile and is not an extra factory Library. The standard definitions are
+Documents, Music, Pictures, and Videos.
+
+[![Documents Library Properties](images/beta2-1080p/library-properties.png)](images/beta2-1080p/library-properties.png)
+
+Library Properties exposes the included real folder, save location,
+optimization type, navigation visibility, defaults, and Apply/Cancel controls.
+See the [Explorer everyday guide](https://github.com/aero7-open-project/aero7-file-explorer/wiki/Everyday-Tasks)
+before changing or deleting Library contents.
+
+## Gadgets
+
+[![Native Desktop Gadget Gallery](images/beta2-1080p/gadget-gallery.png)](images/beta2-1080p/gadget-gallery.png)
+
+The native gallery's first page contains eight built-ins; Media Center is on
+the second page. This older package has text clipping in some thumbnail
+artwork. The gallery thumbnails are not live weather or financial evidence.
+Read the [nine-gadget guide](https://github.com/aero7-open-project/aero7-desktop/wiki/Desktop-Gadgets)
+for real data sources, settings, network needs, and limitations.
+
+## Locking and login
+
+[![Aero7 lock screen with full branding](images/beta2-1080p/lock-screen.png)](images/beta2-1080p/lock-screen.png)
+
+This capture shows the complete logo at 1080p and an existing locked session.
+Unlocking resumes that session; it does not change desktop environments.
+
+[![Aero7 SDDM login screen](images/beta2-1080p/login-screen.png)](images/beta2-1080p/login-screen.png)
+
+The installed Aero7 SDDM theme was selected explicitly in this test VM. Its
+logo is fully visible. The saved account's greeter display-name area is blank
+in this capture and still needs investigation; it is not edited out.
+
+[![Login session selection and on-screen keyboard entry](images/beta2-1080p/login-session-menu.png)](images/beta2-1080p/login-session-menu.png)
+
+The lower-left menu shows Aero7, Safe Mode, AeroThemePlasma, and Plasma sessions
+plus the on-screen keyboard. It is not the full Windows pre-login Ease of
+Access checkbox sheet.
+
+[![On-screen keyboard at the Aero7 login screen](images/beta2-1080p/login-keyboard.png)](images/beta2-1080p/login-keyboard.png)
+
+This view documents the available keyboard UI; it does not certify every
+layout, assistive technology, or authentication failure path.

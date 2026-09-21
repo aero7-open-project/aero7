@@ -1,112 +1,169 @@
-# Aero7 Beta 2 release candidate notes
+# Aero7 Beta 2 — release notes draft
 
-## Publication status
+Updated 21 September 2026. **Not approved for publication or downloads.**
+Rebuilt online and offline test candidates have passed fresh-install acceptance.
+They remain internal candidates until the owner approves the final build and
+website publication; their filenames and hashes are not public release
+identifiers.
 
-The Beta 2 source, package definitions, documentation, and wiki content are
-prepared for public review. The online and offline ISO files are deliberately
-not part of this source publication. Beta 1 remains the current downloadable
-release until both Beta 2 images complete the remaining installation and
-graphical acceptance gates.
+The [website maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website copy,
+download-card requirements, feature explanations and announcement drafts.
+The [QA status record](BETA2-QA-STATUS.md) is the evidence index. Historical
+candidate results must not be presented as tests of a later image.
 
-## Planned media
+## Planned installation images
 
-Beta 2 is prepared as two installation images built from the same guarded
-installer and pinned package set:
+- **Offline ISO — recommended.** Includes the installation package dependency
+  closure and a checksum-pinned local repository. Installation works without
+  internet and avoids mirror/download delays. Actual duration still depends on
+  the computer and storage device.
+- **Online ISO.** Smaller download; retrieves the distribution dependencies
+  during installation and requires a stable connection. Corrected Aero7
+  components remain pinned by the candidate manifest.
 
-- **Offline ISO — recommended.** Embeds the complete package dependency closure
-  and a checksum-pinned local pacman repository. It installs without internet
-  and avoids mirror/download delays on slower hardware.
-- **Online ISO.** Smaller download that retrieves the current Arch and Aero7
-  packages during installation. It requires a stable internet connection for
-  the complete package phase.
-
-Both variants retain the normal signed repositories for updates after setup.
+Both variants configure repositories for updates after installation. Final ISO
+files and checksums will be hosted on the Aero7 website, **not GitHub Releases**.
+Filenames, sizes, hashes and download URLs remain pending until build, acceptance
+and publication approval.
 
 ## Desktop and application changes
 
-- Ships the dedicated Aero7 Desktop Wayland session, with AeroThemePlasma
-  available as a fallback session.
-- Applies the factory taskbar layout and a clean desktop containing only the
-  Recycle Bin on a fresh account.
-- Keeps the corrected Aero7 Professional branding on SDDM and the Plasma lock
-  screen, including session selection and login accessibility controls.
-- Uses Windows-style `Meta+Shift+S` rectangular screenshots: selection closes,
-  the PNG is saved, image data is copied to the clipboard, and the notification
-  opens the saved file.
-- Removes user-facing desktop edit mode and aligns taskbar, Start, desktop, and
-  context-menu behavior with the Aero7 shell contract.
-- Embeds approved AeroThemePlasma icon-pack resources in Aero7 applications so
-  their identity does not change with the global icon theme.
-- Updates File Explorer naming, icon, Wayland identity, taskbar pinning, Recycle
-  Bin settings, Libraries, Computer, common dialogs, and Linux-mount filtering.
-- Includes the 45-item Control Panel layout and Linux-backed Screen Resolution,
-  networking, power, sound, users, updates, programs, and administration pages.
-- Renames the maintained device application and package to
-  `aero7-device-manager`, while preserving `linux-devmgmt` compatibility for
-  upgrades.
+- Dedicated Aero7 Desktop Wayland session, with AeroThemePlasma/Plasma fallback
+  sessions retained.
+- Factory taskbar layout and Recycle Bin-only production desktop. Diagnostic
+  test images additionally create the requested physical-install log folder.
+- Aero7 Professional login/lock-screen branding, session selection and supported
+  login accessibility controls. This is not the complete Windows 7 pre-login
+  accessibility dialog.
+- Windows-style Meta+Shift+S rectangular capture: the overlay closes, a PNG is
+  saved, image data is copied for paste, and the saved notification opens the
+  image. The editor is not opened automatically.
+- Desktop edit-mode suppression and Windows-inspired taskbar, Start, desktop
+  menus, pinned application identity and window handling.
+- Aero7 File Explorer based on the maintained Dolphin fork, with Libraries,
+  Computer, Recycle Bin, breadcrumbs, storage handling and common dialogs.
+  Raw Linux mounts are filtered where appropriate; this is not complete Windows
+  storage-management compatibility.
+- 45-app Control Panel layout, Windows-inspired Screen Resolution and Linux
+  backends for supported settings. Unavailable features are identified honestly.
+- Desktop Gadgets, including improved feed recovery, slideshow playback
+  preservation, display scaling and desktop/window-layer behavior.
+- Approved AeroThemePlasma icon-pack resources bundled with Aero7 applications.
+  No replacement icon pack or newly drawn application icons was introduced.
+- Device Manager naming uses `aero7-device-manager`, retaining
+  `linux-devmgmt` compatibility for upgrades.
+
+Recent candidate corrections include display Apply/rollback, automatic virtual
+output-layout repair, screenshot cancellation/recovery, Explorer dialog request
+isolation, delayed session shutdown handling, and generated-source cleanup.
+See the linked QA reports for the exact package version and tested scope.
+
+## Updates and firewall
+
+Update checks and installation are separate. Users can turn update checking on
+or off; installing updates requires approval. Unavailable repository information
+must not be presented as proof that the system is up to date.
+
+Fresh installations use firewalld. Existing UFW installations are preserved,
+not silently migrated. Unassigned networks default to Public; selecting a
+trusted network location does not itself create shares or enable remote login.
+The website handoff documents the implemented Home/Work/Public behavior and
+its testing boundaries.
 
 ## Optional features
 
-**Turn Aero7 features on or off** is searchable from Start and available from
-Control Panel's Programs category and Programs and Features page. It reports
-real package/service state and supports install, remove, repair, verification,
-retained-data explanations, and audited Polkit authorization.
+Open **Start → Turn Aero7 features on or off**, or **Control Panel → Programs →
+Programs and Features → Turn Aero7 features on or off**. Controls reflect
+package/service state, require administrator authorization and explain retained
+data and sign-out requirements.
 
-Programs Center Beta is optional and absent on a fresh installation. Both media
-variants retain its checksum-verified package locally, allowing it to be
-enabled, removed, and enabled again without internet. Other optional features
-and their backends are documented in the
-[Optional Features guide](../wiki/Optional-Features.md).
+- **Programs Center Beta** is optional and absent by default. Its bundled package
+  supports offline enabling/removal/re-enabling; downloading additional software
+  still requires the relevant repositories and connectivity.
+- **Encrypted Credential Vault** is optional and off by default. It adds generic
+  credential storage through KWallet, not custom cryptography. Enable the feature,
+  sign out and back in, then open Credential Manager. Use a non-empty password.
+  Removal retains encrypted wallet files; re-enabling requires the original
+  password. Account-specific overrides are preserved. No password recovery,
+  browser import, autofill, domain credentials or whole-disk encryption is
+  provided.
 
-## Installer and diagnostic changes
+The [Optional Features guide](../wiki/Optional-Features.md) and
+[website feature reference](BETA2-WEBSITE-MAKER-HANDOFF.md#5-optional-features-reference)
+explain every catalog entry. The catalog has 15 entries: 13 searchable optional
+features, one protected desktop core and one hidden discontinued CardSpace entry.
+Not every optional backend is bundled for offline installation.
 
-- Adds strict local-package manifests and dependency-closure validation.
-- Adds a complete offline package repository preparation path.
-- Improves online package failure reporting and safely stops without leaving a
-  partially configured target.
-- Creates `Aero7 Physical Install Logs` on the installed user's desktop with
-  installer, boot, hardware, package, service, display-manager, and session
-  diagnostics plus a SHA-256 manifest and privacy notice.
-- Keeps passwords, network connection profiles, personal documents, browser
-  data, and full core-memory images out of the collected folder.
+## Installer and diagnostics
 
-## Candidate component versions
+The candidate validates package identities, dependency closure and local
+checksums. Failures stop with a diagnostic instead of continuing through an
+unverified transaction. Diagnostic test images collect installation, boot,
+hardware, package, display-manager and session logs in **Aero7 Physical Install
+Logs** on the desktop.
 
-| Component | Candidate package |
+The collection avoids deliberate password, connection-profile, personal-file,
+browser-data and full-memory-dump collection. Logs can still contain identifying
+information such as device names, usernames and paths: review the privacy notice
+and collected files before sharing them.
+
+## Current local candidate packages
+
+These are local QA selections, not a published repository availability claim.
+Versions were read from all 18 package metadata records referenced by the
+[local checksum manifest](../config/beta2-local-packages.sha256).
+
+| Package | Selected version |
 | --- | --- |
-| Aero7 Desktop | `0.2.0-26` |
-| Aero7 File Explorer | `25.12.3-33` |
-| Aero7 Control Panel | `0.1.0-38` |
-| Aero7 Device Manager | `2.2.1.r1.g6d080f8-1` |
-| Aero7 Computer Management | `0.2.0.r20.g6d7fe79-1` |
-| Aero7 Gadgets | `3.0.0-3` |
-| Aero7 Internet Explorer compatibility | `0.1.0-5` |
-| AeroThemePlasma Desktop | `6.7.0_742.r9c2d850-38` |
-| Programs Center Beta | `0.1.0.r12.g0405a2e-1`, optional |
+| `aero7-desktop` | `0.2.0-33` |
+| `aero7-file-explorer` | `25.12.3-55` |
+| `linux-control-panel` | `0.1.0-55` |
+| `aero7-device-manager` | `2.2.1.r1.g6d080f8-1` |
+| `aero7-computer-management-git` | `0.2.0.r20.g6d7fe79-2` |
+| `aero7-gadgets` | `3.0.0-25` |
+| `aero7-kolourpaint` | `25.12.3-9` |
+| `aero7-internet-explorer` | `0.1.0-5` |
+| `aerothemeplasma-desktop-git` | `6.7.0_742.r9c2d850-65` |
+| `aerothemeplasma-icons-git` | `11.r96950b8-3` |
+| `aerothemeplasma-sounds-git` | `4.r55d2f5f-3` |
+| `spectacle` | `1:6.7.4-3` |
+| `plasma-workspace` | `6.7.4-3.2` |
+| `qt6-base` | `6.11.2-3.1` |
+| `uac-polkit-agent-git` | `6.7.0_816.rd8c2262-2` |
+| `kwin` | `6.7.4-7.3` |
+| `aero7-programs-center-git` (optional) | `0.1.0.r12.g0405a2e-3` |
+| `aero7-credential-vault` (optional) | `0.1.0-7` |
 
-## Release gates
+## Acceptance and release gates
 
-Source checks, package-manifest checks, optional-feature helper tests, and
-installer unit tests are required before the source push. The main Aero7 source
-gate, Aero7 Desktop CI, and the 23-package recipe-manifest validation are green
-for this source publication.
+The latest selected manifest passes 153 integration tests, static checks,
+18 online archive checks, 53 offline archive checks and 35 offline repository
+identity/checksum checks. These are local results, not new GitHub CI results.
 
-The rebuilt File Explorer fork passes 13 of its 16 CTest executables, including
-the Aero7 identity and icon-independence checks. Its remaining upstream-derived
-search-popup, extended-attribute fallback, and accessibility test failures must
-be resolved or formally dispositioned before the ISO release gate is closed.
+Fresh installations from both rebuilt 21 September test candidates verify the
+selected stack after OOBE and password login. Both collector manifests verify
+144 of 144 files with zero failed user/system units and no collected coredumps.
+The detailed report also covers SDDM accessibility/session selection, lock/login
+branding, Explorer identity, optional package install/removal and the complete
+screenshot save/clipboard/notification path. Vault 7 retains its separate native
+overlap, retained-content and isolated backend evidence.
 
-The following remain release blockers for the ISO files:
+The source and rebuilt-candidate bug-test pass is complete. Before final release:
 
-- fresh installation from the final online image;
-- fresh installation from the final offline image with networking unavailable;
-- reboot, OOBE, SDDM, lock-screen, and second-login verification;
-- taskbar, Start, File Explorer, Control Panel, screenshot, optional-feature,
-  multi-monitor, and recovery-path acceptance;
-- final image verification, sizes, SHA-256 checksums, and release-page upload.
+1. Obtain approval for the final build, then build both variants from the
+   approved sources/packages without bypassing dependency or signature checks.
+2. Validate each exact image and repeat fresh online and disconnected offline
+   installation checks against those final artifacts.
+3. Repeat first-run setup, reboot/login/lock, optional features, taskbar/Start,
+   Explorer, Control Panel, screenshot and gadget checks on that final media.
+4. Record actual multi-monitor/recovery coverage, hardware limitations,
+   signing/repository promotion, final 1920×1080 screenshots, sizes and hashes.
+5. Obtain publication approval and verify the website-hosted files and links
+   before enabling downloads or announcing availability.
 
-No Beta 2 ISO should be announced as available until these checks are recorded.
+Physical GPU/hotplug behavior, alternative vault configurations and other
+unverified backends are not advertised as tested. Full Windows 7 parity and
+universal bug-free operation are not claimed.
 
-The signed package builder must produce and validate these exact recipe versions
-before the final online and offline ISO manifests are refreshed. Older packages
-in a developer's local test cache are not release artifacts.
+The [superseded notes](release-evidence/2026-09-13-superseded-release-notes.md)
+preserve the older version table and historical blockers for reference only.

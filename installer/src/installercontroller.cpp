@@ -1,6 +1,7 @@
 #include "installercontroller.h"
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -11,6 +12,8 @@
 #include <QRegularExpression>
 #include <QSaveFile>
 #include <QStandardPaths>
+#include <QLocale>
+#include <QTimeZone>
 
 namespace {
 const QStringList kInstallStages = {
@@ -59,6 +62,43 @@ InstallerController::InstallerController(bool oobeMode, bool demoMode,
 }
 
 QString InstallerController::screenId() const { return m_flow.screenId(); }
+QVariantMap InstallerController::clockPreview(qint64 epochMilliseconds,
+                                              const QString &zoneId) const
+{
+    const QTimeZone zone(zoneId.toUtf8());
+    if (!zone.isValid())
+        return {{QStringLiteral("valid"), false}};
+    const QDateTime instant = QDateTime::fromMSecsSinceEpoch(epochMilliseconds, zone);
+    const QDate date = instant.date();
+    const QTime time = instant.time();
+    const QLocale regionalLocale(m_timeFormat == QStringLiteral("Nederlands (Nederland)")
+        ? QStringLiteral("nl_NL") : QStringLiteral("en_US"));
+    // Use the selected regional convention, not the live session's locale.
+    // Add seconds to the short format: LongFormat on a QTime can append the
+    // host's current timezone name, which is wrong for the selected zone/date.
+    QString timePattern = regionalLocale.timeFormat(QLocale::ShortFormat);
+    timePattern.replace(QStringLiteral("mm"), QStringLiteral("mm:ss"));
+    const int weekStart = regionalLocale.firstDayOfWeek();
+    QStringList weekdayNames;
+    for (int offset = 0; offset < 7; ++offset)
+        weekdayNames.append(regionalLocale.standaloneDayName((weekStart - 1 + offset) % 7 + 1, QLocale::ShortFormat));
+    return {
+        {QStringLiteral("valid"), true},
+        {QStringLiteral("year"), date.year()},
+        {QStringLiteral("month"), date.month()},
+        {QStringLiteral("day"), date.day()},
+        {QStringLiteral("firstWeekday"), (QDate(date.year(), date.month(), 1).dayOfWeek() - weekStart + 7) % 7},
+        {QStringLiteral("weekdayNames"), weekdayNames},
+        {QStringLiteral("daysInMonth"), date.daysInMonth()},
+        {QStringLiteral("monthTitle"), regionalLocale.toString(date, QStringLiteral("MMMM yyyy"))},
+        {QStringLiteral("hour"), time.hour()},
+        {QStringLiteral("minute"), time.minute()},
+        {QStringLiteral("second"), time.second()},
+        {QStringLiteral("timeText"), regionalLocale.toString(time, timePattern)},
+        {QStringLiteral("abbreviation"), instant.timeZoneAbbreviation()},
+        {QStringLiteral("offsetSeconds"), instant.offsetFromUtc()},
+    };
+}
 bool InstallerController::oobeMode() const { return m_oobeMode; }
 bool InstallerController::demoMode() const { return m_demoMode; }
 bool InstallerController::canGoBack() const
@@ -805,6 +845,13 @@ void InstallerController::advanceDemoProgress()
     enterCurrentScreen();
 }
 
+QVariantMap InstallerController::installationPreferences() const
+{
+    return {{QStringLiteral("language"), m_language},
+            {QStringLiteral("time_format"), m_timeFormat},
+            {QStringLiteral("keyboard"), m_keyboard}};
+}
+
 QString InstallerController::writeInstallPlan() const
 {
     QDir().mkpath(QStringLiteral("/run/aero7"));
@@ -819,8 +866,9 @@ QString InstallerController::writeInstallPlan() const
         kind == QStringLiteral("disk")
             ? QStringLiteral("uefi-gpt-esp-ext4")
             : QStringLiteral("uefi-gpt-preserve-esp-ext4"));
-    object.insert(QStringLiteral("language"), m_language);
-    object.insert(QStringLiteral("keyboard"), m_keyboard);
+    const QVariantMap preferences = installationPreferences();
+    for (auto it = preferences.cbegin(); it != preferences.cend(); ++it)
+        object.insert(it.key(), QJsonValue::fromVariant(it.value()));
     file.write(QJsonDocument(object).toJson(QJsonDocument::Indented));
     if (!file.commit())
         return {};

@@ -1,7 +1,6 @@
 import QtQuick
-import ".."
 
-Item {
+InstallerScreen {
     id: root
     property alias title: heading.text
     property alias description: description.text
@@ -12,18 +11,20 @@ Item {
     property bool nextEnabled: true
     property bool showNext: true
     property bool showFooter: true
-    property bool showProgressFooter: !controller.oobeMode
+    property bool showProgressFooter: !root.controller.oobeMode
     property int progressStep: 1
-    property int panelWidth: controller.oobeMode ? 760 : 790
+    property int panelWidth: root.controller.oobeMode ? 760 : 790
     property int panelHeight: 560
-    property string captionMode: controller.oobeMode ? "none" : "close"
+    property string captionMode: root.controller.oobeMode ? "none" : "close"
 
     GlassWindow {
         anchors.fill: parent
         panelWidth: root.panelWidth
         panelHeight: root.panelHeight
-        title: controller.oobeMode ? qsTr("Set Up Aero7") : qsTr("Install Aero7")
+        title: root.controller.oobeMode ? qsTr("Set Up Aero7") : qsTr("Install Aero7")
         showBack: root.showBack
+        backEnabled: root.controller.canGoBack
+        onBackRequested: root.controller.goBack()
         captionMode: root.captionMode
 
         Text {
@@ -77,13 +78,14 @@ Item {
             border.color: "#d1d1d1"
 
             AeroButton {
+                objectName: "setupNextButton"
                 visible: root.showNext
                 anchors.right: parent.right
                 anchors.rightMargin: 18
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.nextText
-                enabled: root.nextEnabled && !controller.busy
-                onClicked: controller.goNext()
+                enabled: root.nextEnabled && !root.controller.busy
+                onClicked: root.controller.goNext()
             }
         }
     }

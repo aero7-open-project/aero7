@@ -1,0 +1,68 @@
+From: Aero7 Project
+Subject: [PATCH] Require an explicit choice before abandoning Wayland applications
+
+An application can reject a close request while the compositor cannot observe
+the application's Cancel button. A timer must not turn that outstanding request
+into permission to destroy unsaved work. Keep the existing persistent notification,
+Cancel Logout and Log Out Anyway actions, and automatic completion when all
+applications have closed. Remove only the unconditional two-minute force path.
+
+--- a/src/sm.cpp
++++ b/src/sm.cpp
+@@ -387,16 +387,17 @@ bool SessionManager::closeWaylandWindows()
+             connect(toplevelWindow, &XdgToplevelWindow::closed, m_closingWindowsGuard.get(), [this, toplevelWindow, dbusMessage] {
+                 m_pendingWindows.removeOne(toplevelWindow);
+                 if (m_pendingWindows.empty()) {
++                    // Disconnect cancellation before programmatic notification
++                    // cleanup, which may emit closed() synchronously.
++                    m_closeTimer.stop();
++                    m_closingWindowsGuard.reset();
+ #if KWIN_BUILD_NOTIFICATIONS
+                     if (m_cancelNotification) {
+                         m_cancelNotification->close();
+                         m_cancelNotification = nullptr;
+                     }
+ #endif
+-                    m_closeTimer.stop();
+-                    m_logoutAnywayTimer.stop();
+-                    m_closingWindowsGuard.reset();
+                     QDBusConnection::sessionBus().send(dbusMessage.createReply(true));
+                 } else {
+                     updateWaylandCancelNotification();
+                 }
+@@ -439,13 +440,9 @@ bool SessionManager::closeWaylandWindows()
+ #endif
+     });
+
+-    m_logoutAnywayTimer.start(std::chrono::minutes(2));
+-    m_logoutAnywayTimer.setSingleShot(true);
+-    connect(&m_logoutAnywayTimer, &QTimer::timeout, m_closingWindowsGuard.get(), [this, dbusMessage] {
+-        qCInfo(KWIN_CORE) << "Not all windows have closed, logging out anyway";
+-        m_closingWindowsGuard.reset();
+-        QDBusConnection::sessionBus().send(dbusMessage.createReply(true));
+-    });
++    // A refused close request may represent unsaved work. Only the explicit
++    // Log Out Anyway action may abandon pending windows; elapsed time is not
++    // consent. Otherwise wait for the applications to close or logout to cancel.
+     return true;
+ }
+
+@@ -465,7 +462,7 @@ void SessionManager::updateWaylandCancelNotification()
+     apps.removeDuplicates();
+
+     qCDebug(KWIN_CORE) << "Not closed windows" << apps;
+-    m_cancelNotification->setText(i18n("The following applications did not close:\n%1\nLogging out anyway in 2 minutes.", apps.join('\n')));
++    m_cancelNotification->setText(i18n("The following applications did not close:\n%1\nSave your work and close these applications, or cancel logout. Log Out Anyway may discard unsaved work.", apps.join('\n')));
+ #endif
+ }
+
+--- a/src/sm.h
++++ b/src/sm.h
+@@ -86,7 +86,6 @@ private:
+     QList<SessionInfo> session;
+     QList<XdgToplevelWindow *> m_pendingWindows;
+     QTimer m_closeTimer;
+-    QTimer m_logoutAnywayTimer;
+     std::unique_ptr<QObject> m_closingWindowsGuard;
+     QPointer<KNotification> m_cancelNotification;
+ };

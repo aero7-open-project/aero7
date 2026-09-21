@@ -1,0 +1,98 @@
+--- a/src/layershellv1window.h
++++ b/src/layershellv1window.h
+@@ -35,6 +35,7 @@
+     LogicalOutput *desiredOutput() const;
+
+     WindowType windowType() const override;
++    bool belongsToDesktop() const override;
+     bool isPlaceable() const override;
+     bool isCloseable() const override;
+     bool isMovable() const override;
+--- a/src/layershellv1window.cpp
++++ b/src/layershellv1window.cpp
+@@ -105,6 +105,16 @@
+     return m_windowType;
+ }
+
++bool LayerShellV1Window::belongsToDesktop() const
++{
++    // These are desktop widgets, not wallpaper windows or panels. Preserve
++    // their normal focus/stacking rules while excluding them from Show Desktop
++    // hiding. The transparent drag preview must follow the same visibility rule.
++    const QString scope = m_shellSurface->scope();
++    return scope == QLatin1String("aero7-desktop-gadgets")
++        || scope == QLatin1String("aero7-gadget-drag-preview");
++}
++
+ bool LayerShellV1Window::isPlaceable() const
+ {
+     return false;
+--- a/autotests/integration/layershellv1window_test.cpp
++++ b/autotests/integration/layershellv1window_test.cpp
+@@ -41,6 +41,8 @@
+     void testMargins();
+     void testLayer_data();
+     void testLayer();
++    void testDesktopGadgetVisibility_data();
++    void testDesktopGadgetVisibility();
+     void testChangeLayer();
+     void testPlacementArea_data();
+     void testPlacementArea();
+@@ -83,6 +85,7 @@
+
+ void LayerShellV1WindowTest::cleanup()
+ {
++    workspace()->setShowingDesktop(false, false);
+     Test::destroyWaylandConnection();
+ }
+
+@@ -299,6 +302,49 @@
+     shellSurface.reset();
+     QVERIFY(Test::waitForWindowClosed(window));
+ }
++
++void LayerShellV1WindowTest::testDesktopGadgetVisibility_data()
++{
++    QTest::addColumn<QString>("scope");
++    QTest::addColumn<bool>("desktopComponent");
++    QTest::newRow("gadget") << QStringLiteral("aero7-desktop-gadgets") << true;
++    QTest::newRow("drag-preview") << QStringLiteral("aero7-gadget-drag-preview") << true;
++    QTest::newRow("ordinary-layer-client") << QStringLiteral("test") << false;
++    QTest::newRow("similar-name-is-not-exempt") << QStringLiteral("aero7-desktop-gadgets-other") << false;
++}
++
++void LayerShellV1WindowTest::testDesktopGadgetVisibility()
++{
++    QFETCH(QString, scope);
++    QFETCH(bool, desktopComponent);
++    std::unique_ptr<KWayland::Client::Surface> surface(Test::createSurface());
++    std::unique_ptr<Test::LayerSurfaceV1> shellSurface(Test::createLayerSurfaceV1(surface.get(), scope));
++    shellSurface->set_layer(Test::LayerShellV1::layer_bottom);
++    shellSurface->set_size(150, 138);
++    surface->commit(KWayland::Client::Surface::CommitFlag::None);
++    QSignalSpy configured(shellSurface.get(), &Test::LayerSurfaceV1::configureRequested);
++    QVERIFY(configured.wait());
++    shellSurface->ack_configure(configured.last().at(0).toUInt());
++    Window *window = Test::renderAndWaitForShown(surface.get(), configured.last().at(1).toSize(), Qt::red);
++    QVERIFY(window);
++    // A gadget belongs to the desktop but is neither its wallpaper/focus target
++    // nor a dock reserving screen space. It remains out of the window switcher.
++    QCOMPARE(window->belongsToDesktop(), desktopComponent);
++    QVERIFY(!window->isDesktop());
++    QVERIFY(!window->isDock());
++    QVERIFY(window->skipSwitcher());
++    QCOMPARE(window->layer(), BelowLayer);
++    for (int cycle = 0; cycle < 2; ++cycle) {
++        workspace()->setShowingDesktop(true, false);
++        QCOMPARE(window->isHiddenByShowDesktop(), !desktopComponent);
++        QCOMPARE(window->isShown(), desktopComponent);
++        workspace()->setShowingDesktop(false, false);
++        QVERIFY(!window->isHiddenByShowDesktop());
++        QVERIFY(window->isShown());
++    }
++    shellSurface.reset();
++    QVERIFY(Test::waitForWindowClosed(window));
++}
+
+ void LayerShellV1WindowTest::testChangeLayer()
+ {

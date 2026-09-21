@@ -3,8 +3,9 @@ import QtQuick
 import "../components"
 
 SetupPage {
+    id: root
     anchors.fill: parent
-    title: qsTr("Help protect your computer and improve Aero7 automatically")
+    title: qsTr("Choose how Aero7 checks for updates")
     description: ""
     showBack: true
     showNext: false
@@ -19,56 +20,65 @@ SetupPage {
 
             Repeater {
                 model: [
-                    { key: "recommended", icon: "shield-recommended.svg", title: qsTr("Use recommended settings"), detail: qsTr("Install important and recommended updates, and check online for solutions to problems.") },
-                    { key: "notify", icon: "shield-notify.svg", title: qsTr("Install important updates only"), detail: qsTr("Install security and other important updates, then notify me about the rest.") },
-                    { key: "manual", icon: "shield-manual.svg", title: qsTr("Ask me later"), detail: qsTr("Until you decide, your computer might be more vulnerable to security threats.") }
+                    { key: "recommended", icon: "shield-recommended.svg", title: qsTr("Check automatically and notify me (recommended)"), detail: qsTr("Check daily while signed in. You review and approve updates before anything is installed.") },
+                    { key: "manual", icon: "shield-manual.svg", title: qsTr("Turn automatic checks off"), detail: qsTr("Check manually in Control Panel. You can turn automatic checks on again at any time.") }
                 ]
 
                 AeroChoice {
                     required property var modelData
                     width: parent.width
                     compact: true
-                    selected: controller.updatePreference === modelData.key
+                    selected: root.controller.updatePreference === modelData.key
                     iconSource: "qrc:/assets/icons/" + modelData.icon
                     title: modelData.title
                     detail: modelData.detail
                     onChosen: {
-                        controller.updatePreference = modelData.key
-                        controller.goNext()
+                        root.controller.updatePreference = modelData.key
+                        root.controller.goNext()
                     }
                 }
             }
 
-            Text {
+            AeroHelpLink {
+                objectName: "updateOptionsHelp"
                 anchors.left: parent.left
                 anchors.leftMargin: 68
                 anchors.topMargin: 4
                 text: qsTr("Learn more about each option")
-                color: "#0067b1"
-                font.pixelSize: 12
-                font.underline: updateHelp.containsMouse
-                MouseArea { id: updateHelp; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor }
+                onClicked: updateHelp.open()
             }
 
             Text {
                 anchors.left: parent.left
                 anchors.leftMargin: 68
                 width: parent.width - 90
-                text: qsTr("When you use recommended settings or install important updates only, some system information may be used to check for solutions and improve Aero7. You can change these settings later in System Settings.")
+                text: qsTr("Updates always require your approval before installation. Change automatic checking in Control Panel > Software Update > Change settings. Setup keeps diagnostic logs locally; review them before sharing.")
                 color: "#35424b"
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
             }
 
-            Text {
+            AeroHelpLink {
+                objectName: "setupPrivacyHelp"
                 anchors.left: parent.left
                 anchors.leftMargin: 68
-                text: qsTr("Read the privacy statement")
-                color: "#0067b1"
-                font.pixelSize: 12
-                font.underline: privacyHelp.containsMouse
-                MouseArea { id: privacyHelp; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor }
+                text: qsTr("Read privacy information")
+                onClicked: privacyHelp.open()
             }
         }
     ]
+
+    SetupHelpDialog {
+        id: updateHelp
+        objectName: "updateOptionsDialog"
+        title: qsTr("About update settings")
+        message: qsTr("Automatic checks contact package repositories while you are signed in and notify you when updates are available. They never install packages or upload diagnostic logs.\n\nOpen Control Panel > Software Update to review and approve a full repository upgrade. Security-only and partial repository upgrades are not supported.\n\nTurn automatic checks on or off in Change settings. Manual checking remains available when automatic checks are off.")
+    }
+
+    SetupHelpDialog {
+        id: privacyHelp
+        objectName: "setupPrivacyDialog"
+        title: qsTr("Setup privacy information")
+        message: qsTr("Setup and the diagnostic collector write logs locally. The collector does not upload the folder automatically.\n\nDiagnostic logs can include your username, computer name, hardware identifiers, network addresses and file paths. Review the Aero7 Physical Install Logs folder before sharing it; do not post the complete folder publicly without checking its contents.\n\nOnline installation contacts package repositories to download software. Applications and online services you use after installation have their own network activity and privacy practices.")
+    }
 }

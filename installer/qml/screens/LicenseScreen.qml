@@ -3,11 +3,12 @@ import QtQuick.Controls
 import "../components"
 
 SetupPage {
+    id: root
     anchors.fill: parent
     title: qsTr("Please read the license terms")
     description: ""
     showBack: true
-    nextEnabled: controller.licenseAccepted
+    nextEnabled: root.controller.licenseAccepted
 
     body: [
         Rectangle {
@@ -38,8 +39,8 @@ SetupPage {
             anchors.topMargin: 316
             width: parent.width
             text: qsTr("I accept the Aero7 and third-party license terms")
-            checked: controller.licenseAccepted
-            onToggled: controller.licenseAccepted = checked
+            checked: root.controller.licenseAccepted
+            onToggled: root.controller.licenseAccepted = checked
         }
     ]
 }

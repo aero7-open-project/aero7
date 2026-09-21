@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Iterator
 
 from aero7_shell_adapter import configure_and_install
+from firewall_defaults import prepare_fresh_firewall, activate_selected_firewall, apply_network_location
 
 
 MIN_DISK_BYTES = 16 * 1024**3
@@ -456,7 +457,15 @@ def storage_targets(disk_node: dict[str, Any], disk_index: int) -> list[dict[str
 def candidate_disks(nodes: list[dict[str, Any]], excluded_sources: set[str] | None = None) -> list[dict[str, Any]]:
     excluded = {str(Path(path).resolve()) for path in (excluded_sources or set())}
     candidates: list[dict[str, Any]] = []
-    for disk_index, node in enumerate(nodes):
+    # Number physical disk paths, not lsblk's loop/optical/zram rows. Keep
+    # numbering independent of eligibility so mounting another disk does not
+    # renumber the remaining devices or their partition/free-space rows.
+    physical_nodes = (
+        node for node in nodes
+        if node.get("type") == "disk"
+        and supported_disk_path(str(node.get("path") or ""))
+    )
+    for disk_index, node in enumerate(physical_nodes):
         path = str(node.get("path") or "")
         if node.get("type") != "disk" or not path.startswith("/dev/"):
             continue
@@ -475,12 +484,13 @@ def candidate_disks(nodes: list[dict[str, Any]], excluded_sources: set[str] | No
         if device_has_mounts(node):
             continue
         item = fingerprint(node)
+        display_model = str(node.get("model") or "").strip() or path
         item.update(
             {
                 "target_kind": "disk",
                 "disk_device": path,
                 "disk_index": disk_index,
-                "display_name": f"Disk {disk_index}: {item['model']}",
+                "display_name": f"Disk {disk_index}: {display_model}",
                 "free_space": item["size"],
                 "type": "",
                 "targets": storage_targets(node, disk_index),
@@ -779,6 +789,10 @@ class CommandRunner:
             isinstance(code, int) and code >= 0 for code in ok_returncodes
         ):
             raise RuntimeError("invalid accepted return codes")
+        # Package hooks run before the target's selected locale is generated.
+        # Use glibc's built-in UTF-8 locale for command output and progress
+        # parsing, without changing the UI process or installed user's locale.
+        command_environment = dict(os.environ, LANG="C.UTF-8", LC_ALL="C.UTF-8", LANGUAGE="C")
         with self.log_path.open("a", encoding="utf-8") as log:
             log.write("+ " + " ".join(repr(item) for item in argv) + "\n")
             if self._heartbeat is None:
@@ -789,6 +803,7 @@ class CommandRunner:
                     stdout=log,
                     stderr=subprocess.STDOUT,
                     check=False,
+                    env=command_environment,
                 )
                 returncode = completed.returncode
             else:
@@ -798,6 +813,7 @@ class CommandRunner:
                     text=True,
                     stdout=log,
                     stderr=subprocess.STDOUT,
+                    env=command_environment,
                 )
                 if input_text is not None and process.stdin is not None:
                     try:
@@ -1254,7 +1270,15 @@ def pacstrap_arguments(
     # Keep pacstrap's documented default: copy the live environment's fully
     # initialized signing keyring into the target before package installation.
     if offline_packages is not None:
-        return ["pacstrap", "-U", str(target), *(str(path) for path in offline_packages)]
+        # The offline manifest is alphabetic, unlike the online base-first
+        # transaction. Install pacman (and its resolved dependencies) before
+        # unrelated packages whose install scripts invoke its vercmp utility.
+        # Preserve every verified archive and the relative order of the rest.
+        ordered = sorted(
+            offline_packages,
+            key=lambda path: not bool(re.match(r"^pacman-[0-9]", path.name)),
+        )
+        return ["pacstrap", "-U", str(target), *(str(path) for path in ordered)]
     return ["pacstrap", str(target), *packages]
 
 
@@ -1348,6 +1372,7 @@ def copy_payload(target: Path) -> None:
         Path("/usr/bin/aero7-installer"): target / "usr/bin/aero7-installer",
         Path("/usr/lib/aero7/aero7-install-backend"): target / "usr/lib/aero7/aero7-install-backend",
         Path("/usr/lib/aero7/aero7_shell_adapter.py"): target / "usr/lib/aero7/aero7_shell_adapter.py",
+        Path("/usr/lib/aero7/firewall_defaults.py"): target / "usr/lib/aero7/firewall_defaults.py",
         Path("/usr/lib/aero7/aero7-kiosk-launch"): target / "usr/lib/aero7/aero7-kiosk-launch",
         DIAGNOSTIC_COLLECTOR: target / DIAGNOSTIC_COLLECTOR.relative_to("/"),
         Path("/usr/lib/systemd/system/aero7-diagnostic-collect.service"): target / "usr/lib/systemd/system/aero7-diagnostic-collect.service",
@@ -1511,7 +1536,10 @@ def brand_plasma_lock_screen(
         if branding_marker not in auth_contents:
             continue
 
-        shutil.copy2(branding_source, branding)
+        # Preserve package metadata when the corrected artwork is already
+        # installed; identical content needs no installer-owned rewrite.
+        if branding.read_bytes() != branding_source.read_bytes():
+            shutil.copy2(branding_source, branding)
         if "        fillMode: Image.PreserveAspectFit\n" not in auth_contents:
             auth_contents = auth_contents.replace(
                 branding_marker,
@@ -1529,18 +1557,29 @@ def brand_plasma_lock_screen(
 
         anchors.fill: parent
 """
-        if label_marker not in button_contents:
-            raise RuntimeError(
-                f"AeroShell lock-screen button layout changed unexpectedly: {button_qml}"
-            )
-        if "        color: \"white\"\n" not in button_contents:
-            button_contents = button_contents.replace(
-                label_marker,
-                """        id: btnLabel
+        branded_label_marker = """        id: btnLabel
         color: "white"
 
         anchors.fill: parent
-""",
+"""
+        # Packaged QML can place blank lines on either side of the color.
+        # Recognize the precise label/color/anchor sequence without rewriting
+        # semantically correct package files just to normalize whitespace.
+        already_branded = re.search(
+            r'^        id: btnLabel\n(?:[ \t]*\n)*'
+            r'        color: "white"\n(?:[ \t]*\n)*'
+            r'        anchors\.fill: parent\n',
+            button_contents,
+            re.MULTILINE,
+        ) is not None
+        if label_marker not in button_contents and not already_branded:
+            raise RuntimeError(
+                f"AeroShell lock-screen button layout changed unexpectedly: {button_qml}"
+            )
+        if not already_branded:
+            button_contents = button_contents.replace(
+                label_marker,
+                branded_label_marker,
                 1,
             )
             button_qml.write_text(button_contents, encoding="utf-8")
@@ -1697,11 +1736,16 @@ def preserve_live_install_logs(
     return preserved
 
 
+def esp_mount_arguments(device: str, mountpoint: Path) -> list[str]:
+    return ["mount", "-o", "fmask=0077,dmask=0077", device, str(mountpoint)]
+
+
 def configure_one_time_autologin(
     username: str,
     config_path: Path = FIRST_LOGIN_CONFIG,
     session_root: Path = Path("/usr/share/wayland-sessions"),
     systemd_root: Path = Path("/etc/systemd/system"),
+    state_path: Path = Path("/var/lib/sddm/state.conf"),
 ) -> str:
     """Prepare SDDM for the first desktop handoff only.
 
@@ -1732,6 +1776,19 @@ def configure_one_time_autologin(
         encoding="utf-8",
     )
     config_path.chmod(0o644)
+
+    # SDDM does not save the autologin session as the last interactive choice.
+    # Without this seed its alphabetically first entry is aero7-safe.desktop.
+    # Keep this separate from the temporary Autologin drop-in: subsequent
+    # logins require a password and can remember a deliberate session change.
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(
+        f"[Last]\nSession={session_root / session}\nUser={username}\n",
+        encoding="utf-8",
+    )
+    state_path.chmod(0o600)
+    if state_path == Path("/var/lib/sddm/state.conf"):
+        shutil.chown(state_path, user="sddm", group="sddm")
 
     systemd_root.mkdir(parents=True, exist_ok=True)
     cleanup_service = systemd_root / "aero7-first-login-cleanup.service"
@@ -1854,14 +1911,75 @@ def shell_image_mode_arguments(username: str) -> list[str]:
     for stage in (
         "20-system-update",
         "30-base-dependencies",
+        "40-plasma-wayland",
         "50-yay",
         "55-binary-repository",
         "60-aeroshell",
         "100-plymouth",
+        "110-fastfetch",
         "120-wine",
     ):
         arguments.extend(("--skip-stage", stage))
     return arguments
+
+
+def configure_image_core_services(runner: CommandRunner, root: Path = Path("/")) -> None:
+    """Replace the pinned stage's UFW-specific service setup, not its checks.
+
+    Image mode owns firewall selection. The pinned source remains unchanged;
+    use its actual Wayland policy function so the adapter cannot drift from it.
+    A missing service or a firewall activation failure must stop OOBE.
+    """
+    shell_root = root / SHELL_INSTALLER.parent.relative_to("/")
+    runner.run([
+        "bash", "-euc",
+        'AERO7_CONFIG_DIR="$1/config"; '
+        'aero7_warn() { printf "%s\\n" "$*" >&2; }; '
+        'source "$1/lib/packages.sh"; '
+        'aero7_validate_no_x11_packages_configured',
+        "aero7-image-wayland-policy", str(shell_root),
+    ])
+    for unit in ("NetworkManager.service", "sddm.service"):
+        runner.run(["systemctl", "enable", unit])
+        runner.run(["systemctl", "is-enabled", unit])
+    configure_oobe_firewall(runner, root)
+    marker = root / "etc/aero7/firewall-backend"
+    if marker.is_file() and marker.read_text(encoding="utf-8").strip() == "firewalld":
+        runner.run(["systemctl", "is-enabled", "firewalld.service"])
+        runner.run(["systemctl", "is-active", "firewalld.service"])
+    # This is first-run image setup, not an update/migration hook. Start the
+    # installed NTP client without waiting for a server: offline setup must
+    # finish and synchronization can begin when a network becomes available.
+    runner.run(["systemctl", "enable", "--now", "systemd-timesyncd.service"])
+    runner.run(["systemctl", "is-enabled", "systemd-timesyncd.service"])
+    runner.run(["systemctl", "is-active", "systemd-timesyncd.service"])
+
+
+def configure_image_fastfetch(username: str, runner: CommandRunner) -> None:
+    """Configure the already installed package without consulting a sync DB.
+
+    Offline installations intentionally have no network or populated pacman
+    sync database. The pinned Shell stage tries a repository lookup even when
+    fastfetch is installed, so image-mode owns this configuration-only step.
+    """
+    if not re.fullmatch(r"[a-z_][a-z0-9_-]{1,30}", username):
+        raise SafetyError("invalid username for Fastfetch defaults")
+    runner.run(["pacman", "-Q", "fastfetch"])
+    config = f"/home/{username}/.config/fastfetch"
+    source = SHELL_INSTALLER.parent / "assets/fastfetch"
+    # install -d assigns ownership only to its explicit directory operands,
+    # not intermediate parents. Shell's following user commands need a
+    # writable .config before light-default setup runs later in OOBE.
+    runner.run(["install", "-d", "-m", "0755", "-o", username,
+                "-g", username, f"/home/{username}/.config", config])
+    for filename in ("aero7.jsonc", "aero7-logo.txt"):
+        runner.run(["install", "-m", "0644", "-o", username, "-g", username,
+                    str(source / filename), f"{config}/{filename}"])
+    # Never overwrite a user's custom config, including a dangling symlink.
+    runner.run(["runuser", "--user", username, "--", "sh", "-c",
+                'if [ ! -e "$1/config.jsonc" ] && [ ! -L "$1/config.jsonc" ]; '
+                'then ln -s aero7.jsonc "$1/config.jsonc"; fi',
+                "aero7-fastfetch-defaults", config])
 
 
 def enforce_light_desktop_defaults(username: str, runner: CommandRunner) -> None:
@@ -1949,8 +2067,75 @@ def enforce_light_desktop_defaults(username: str, runner: CommandRunner) -> None
         )
 
 
+def install_preferences(plan: dict[str, Any]) -> dict[str, str]:
+    """Resolve only choices offered by setup, before any target disk changes."""
+    choices = {
+        "language": ("English", {"English": "en_US.UTF-8", "Nederlands": "nl_NL.UTF-8"}),
+        "time_format": ("English (United States)", {
+            "English (United States)": "en_US.UTF-8",
+            "Nederlands (Nederland)": "nl_NL.UTF-8",
+        }),
+        "keyboard": ("US", {"US": "us", "Dutch": "nl"}),
+    }
+    resolved = {}
+    for key, (default, mapping) in choices.items():
+        value = plan.get(key, default)
+        if not isinstance(value, str) or value not in mapping:
+            raise SafetyError(f"unsupported setup preference: {key}")
+        resolved[key] = mapping[value]
+    return resolved
+
+
+def configure_target_preferences(target: Path, plan: dict[str, Any]) -> None:
+    """Seed console, greeter and Plasma defaults before package/initramfs hooks."""
+    preferences = install_preferences(plan)
+    language, region, keyboard = (preferences[key] for key in ("language", "time_format", "keyboard"))
+    translations = "nl:en_US" if language.startswith("nl_") else "en_US"
+    formats = {"LANG": language, "LC_TIME": region, "LC_NUMERIC": region,
+               "LC_MONETARY": region, "LC_MEASUREMENT": region, "LC_PAPER": region}
+    locale_text = "".join(f"{key}={value}\n" for key, value in formats.items())
+    files = {
+        "etc/locale.conf": locale_text,
+        "etc/vconsole.conf": f"KEYMAP={keyboard}\n",
+        "etc/xdg/plasma-localerc": "[Formats]\n" + locale_text + f"\n[Translations]\nLANGUAGE={translations}\n",
+        "etc/xdg/kxkbrc": f"[Layout]\nUse=true\nModel=pc105\nLayoutList={keyboard}\nVariantList=\nOptions=\nSwitchMode=Global\n",
+        "etc/X11/xorg.conf.d/00-keyboard.conf": (
+            'Section "InputClass"\n    Identifier "Aero7 setup keyboard"\n'
+            '    MatchIsKeyboard "on"\n'
+            f'    Option "XkbLayout" "{keyboard}"\nEndSection\n'
+        ),
+        "etc/systemd/system/aero7-oobe.service.d/20-regional-settings.conf": (
+            "[Service]\nEnvironmentFile=/etc/locale.conf\n"
+            f"Environment=XKB_DEFAULT_LAYOUT={keyboard}\n"
+        ),
+    }
+    for relative, content in files.items():
+        destination = target / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(content, encoding="utf-8")
+
+
+def generate_target_locales(target: Path, plan: dict[str, Any], runner: CommandRunner) -> None:
+    preferences = install_preferences(plan)
+    selected = {preferences["language"], preferences["time_format"]}
+    locale_file = target / "etc/locale.gen"
+    lines = locale_file.read_text(encoding="utf-8").splitlines()
+    # Retain other enabled locales and comments; retries must not duplicate lines.
+    for locale in sorted(selected):
+        entry = f"{locale} UTF-8"
+        if entry not in lines:
+            commented = next((i for i, line in enumerate(lines) if line.lstrip("# ") == entry), None)
+            if commented is None:
+                lines.append(entry)
+            else:
+                lines[commented] = entry
+    locale_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    runner.run(["arch-chroot", str(target), "locale-gen"])
+
+
 def install(plan: dict[str, Any], confirm_device: str) -> None:
     enforce_execution_gate()
+    install_preferences(plan)
     if confirm_device != plan.get("device"):
         raise SafetyError("final confirmation does not match the selected device")
 
@@ -2023,7 +2208,10 @@ def install(plan: dict[str, Any], confirm_device: str) -> None:
             shutil.copy2(partition_backup, installed_backup)
         copying_files.emit(82)
         (TARGET_ROOT / "boot").mkdir(parents=True, exist_ok=True)
-        runner.run(["mount", esp, str(TARGET_ROOT / "boot")])
+        # genfstab retains these options, protecting the systemd-boot random
+        # seed both during installation and on every installed-system boot.
+        runner.run(esp_mount_arguments(esp, TARGET_ROOT / "boot"))
+        configure_target_preferences(TARGET_ROOT, plan)
         copying_files.complete()
 
         expanding = ProgressPulse(INSTALL_STAGES[2], 28, 53)
@@ -2098,16 +2286,13 @@ def install(plan: dict[str, Any], confirm_device: str) -> None:
         updates_settings.emit()
         (TARGET_ROOT / "etc/hostname").write_text("aero7-pc\n", encoding="utf-8")
         write_target_os_release(TARGET_ROOT)
-        locale = TARGET_ROOT / "etc/locale.gen"
-        locale.write_text(locale.read_text(encoding="utf-8").replace("#en_US.UTF-8 UTF-8", "en_US.UTF-8 UTF-8"), encoding="utf-8")
         with runner.progress_heartbeat(updates_settings.advance):
-            runner.run(["arch-chroot", str(TARGET_ROOT), "locale-gen"])
-            (TARGET_ROOT / "etc/locale.conf").write_text("LANG=en_US.UTF-8\n", encoding="utf-8")
+            generate_target_locales(TARGET_ROOT, plan, runner)
             copy_payload(TARGET_ROOT)
             updates_settings.advance()
             configure_target_plymouth(TARGET_ROOT, runner)
             runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "enable", "NetworkManager.service"])
-            runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "enable", "ufw.service"])
+            prepare_fresh_firewall(TARGET_ROOT, runner)
             runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "disable", "sddm.service"])
             runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "enable", "aero7-oobe.service"])
         updates_settings.complete()
@@ -2153,6 +2338,11 @@ def validate_oobe(plan: dict[str, Any]) -> None:
     zone = (Path("/usr/share/zoneinfo") / timezone).resolve()
     if not zone.is_file() or Path("/usr/share/zoneinfo") not in zone.parents:
         raise SafetyError("invalid timezone")
+
+
+def configure_oobe_firewall(runner: CommandRunner, root: Path = Path("/")) -> None:
+    """Activate the explicitly selected fresh-install firewall; preserve UFW."""
+    activate_selected_firewall(runner, root)
 
 
 def finalize_oobe(plan: dict[str, Any]) -> None:
@@ -2201,17 +2391,23 @@ def finalize_oobe(plan: dict[str, Any]) -> None:
     event("progress", stage="Preparing the Aero7 desktop", percent=62)
     if not SHELL_INSTALLER.is_file():
         raise RuntimeError(f"Aero7-shell image installer is missing: {SHELL_INSTALLER}")
+    configure_image_fastfetch(username, runner)
+    configure_image_core_services(runner)
     runner.run(shell_image_mode_arguments(username))
     brand_sddm_themes()
     brand_plasma_look_and_feel()
     brand_plasma_lock_screen()
     enforce_light_desktop_defaults(username, runner)
+    location_result = apply_network_location(str(plan["network"]), runner)
+    if location_result.startswith("public-default"):
+        event("status", message="Public firewall defaults retained. Choose a location in Control Panel > Firewall when your network is connected.")
     configure_one_time_autologin(username)
     configure_diagnostic_logging(username)
     runner.run(["systemctl", "daemon-reload"])
     runner.run(["systemctl", "enable", "--now", FIRST_LOGIN_CLEANUP_TIMER])
     runner.run(["systemctl", "enable", "--now", DIAGNOSTIC_SYSTEM_TIMER])
     runner.run(["systemctl", "--global", "enable", *DIAGNOSTIC_USER_UNITS])
+    runner.run(["systemctl", "--global", "enable", "aero7-update-check.timer"])
     runner.run([str(DIAGNOSTIC_COLLECTOR), "--system"])
 
     event("progress", stage="Preparing the Aero7 desktop", percent=92)

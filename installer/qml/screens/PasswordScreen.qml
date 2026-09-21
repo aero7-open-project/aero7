@@ -1,8 +1,8 @@
 import QtQuick
-import QtQuick.Controls
 import "../components"
 
 SetupPage {
+    id: root
     anchors.fill: parent
     title: qsTr("Set a password for your account")
     description: qsTr("Creating a password is a smart security precaution that helps protect your user account from unwanted access. Be sure to remember your password or keep it in a safe place.")
@@ -19,22 +19,22 @@ SetupPage {
             AeroTextField {
                 width: parent.width
                 echoMode: TextInput.Password
-                text: controller.password
-                onTextChanged: controller.password = text
+                text: root.controller.password
+                onTextChanged: root.controller.password = text
             }
             Text { text: qsTr("Retype your password:"); color: "#25323b"; font.pixelSize: 12 }
             AeroTextField {
                 width: parent.width
                 echoMode: TextInput.Password
-                text: controller.passwordConfirmation
-                onTextChanged: controller.passwordConfirmation = text
+                text: root.controller.passwordConfirmation
+                onTextChanged: root.controller.passwordConfirmation = text
             }
             Text { text: qsTr("Type a password hint:"); color: "#25323b"; font.pixelSize: 12 }
             AeroTextField {
                 width: parent.width
-                text: controller.passwordHint
+                text: root.controller.passwordHint
                 placeholderText: qsTr("optional")
-                onTextChanged: controller.passwordHint = text
+                onTextChanged: root.controller.passwordHint = text
             }
             Text {
                 width: parent.width

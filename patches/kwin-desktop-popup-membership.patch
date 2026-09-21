@@ -1,0 +1,119 @@
+--- a/src/xdgshellwindow.h
++++ b/src/xdgshellwindow.h
+@@ -292,6 +292,7 @@
+     bool hasPopupGrab() const override;
+     void popupDone() override;
+     bool isPopupWindow() const override;
++    bool belongsToDesktop() const override;
+     bool isTransient() const override;
+     bool isPlaceable() const override;
+     bool isResizable() const override;
+--- a/src/xdgshellwindow.cpp
++++ b/src/xdgshellwindow.cpp
+@@ -1958,6 +1958,16 @@
+     destroyWindow();
+ }
+
++bool XdgPopupWindow::belongsToDesktop() const
++{
++    // A desktop component's menus are part of that component, including nested
++    // popups. Mapping one must not restore applications hidden by Show Desktop.
++    // Inherit only through the popup parent; ordinary application windows and
++    // popups of unrelated layer-shell clients retain their existing behavior.
++    const Window *parent = transientFor();
++    return parent && parent->belongsToDesktop();
++}
++
+ bool XdgPopupWindow::isPopupWindow() const
+ {
+     return true;
+--- a/autotests/integration/layershellv1window_test.cpp
++++ b/autotests/integration/layershellv1window_test.cpp
+@@ -43,6 +43,8 @@
+     void testLayer();
+     void testDesktopGadgetVisibility_data();
+     void testDesktopGadgetVisibility();
++    void testDesktopGadgetPopup_data();
++    void testDesktopGadgetPopup();
+     void testChangeLayer();
+     void testPlacementArea_data();
+     void testPlacementArea();
+@@ -346,6 +348,78 @@
+     QVERIFY(Test::waitForWindowClosed(window));
+ }
+
++void LayerShellV1WindowTest::testDesktopGadgetPopup_data()
++{
++    QTest::addColumn<QString>("scope");
++    QTest::addColumn<bool>("desktopComponent");
++    QTest::newRow("gadget-menu") << QStringLiteral("aero7-desktop-gadgets") << true;
++    QTest::newRow("preview-menu") << QStringLiteral("aero7-gadget-drag-preview") << true;
++    QTest::newRow("ordinary-layer-menu") << QStringLiteral("test") << false;
++    QTest::newRow("similar-name-menu") << QStringLiteral("aero7-desktop-gadgets-other") << false;
++}
++
++void LayerShellV1WindowTest::testDesktopGadgetPopup()
++{
++    QFETCH(QString, scope);
++    QFETCH(bool, desktopComponent);
++    // Keep an ordinary application present to prove that a gadget menu does
++    // not reveal applications, while an unrelated popup still leaves the mode.
++    std::unique_ptr<KWayland::Client::Surface> appSurface(Test::createSurface());
++    auto appShell = Test::createXdgToplevelSurface(appSurface.get());
++    Window *app = Test::renderAndWaitForShown(appSurface.get(), QSize(200, 100), Qt::blue);
++    QVERIFY(app);
++
++    std::unique_ptr<KWayland::Client::Surface> surface(Test::createSurface());
++    auto shell = Test::createLayerSurfaceV1(surface.get(), scope);
++    shell->set_layer(Test::LayerShellV1::layer_bottom);
++    shell->set_size(150, 138);
++    QSignalSpy configured(shell.get(), &Test::LayerSurfaceV1::configureRequested);
++    surface->commit(KWayland::Client::Surface::CommitFlag::None);
++    QVERIFY(configured.wait());
++    shell->ack_configure(configured.last().at(0).toUInt());
++    Window *parent = Test::renderAndWaitForShown(surface.get(), configured.last().at(1).toSize(), Qt::red);
++    QVERIFY(parent);
++    workspace()->setShowingDesktop(true, false);
++    QVERIFY(app->isHiddenByShowDesktop());
++
++    auto positioner = Test::createXdgPositioner();
++    positioner->set_size(50, 40);
++    positioner->set_anchor_rect(10, 10, 1, 1);
++    std::unique_ptr<KWayland::Client::Surface> popupSurface(Test::createSurface());
++    auto popup = Test::createXdgPopupSurface(popupSurface.get(), nullptr, positioner.get(), Test::CreationSetup::CreateOnly);
++    shell->get_popup(popup->object());
++    QSignalSpy popupConfigured(popup->xdgSurface(), &Test::XdgSurface::configureRequested);
++    popupSurface->commit(KWayland::Client::Surface::CommitFlag::None);
++    QVERIFY(popupConfigured.wait());
++    popup->xdgSurface()->ack_configure(popupConfigured.last().at(0).toUInt());
++    Window *menu = Test::renderAndWaitForShown(popupSurface.get(), QSize(50, 40), Qt::green);
++    QVERIFY(menu);
++    QCOMPARE(menu->transientFor(), parent);
++    QCOMPARE(workspace()->showingDesktop(), desktopComponent);
++    QCOMPARE(menu->belongsToDesktop(), desktopComponent);
++    QCOMPARE(app->isHiddenByShowDesktop(), desktopComponent);
++    QVERIFY(menu->isShown());
++
++    // Nested submenus must inherit the same decision, not just direct children.
++    std::unique_ptr<KWayland::Client::Surface> nestedSurface(Test::createSurface());
++    auto nested = Test::createXdgPopupSurface(nestedSurface.get(), popup->xdgSurface(), positioner.get());
++    Window *submenu = Test::renderAndWaitForShown(nestedSurface.get(), QSize(50, 40), Qt::yellow);
++    QVERIFY(submenu);
++    QCOMPARE(submenu->transientFor(), menu);
++    QCOMPARE(submenu->belongsToDesktop(), desktopComponent);
++    QCOMPARE(workspace()->showingDesktop(), desktopComponent);
++    QCOMPARE(app->isHiddenByShowDesktop(), desktopComponent);
++    nested.reset();
++    QVERIFY(Test::waitForWindowClosed(submenu));
++    popup.reset();
++    QVERIFY(Test::waitForWindowClosed(menu));
++    QCOMPARE(workspace()->showingDesktop(), desktopComponent);
++    shell.reset();
++    QVERIFY(Test::waitForWindowClosed(parent));
++    appShell.reset();
++    QVERIFY(Test::waitForWindowClosed(app));
++}
++
+ void LayerShellV1WindowTest::testChangeLayer()
+ {
+     // This test verifies that set_layer requests are handled properly after the surface has

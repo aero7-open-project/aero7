@@ -4,18 +4,23 @@ import QtQuick.Controls
 
 ApplicationWindow {
     id: window
+    required property var controller
+    property bool captureMode: false
+    property bool documentationMode: false
+    property int captureWidth: 1024
+    property int captureHeight: 768
     readonly property bool blackTransition: [
         "ApplyingSettingsScreen",
         "VideoPerformanceScreen",
         "FinalizingScreen"
-    ].indexOf(controller.screenId) >= 0
+    ].indexOf(window.controller.screenId) >= 0
 
     visible: true
-    visibility: captureMode ? Window.Windowed : Window.FullScreen
-    width: captureMode ? captureWidth : 1024
-    height: captureMode ? captureHeight : 768
+    visibility: window.captureMode ? Window.Windowed : Window.FullScreen
+    width: window.captureMode ? window.captureWidth : 1024
+    height: window.captureMode ? window.captureHeight : 768
     color: blackTransition ? "#000000" : "#020915"
-    title: controller.oobeMode ? qsTr("Set Up Aero7") : qsTr("Install Aero7")
+    title: window.controller.oobeMode ? qsTr("Set Up Aero7") : qsTr("Install Aero7")
 
     Image {
         anchors.fill: parent
@@ -42,7 +47,12 @@ ApplicationWindow {
         Loader {
             id: screenLoader
             anchors.fill: parent
-            source: "screens/" + controller.screenId + ".qml"
+            objectName: "setupScreenLoader"
+            readonly property string screenId: window.controller.screenId
+            onScreenIdChanged: setSource(Qt.resolvedUrl("screens/" + screenId + ".qml"), {
+                "controller": window.controller,
+                "documentationMode": window.documentationMode
+            })
             focus: true
         }
 
@@ -78,7 +88,7 @@ ApplicationWindow {
         }
 
         Connections {
-            target: controller
+            target: window.controller
 
             function onScreenChanged() {
                 fullFrameRepaintGuard.visible = true
@@ -99,7 +109,7 @@ ApplicationWindow {
         }
 
         Rectangle {
-            visible: controller.demoMode && !documentationMode && !window.blackTransition
+            visible: window.controller.demoMode && !window.documentationMode && !window.blackTransition
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: 18
@@ -121,7 +131,7 @@ ApplicationWindow {
         }
 
         Rectangle {
-            visible: controller.statusText.length > 0
+            visible: window.controller.statusText.length > 0
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 18
@@ -137,7 +147,7 @@ ApplicationWindow {
                 id: statusLabel
                 anchors.fill: parent
                 anchors.margins: 9
-                text: controller.statusText
+                text: window.controller.statusText
                 color: "#8c231c"
                 font.pixelSize: 14
                 verticalAlignment: Text.AlignVCenter
@@ -151,7 +161,7 @@ ApplicationWindow {
     Rectangle {
         anchors.fill: parent
         color: "black"
-        opacity: controller.desktopHandoff ? 1 : 0
+        opacity: window.controller.desktopHandoff ? 1 : 0
         visible: opacity > 0
         z: 1000
 
@@ -165,7 +175,7 @@ ApplicationWindow {
 
     Shortcut {
         sequence: "Escape"
-        enabled: controller.canGoBack
-        onActivated: controller.goBack()
+        enabled: window.controller.canGoBack
+        onActivated: window.controller.goBack()
     }
 }

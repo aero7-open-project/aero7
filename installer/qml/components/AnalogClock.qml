@@ -6,7 +6,12 @@ Item {
     implicitWidth: 142
     implicitHeight: 142
     property date now: new Date()
-    onNowChanged: face.requestPaint()
+    property int hours: now.getHours()
+    property int minutes: now.getMinutes()
+    property int seconds: now.getSeconds()
+    onHoursChanged: face.requestPaint()
+    onMinutesChanged: face.requestPaint()
+    onSecondsChanged: face.requestPaint()
 
     Canvas {
         id: face
@@ -55,9 +60,9 @@ Item {
                 ctx.stroke()
             }
 
-            var hour = root.now.getHours() % 12 + root.now.getMinutes() / 60
-            var minute = root.now.getMinutes() + root.now.getSeconds() / 60
-            var second = root.now.getSeconds()
+            var hour = root.hours % 12 + root.minutes / 60
+            var minute = root.minutes + root.seconds / 60
+            var second = root.seconds
 
             function hand(value, divisions, length, lineWidth, color) {
                 var angle = value / divisions * Math.PI * 2 - Math.PI / 2

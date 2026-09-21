@@ -1,5 +1,5 @@
+pragma ComponentBehavior: Bound
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Dialogs
 import "../components"
 
@@ -9,7 +9,7 @@ SetupPage {
     title: qsTr("Where do you want to install Aero7?")
     description: ""
     showBack: true
-    nextEnabled: controller.diskSelectionReady
+    nextEnabled: root.controller.diskSelectionReady
     property string pendingAction: ""
     property string pendingTitle: ""
     property string pendingMessage: ""
@@ -29,26 +29,26 @@ SetupPage {
     }
 
     function rowIsVisible(item) {
-        return controller.advancedDriveOptions
+        return root.controller.advancedDriveOptions
                 ? item.target_kind !== "disk"
                 : item.target_kind === "disk"
     }
 
     function rowIsSelected(item) {
         if (item.target_kind === "disk")
-            return controller.selectedDisk.target_kind === "disk"
-                    && controller.selectedDisk.device === item.device
+            return root.controller.selectedDisk.target_kind === "disk"
+                    && root.controller.selectedDisk.device === item.device
         if (item.target_kind === "free")
-            return controller.selectedDisk.target_kind === "free"
-                    && controller.selectedDisk.device === item.device
-                    && controller.selectedDisk.start_sector === item.start_sector
-        return controller.selectedDisk.device === item.device
-                && controller.selectedDisk.partition_device === item.partition_device
+            return root.controller.selectedDisk.target_kind === "free"
+                    && root.controller.selectedDisk.device === item.device
+                    && root.controller.selectedDisk.start_sector === item.start_sector
+        return root.controller.selectedDisk.device === item.device
+                && root.controller.selectedDisk.partition_device === item.partition_device
     }
 
     function displayName(item) {
         const name = item.display_name || item.model || qsTr("Disk")
-        return documentationMode ? name.replace(" (simulation)", "") : name
+        return root.documentationMode ? name.replace(" (simulation)", "") : name
     }
 
     body: [
@@ -57,7 +57,7 @@ SetupPage {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            height: controller.advancedDriveOptions ? 225 : 210
+            height: root.controller.advancedDriveOptions ? 225 : 210
             color: "#ffffff"
             border.color: "#858f96"
 
@@ -89,7 +89,7 @@ SetupPage {
                 anchors.top: tableHeader.bottom
                 anchors.bottom: parent.bottom
                 clip: true
-                model: controller.disks
+                model: root.controller.disks
 
                 delegate: Rectangle {
                     id: targetRow
@@ -106,7 +106,7 @@ SetupPage {
 
                     Row {
                         anchors.fill: parent
-                        Item { width: modelData.target_kind === "disk" ? 7 : 17; height: 1 }
+                        Item { width: targetRow.modelData.target_kind === "disk" ? 7 : 17; height: 1 }
                         Image {
                             width: 35
                             height: 35
@@ -115,16 +115,16 @@ SetupPage {
                             fillMode: Image.PreserveAspectFit
                         }
                         Text {
-                            width: modelData.target_kind === "disk" ? 288 : 278
-                            text: root.displayName(modelData)
+                            width: targetRow.modelData.target_kind === "disk" ? 288 : 278
+                            text: root.displayName(targetRow.modelData)
                             color: "#18252e"
                             font.pixelSize: 12
                             anchors.verticalCenter: parent.verticalCenter
                             elide: Text.ElideRight
                         }
-                        Text { width: 105; text: modelData.size || "—"; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
-                        Text { width: 105; text: modelData.free_space || "—"; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
-                        Text { text: modelData.type || ""; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                        Text { width: 105; text: targetRow.modelData.size || "—"; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                        Text { width: 105; text: targetRow.modelData.free_space || "—"; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                        Text { text: targetRow.modelData.type || ""; color: "#18252e"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
                     }
 
                     MouseArea {
@@ -132,11 +132,11 @@ SetupPage {
                         enabled: targetRow.shown
                         onClicked: {
                             root.closeEditors()
-                            controller.selectDisk(targetRow.index)
+                            root.controller.selectDisk(targetRow.index)
                         }
                     }
-                    Keys.onReturnPressed: controller.selectDisk(index)
-                    Keys.onSpacePressed: controller.selectDisk(index)
+                    Keys.onReturnPressed: root.controller.selectDisk(index)
+                    Keys.onSpacePressed: root.controller.selectDisk(index)
                 }
             }
         },
@@ -144,7 +144,7 @@ SetupPage {
         Row {
             anchors.left: parent.left
             anchors.top: parent.top
-            anchors.topMargin: controller.advancedDriveOptions ? 240 : 225
+            anchors.topMargin: root.controller.advancedDriveOptions ? 240 : 225
             spacing: 34
 
             DriveAction {
@@ -153,7 +153,7 @@ SetupPage {
                 toolTipText: qsTr("Rescan all disks and partitions and update the list.")
                 onTriggered: {
                     root.closeEditors()
-                    controller.refreshDisks()
+                    root.controller.refreshDisks()
                 }
             }
             DriveAction {
@@ -167,8 +167,8 @@ SetupPage {
         Text {
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.topMargin: controller.advancedDriveOptions ? 243 : 228
-            text: controller.advancedDriveOptions
+            anchors.topMargin: root.controller.advancedDriveOptions ? 243 : 228
+            text: root.controller.advancedDriveOptions
                   ? qsTr("Hide drive options")
                   : qsTr("Drive options (advanced)")
             color: "#0067b1"
@@ -181,14 +181,14 @@ SetupPage {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     root.closeEditors()
-                    controller.setAdvancedDriveOptions(!controller.advancedDriveOptions)
+                    root.controller.setAdvancedDriveOptions(!root.controller.advancedDriveOptions)
                 }
             }
         },
 
         Row {
             id: advancedActions
-            visible: controller.advancedDriveOptions
+            visible: root.controller.advancedDriveOptions
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.topMargin: 278
@@ -197,41 +197,41 @@ SetupPage {
             DriveAction {
                 text: qsTr("Delete")
                 iconSource: "qrc:/assets/icons/delete-partition.svg"
-                actionEnabled: controller.selectedDisk.can_delete === true
+                actionEnabled: root.controller.selectedDisk.can_delete === true
                 toolTipText: qsTr("Delete the selected partition and turn its space into unallocated space.")
                 onTriggered: root.confirmAction(
                     "delete",
                     qsTr("Delete this partition?"),
                     qsTr("All files and data on %1 will be permanently lost. This action cannot be undone.")
-                        .arg(controller.selectedDisk.display_name || qsTr("the selected partition")))
+                        .arg(root.controller.selectedDisk.display_name || qsTr("the selected partition")))
             }
             DriveAction {
                 text: qsTr("Format")
                 iconSource: "qrc:/assets/icons/format-partition.svg"
-                actionEnabled: controller.selectedDisk.can_format === true
+                actionEnabled: root.controller.selectedDisk.can_format === true
                 toolTipText: qsTr("Format the selected partition for Aero7.")
                 onTriggered: root.confirmAction(
                     "format",
                     qsTr("Format this partition?"),
                     qsTr("All existing data on %1 will be erased when installation begins.")
-                        .arg(controller.selectedDisk.display_name || qsTr("the selected partition")))
+                        .arg(root.controller.selectedDisk.display_name || qsTr("the selected partition")))
             }
             DriveAction {
                 text: qsTr("New")
                 iconSource: "qrc:/assets/icons/new-partition.svg"
-                actionEnabled: controller.selectedDisk.target_kind === "free"
-                               && controller.selectedDisk.can_install === true
+                actionEnabled: root.controller.selectedDisk.target_kind === "free"
+                               && root.controller.selectedDisk.can_install === true
                 toolTipText: qsTr("Create a new Aero7 target from the selected unallocated space.")
                 onTriggered: {
                     root.closeEditors()
-                    newAmount.text = Math.floor(Number(controller.selectedDisk.region_size_bytes) / 1073741824).toString()
+                    newAmount.text = Math.floor(Number(root.controller.selectedDisk.region_size_bytes) / 1073741824).toString()
                     newPanel.visible = true
                 }
             }
             DriveAction {
                 text: qsTr("Shrink")
                 iconSource: "qrc:/assets/icons/extend-partition.svg"
-                actionEnabled: controller.selectedDisk.can_shrink === true
+                actionEnabled: root.controller.selectedDisk.can_shrink === true
                 toolTipText: qsTr("Shrink the selected NTFS partition to release unallocated space for Aero7.")
                 onTriggered: {
                     root.closeEditors()
@@ -241,11 +241,11 @@ SetupPage {
             DriveAction {
                 text: qsTr("Extend")
                 iconSource: "qrc:/assets/icons/extend-partition.svg"
-                actionEnabled: controller.selectedDisk.can_extend === true
+                actionEnabled: root.controller.selectedDisk.can_extend === true
                 toolTipText: qsTr("Increase the selected partition using adjacent unallocated space.")
                 onTriggered: {
                     root.closeEditors()
-                    extendAmount.text = Math.floor(Number(controller.selectedDisk.adjacent_free_size_bytes) / 1073741824).toString()
+                    extendAmount.text = Math.floor(Number(root.controller.selectedDisk.adjacent_free_size_bytes) / 1073741824).toString()
                     extendPanel.visible = true
                 }
             }
@@ -279,7 +279,7 @@ SetupPage {
                     inputMethodHints: Qt.ImhDigitsOnly
                     validator: IntValidator {
                         bottom: 17
-                        top: Math.max(17, Math.floor(Number(controller.selectedDisk.region_size_bytes || 0) / 1073741824))
+                        top: Math.max(17, Math.floor(Number(root.controller.selectedDisk.region_size_bytes || 0) / 1073741824))
                     }
                 }
                 AeroButton {
@@ -287,8 +287,8 @@ SetupPage {
                     text: qsTr("Apply")
                     enabled: newAmount.acceptableInput
                     onClicked: {
-                        controller.useSelectedFreeSpace(parseInt(newAmount.text))
-                        if (controller.diskSelectionReady)
+                        root.controller.useSelectedFreeSpace(parseInt(newAmount.text))
+                        if (root.controller.diskSelectionReady)
                             newPanel.visible = false
                     }
                 }
@@ -330,8 +330,8 @@ SetupPage {
                     text: qsTr("Apply")
                     enabled: shrinkAmount.acceptableInput
                     onClicked: {
-                        controller.prepareSelectedNtfsShrink(parseInt(shrinkAmount.text))
-                        if (controller.diskSelectionReady)
+                        root.controller.prepareSelectedNtfsShrink(parseInt(shrinkAmount.text))
+                        if (root.controller.diskSelectionReady)
                             shrinkPanel.visible = false
                     }
                 }
@@ -371,7 +371,7 @@ SetupPage {
                     inputMethodHints: Qt.ImhDigitsOnly
                     validator: IntValidator {
                         bottom: 1
-                        top: Math.max(1, Math.floor(Number(controller.selectedDisk.adjacent_free_size_bytes || 0) / 1073741824))
+                        top: Math.max(1, Math.floor(Number(root.controller.selectedDisk.adjacent_free_size_bytes || 0) / 1073741824))
                     }
                 }
                 AeroButton {
@@ -383,7 +383,7 @@ SetupPage {
                         qsTr("Extend this partition?"),
                         qsTr("Aero7 will add %1 GiB to %2. Back up important data before changing a partition boundary.")
                             .arg(extendAmount.text)
-                            .arg(controller.selectedDisk.display_name || qsTr("the selected partition")))
+                            .arg(root.controller.selectedDisk.display_name || qsTr("the selected partition")))
                 }
                 AeroButton { width: 80; text: qsTr("Cancel"); onClicked: extendPanel.visible = false }
             }
@@ -449,14 +449,14 @@ SetupPage {
                         onClicked: {
                             confirmationOverlay.visible = false
                             if (root.pendingAction === "delete")
-                                controller.deleteSelectedPartition()
+                                root.controller.deleteSelectedPartition()
                             else if (root.pendingAction === "format")
-                                controller.useSelectedPartition()
+                                root.controller.useSelectedPartition()
                             else if (root.pendingAction === "extend") {
-                                controller.extendSelectedPartition(parseInt(extendAmount.text))
+                                root.controller.extendSelectedPartition(parseInt(extendAmount.text))
                                 extendPanel.visible = false
                             } else if (root.pendingAction === "driver")
-                                controller.loadStorageDriver(root.pendingDriver)
+                                root.controller.loadStorageDriver(root.pendingDriver)
                             root.pendingAction = ""
                         }
                     }

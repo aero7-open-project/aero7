@@ -1,8 +1,14 @@
 # Included Software
 
-Beta 1 deliberately installs `plasma-desktop`, not the broad `plasma-meta` or
-`kde-applications-meta` collections. Runtime dependencies are resolved normally,
-then the signed Aero7 repository adds the themed desktop components.
+This page describes the Beta 2 package selection, not the unchanged contents
+of the public Beta 1 ISO. Beta 2 source/package preparation is separate from
+ISO publication. See [Beta 2 Release Notes](Beta-2-Release-Notes).
+
+Aero7 installs a focused desktop foundation rather than the broad
+`plasma-meta` or `kde-applications-meta` collections. Runtime dependencies are
+resolved normally and the Aero7 packages supply the maintained desktop and
+companions. The offline image is recommended when released because it carries
+the complete base-install package set.
 
 ## Foundation
 
@@ -19,6 +25,7 @@ then the signed Aero7 repository adds the themed desktop components.
 
 ## Aero7 desktop packages
 
+- Dedicated `aero7-desktop` Wayland session, Safe Mode, health checks, and recovery;
 - AeroShell libplasma, workspace, and KWin components;
 - AeroThemePlasma desktop, icon, and sound packages;
 - SMOD and the Aero taskbar/Start menu integration;
@@ -30,16 +37,18 @@ then the signed Aero7 repository adds the themed desktop components.
 
 | Displayed name | Package / role |
 | --- | --- |
-| File Explorer | Aero Dolphin |
+| File Explorer | `aero7-file-explorer`, the maintained KDE Dolphin fork |
 | Photo Viewer | Aero Gwenview |
-| Control Panel | Linux Control Panel |
-| Device Manager | linux-devmgmt |
+| Control Panel | `linux-control-panel`, Aero7's maintained settings frontend |
+| Device Manager | `aero7-device-manager`, the renamed hardware-management package |
+| Computer Management | Aero7 administration companion: services, logs, users/groups, tasks, shares, and storage |
 | Paint | Aero KolourPaint |
-| Gadgets | Aero7 gadgets package |
+| Gadgets | `aero7-gadgets`, native host/gallery with nine built-ins |
+| Internet Explorer | Aero7 compatibility launcher backed by a maintained installed browser, not Microsoft's retired engine |
 | Task Manager | TuxManager |
 | Command Prompt | QTerminal with Aero7 launcher branding |
 | Media Player | VLC using the Aero7 Qt desktop theme |
-| Snipping Tool | Spectacle region capture to the clipboard |
+| Snipping Tool | Meta+Shift+S rectangle selection; PNG saving, image clipboard data, and an openable notification without the editor |
 | Calculator | KCalc |
 | Notepad | FeatherPad using the Aero7 Qt desktop theme |
 | Archive support | Ark |
@@ -60,7 +69,7 @@ See [Aero7 Optional Features](Optional-Features.md) for every available toggle.
 
 - WinXplorer is optional and is not installed by the ISO;
 - Sevulet is excluded until source and redistribution terms can be audited;
-- Kate and Okular are not part of the focused Beta 1 image;
+- Kate and Okular are not part of the focused default application set;
 - Konsole is replaced by the lighter QTerminal package;
 - CMake, Ninja, `base-devel`, and other source-build tools are not installed on
   the finished binary-package system;
@@ -74,7 +83,11 @@ copy of the exact request is stored at:
 /var/lib/aero7/requested-aero7-packages.txt
 ```
 
-## Current application captures
+## Historical Beta 1 application captures
+
+These older images are retained for reference, not presented as the Beta 2
+desktop. The [new 1920×1080 VM tour](Screenshot-Gallery) identifies its exact
+test-package versions and remaining visual differences.
 
 | File Explorer | Photo Viewer |
 | --- | --- |

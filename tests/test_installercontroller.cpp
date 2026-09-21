@@ -7,6 +7,68 @@ class InstallerControllerTest final : public QObject
     Q_OBJECT
 
 private slots:
+    void clockPreviewUsesSelectedRegionalFormat()
+    {
+        InstallerController controller(true, true, QStringLiteral("/unused/backend"));
+        const auto instant = QDateTime::fromString(QStringLiteral("2026-01-06T17:49:06Z"), Qt::ISODate).toMSecsSinceEpoch();
+        for (const auto &choice : {qMakePair(QStringLiteral("Nederlands (Nederland)"), QLocale("nl_NL")),
+                                   qMakePair(QStringLiteral("English (United States)"), QLocale("en_US"))}) {
+            controller.setProperty("timeFormat", choice.first);
+            const auto preview = controller.clockPreview(instant, "Europe/Amsterdam");
+            QCOMPARE(preview.value("hour").toInt(), 18);
+            QCOMPARE(preview.value("timeText").toString().simplified(), choice.second.language() == QLocale::Dutch
+                ? QStringLiteral("18:49:06") : QStringLiteral("6:49:06 PM"));
+            QCOMPARE(preview.value("monthTitle").toString(), choice.second.toString(QDate(2026, 1, 6), "MMMM yyyy"));
+            QCOMPARE(preview.value("firstWeekday").toInt(), choice.second.language() == QLocale::Dutch ? 3 : 4);
+            const auto names = preview.value("weekdayNames").toStringList();
+            QCOMPARE(names.size(), 7);
+            QCOMPARE(names.first(), choice.second.standaloneDayName(choice.second.firstDayOfWeek(), QLocale::ShortFormat));
+        }
+    }
+
+    void clockPreviewUsesSelectedZoneAndDaylightRules()
+    {
+        InstallerController controller(true, true, QStringLiteral("/unused/backend"));
+        const auto epoch = [](const char *iso) {
+            return QDateTime::fromString(QString::fromLatin1(iso), Qt::ISODate).toMSecsSinceEpoch();
+        };
+        const auto summer = controller.clockPreview(epoch("2026-09-06T15:19:52Z"), "Europe/Amsterdam");
+        QVERIFY(summer.value("valid").toBool());
+        QCOMPARE(summer.value("hour").toInt(), 17);
+        QCOMPARE(summer.value("minute").toInt(), 19);
+        QCOMPARE(summer.value("second").toInt(), 52);
+        QCOMPARE(summer.value("offsetSeconds").toInt(), 7200);
+        const auto winter = controller.clockPreview(epoch("2026-01-06T15:19:52Z"), "Europe/Amsterdam");
+        QCOMPARE(winter.value("hour").toInt(), 16);
+        QCOMPARE(winter.value("offsetSeconds").toInt(), 3600);
+        const auto beforeDst = controller.clockPreview(epoch("2026-03-29T00:59:59Z"), "Europe/Amsterdam");
+        const auto afterDst = controller.clockPreview(epoch("2026-03-29T01:00:00Z"), "Europe/Amsterdam");
+        QCOMPARE(beforeDst.value("hour").toInt(), 1);
+        QCOMPARE(afterDst.value("hour").toInt(), 3);
+        const auto tokyo = controller.clockPreview(epoch("2026-12-31T20:00:00Z"), "Asia/Tokyo");
+        QCOMPARE(tokyo.value("year").toInt(), 2027);
+        QCOMPARE(tokyo.value("month").toInt(), 1);
+        QCOMPARE(tokyo.value("day").toInt(), 1);
+        QCOMPARE(tokyo.value("hour").toInt(), 5);
+        QCOMPARE(tokyo.value("firstWeekday").toInt(), 5);
+        QCOMPARE(tokyo.value("daysInMonth").toInt(), 31);
+        QVERIFY(!controller.clockPreview(epoch("2026-09-06T15:19:52Z"), "Not/AZone").value("valid").toBool());
+    }
+
+    void serializesIndependentInstallationPreferences()
+    {
+        InstallerController controller(false, true, QStringLiteral("/unused/backend"));
+        QCOMPARE(controller.installationPreferences().value("keyboard").toString(), QStringLiteral("US"));
+        controller.setProperty("language", QStringLiteral("Nederlands"));
+        controller.setProperty("timeFormat", QStringLiteral("English (United States)"));
+        controller.setProperty("keyboard", QStringLiteral("Dutch"));
+        const auto settings = controller.installationPreferences();
+        QCOMPARE(settings.size(), 3);
+        QCOMPARE(settings.value("language").toString(), QStringLiteral("Nederlands"));
+        QCOMPARE(settings.value("time_format").toString(), QStringLiteral("English (United States)"));
+        QCOMPARE(settings.value("keyboard").toString(), QStringLiteral("Dutch"));
+    }
+
     void completesFullSimulationFlow()
     {
         InstallerController controller(false, true, QStringLiteral("/unused/backend"));

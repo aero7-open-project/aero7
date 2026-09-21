@@ -60,7 +60,10 @@ xdg-desktop-portal-kde
 polkit
 appstream
 iptables
-ufw
+firewalld
+pacman-contrib
+fakeroot
+libnotify
 accountsservice
 wine
 wine-mono
@@ -77,5 +80,6 @@ hunspell-nl
 tesseract-data-eng
 pciutils
 usbutils
+lsof
 dmidecode
 smartmontools

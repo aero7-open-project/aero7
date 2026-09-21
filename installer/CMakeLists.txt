@@ -34,6 +34,7 @@ set(AERO7_QML_FILES
     qml/components/AeroButton.qml
     qml/components/AeroCheckBox.qml
     qml/components/AeroChoice.qml
+    qml/components/AeroHelpLink.qml
     qml/components/AeroComboBox.qml
     qml/components/AeroProgressBar.qml
     qml/components/AeroSpinner.qml
@@ -45,6 +46,8 @@ set(AERO7_QML_FILES
     qml/components/DriveAction.qml
     qml/components/ProgressFooter.qml
     qml/components/SetupPage.qml
+    qml/components/InstallerScreen.qml
+    qml/components/SetupHelpDialog.qml
     qml/screens/AccountScreen.qml
     qml/screens/ApplyingSettingsScreen.qml
     qml/screens/CompleteScreen.qml
@@ -72,10 +75,7 @@ qt_add_resources(aero7-installer "qml_resources"
     BASE qml
     FILES ${AERO7_QML_FILES}
 )
-qt_add_resources(aero7-installer "art_resources"
-    PREFIX "/assets"
-    BASE assets
-    FILES
+set(AERO7_ART_FILES
         assets/aero7-background.png
         assets/aero7-logo-circle.png
         assets/aero7-logo-plain.png
@@ -100,8 +100,8 @@ qt_add_resources(aero7-installer "art_resources"
         assets/icons/network-public.svg
         assets/icons/warning.svg
         assets/icons/refresh.svg
-        assets/icons/check-green.svg
-        assets/icons/recycle-bin.svg
+        assets/icons/check-green.png
+        assets/icons/recycle-bin.png
         assets/loading/spinner_0.png
         assets/loading/spinner_1.png
         assets/loading/spinner_2.png
@@ -150,7 +150,13 @@ qt_add_resources(aero7-installer "art_resources"
         assets/smod/top.png
 )
 
+qt_add_resources(aero7-installer "art_resources"
+    PREFIX "/assets" BASE assets FILES ${AERO7_ART_FILES})
+
 install(TARGETS aero7-installer RUNTIME DESTINATION bin)
+install(FILES ../third_party/AeroThemePlasma-Icons-LICENSE
+    ../third_party/AeroThemePlasma-Icons-NOTICE
+    DESTINATION share/licenses/aero7-installer)
 
 if(BUILD_TESTING)
     qt_add_executable(test-flowstate ../tests/test_flowstate.cpp)
@@ -164,4 +170,18 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test-installercontroller PRIVATE aero7-flow Qt6::Core Qt6::Test)
     add_test(NAME installercontroller COMMAND test-installercontroller)
+
+    qt_add_executable(test-installer-help
+        ../tests/test_installer_help.cpp
+        src/installercontroller.cpp
+        src/installercontroller.h)
+    target_link_libraries(test-installer-help PRIVATE aero7-flow Qt6::Core
+        Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Test)
+    qt_add_resources(test-installer-help "help_qml_resources"
+        PREFIX "/qml" BASE qml FILES ${AERO7_QML_FILES})
+    qt_add_resources(test-installer-help "help_art_resources"
+        PREFIX "/assets" BASE assets FILES ${AERO7_ART_FILES})
+    add_test(NAME installer-help COMMAND test-installer-help)
+    set_tests_properties(installer-help PROPERTIES ENVIRONMENT
+        "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Basic")
 endif()

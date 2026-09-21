@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -36,7 +37,10 @@ from aero7_install_backend import (  # noqa: E402
     brand_sddm_themes,
     candidate_disks,
     configure_diagnostic_logging,
+    configure_image_fastfetch,
+    configure_image_core_services,
     configure_one_time_autologin,
+    configure_oobe_firewall,
     configure_plymouth_hold,
     ensure_shell_payload_modes,
     enable_plymouth_hook,
@@ -44,6 +48,7 @@ from aero7_install_backend import (  # noqa: E402
     ensure_install_tools,
     enforce_light_desktop_defaults,
     enforce_execution_gate,
+    esp_mount_arguments,
     fingerprint,
     free_regions,
     install,
@@ -67,7 +72,7 @@ from aero7_install_backend import (  # noqa: E402
     verified_offline_package_files,
     write_target_os_release,
 )
-from aero7_shell_adapter import configure_and_install  # noqa: E402
+from aero7_shell_adapter import configure_and_install, read_local_package_manifest  # noqa: E402
 
 
 class RecordingRunner:
@@ -152,6 +157,18 @@ def advanced_plan(value, target):
 
 
 class DiskPlanTest(unittest.TestCase):
+    def test_real_candidate_manifest_is_accepted_by_install_adapter(self):
+        selected = read_local_package_manifest(PROJECT_ROOT / "config/beta2-local-packages.sha256")
+        self.assertTrue(any(name.startswith("spectacle-1:") for name in selected))
+
+    def test_local_epoch_filename_does_not_allow_path_escape(self):
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / "packages.sha256"
+            for name in ("../escape", "nested/file", "/absolute"):
+                manifest.write_text("0" * 64 + f"  local-packages/{name}.pkg.tar.zst\n")
+                with self.assertRaisesRegex(RuntimeError, "invalid Beta 2 local package path"):
+                    read_local_package_manifest(manifest)
+
     def test_accepts_stable_unmounted_virtio_disk(self):
         value = disk()
         validate_plan(plan_for(value), value, set())
@@ -179,6 +196,34 @@ class DiskPlanTest(unittest.TestCase):
         small = disk(path="/dev/vde", kname="vde", **{"maj:min": "252:64"}, size=MIN_DISK_BYTES - 1)
         result = candidate_disks([safe, mounted, readonly, removable, small], set())
         self.assertEqual([item["device"] for item in result], ["/dev/vda"])
+
+    def test_candidate_disk_numbers_ignore_nonphysical_block_nodes(self):
+        nodes = [
+            disk(path="/dev/loop0", type="loop"),
+            disk(path="/dev/sr0", type="rom"),
+            disk(path="/dev/zram0"),
+            gpt_disk_with_windows(),
+        ]
+        result = candidate_disks(nodes, set())
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["disk_index"], 0)
+        self.assertEqual(result[0]["display_name"], "Disk 0: QEMU HARDDISK")
+        self.assertTrue(all(target["disk_index"] == 0 for target in result[0]["targets"]))
+
+    def test_candidate_disk_numbers_do_not_change_when_another_disk_is_mounted(self):
+        first = disk(path="/dev/vda")
+        second = disk(path="/dev/vdb", kname="vdb", **{"maj:min": "252:16"})
+        result = candidate_disks([first, second], set())
+        self.assertEqual([item["disk_index"] for item in result], [0, 1])
+        first["mountpoints"] = ["/mounted"]
+        result = candidate_disks([first, second], set())
+        self.assertEqual([item["disk_index"] for item in result], [1])
+
+    def test_candidate_without_model_displays_device_path(self):
+        for model in (None, "", "   "):
+            with self.subTest(model=model):
+                result = candidate_disks([disk(model=model)], set())
+                self.assertEqual(result[0]["display_name"], "Disk 0: /dev/vda")
 
     def test_rejects_live_source(self):
         value = disk()
@@ -393,6 +438,26 @@ class DiskPlanTest(unittest.TestCase):
         with self.assertRaisesRegex(SafetyError, "username"):
             validate_oobe(invalid)
 
+    def test_oobe_activates_firewall_with_restrictive_inbound_defaults(self):
+        runner = RecordingRunner()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            marker = root / "etc/aero7/firewall-backend"
+            marker.parent.mkdir(parents=True)
+            marker.write_text("firewalld\n")
+            configure_oobe_firewall(runner, root)
+        self.assertEqual(runner.calls, [
+            (["systemctl", "enable", "--now", "firewalld.service"], None),
+            (["firewall-cmd", "--state"], None),
+        ])
+
+    def test_oobe_does_not_hide_firewall_activation_failure(self):
+        runner = RecordingRunner()
+        with patch("aero7_install_backend.activate_selected_firewall", side_effect=RuntimeError("firewalld failed")) as activate:
+            with self.assertRaisesRegex(RuntimeError, "firewalld failed"):
+                configure_oobe_firewall(runner)
+            activate.assert_called_once_with(runner, Path("/"))
+
     def test_diagnostic_logging_binds_to_valid_oobe_user(self):
         with tempfile.TemporaryDirectory() as directory:
             state = Path(directory) / "var/lib/aero7/diagnostics-user"
@@ -433,9 +498,95 @@ class DiskPlanTest(unittest.TestCase):
             if value == "--skip-stage"
         ]
         self.assertIn("20-system-update", skipped)
+        self.assertIn("40-plasma-wayland", skipped)
         self.assertNotIn("70-aero-applications", skipped)
         self.assertIn("100-plymouth", skipped)
+        self.assertIn("110-fastfetch", skipped)
         self.assertIn("120-wine", skipped)
+
+    def test_image_core_services_use_selected_firewall_and_pinned_policy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            marker = root / "etc/aero7/firewall-backend"
+            marker.parent.mkdir(parents=True)
+            marker.write_text("firewalld\n")
+            runner = RecordingRunner()
+            configure_image_core_services(runner, root)
+            commands = [argv for argv, _ in runner.calls]
+            self.assertIn('source "$1/lib/packages.sh"', commands[0][2])
+            self.assertIn("aero7_validate_no_x11_packages_configured", commands[0][2])
+            self.assertEqual(commands[1:], [
+                ["systemctl", "enable", "NetworkManager.service"],
+                ["systemctl", "is-enabled", "NetworkManager.service"],
+                ["systemctl", "enable", "sddm.service"],
+                ["systemctl", "is-enabled", "sddm.service"],
+                ["systemctl", "enable", "--now", "firewalld.service"],
+                ["firewall-cmd", "--state"],
+                ["systemctl", "is-enabled", "firewalld.service"],
+                ["systemctl", "is-active", "firewalld.service"],
+                ["systemctl", "enable", "--now", "systemd-timesyncd.service"],
+                ["systemctl", "is-enabled", "systemd-timesyncd.service"],
+                ["systemctl", "is-active", "systemd-timesyncd.service"],
+            ])
+            for fail_at in range(len(commands)):
+                failing = RecordingRunner()
+                original_run = failing.run
+                def run(argv, *, input_text=None):
+                    if len(failing.calls) == fail_at:
+                        raise RuntimeError("injected command failure")
+                    original_run(argv, input_text=input_text)
+                failing.run = run
+                with self.assertRaisesRegex(RuntimeError, "injected"):
+                    configure_image_core_services(failing, root)
+                self.assertEqual(len(failing.calls), fail_at)
+
+    def test_image_core_services_leave_existing_ufw_untouched(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = root / "etc/ufw/ufw.conf"
+            config.parent.mkdir(parents=True)
+            for enabled in ("yes", "no"):
+                config.write_text(f"ENABLED={enabled}\n")
+                before = config.read_bytes()
+                runner = RecordingRunner()
+                configure_image_core_services(runner, root)
+                self.assertEqual(config.read_bytes(), before)
+                commands = [argv for argv, _ in runner.calls]
+                self.assertEqual(len(commands), 8)
+                self.assertFalse(any("ufw.service" in argv or "firewalld.service" in argv
+                                     for argv in commands))
+
+    def test_image_core_policy_error_stops_before_service_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            library = root / "usr/local/lib/aero7-shell-installer/lib/packages.sh"
+            library.parent.mkdir(parents=True)
+            library.write_text("aero7_validate_no_x11_packages_configured() { return 1; }\n")
+            class PolicyRunner(RecordingRunner):
+                def run(self, argv, *, input_text=None):
+                    super().run(argv, input_text=input_text)
+                    subprocess.run(argv, check=True, capture_output=True)
+            runner = PolicyRunner()
+            with self.assertRaises(subprocess.CalledProcessError):
+                configure_image_core_services(runner, root)
+            self.assertEqual(len(runner.calls), 1)
+
+    def test_image_fastfetch_uses_only_installed_package_and_preserves_config(self):
+        runner = RecordingRunner()
+        configure_image_fastfetch("geko", runner)
+        commands = [argv for argv, _ in runner.calls]
+        self.assertEqual(commands[0], ["pacman", "-Q", "fastfetch"])
+        self.assertEqual(len(commands), 5)
+        self.assertEqual(commands[1], ["install", "-d", "-m", "0755", "-o",
+                                      "geko", "-g", "geko", "/home/geko/.config",
+                                      "/home/geko/.config/fastfetch"])
+        self.assertEqual(commands[2][-1], "/home/geko/.config/fastfetch/aero7.jsonc")
+        self.assertEqual(commands[3][-1], "/home/geko/.config/fastfetch/aero7-logo.txt")
+        self.assertIn('[ ! -e "$1/config.jsonc" ]', commands[4][6])
+        self.assertIn('[ ! -L "$1/config.jsonc" ]', commands[4][6])
+        self.assertNotIn("-S", [arg for command in commands for arg in command])
+        with self.assertRaises(SafetyError):
+            configure_image_fastfetch("../root", runner)
 
     def test_first_boot_shell_payload_restores_executable_modes(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -599,6 +750,61 @@ class DiskPlanTest(unittest.TestCase):
             self.assertIn("fillMode: Image.PreserveAspectFit", auth_contents)
             self.assertIn("mipmap: true", auth_contents)
             self.assertIn('color: "white"', button_qml.read_text(encoding="utf-8"))
+
+    def test_plasma_lock_screen_branding_is_repeatable_without_file_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shell = root / "shells/io.gitgud.wackyideas.desktop"
+            auth = shell / "contents/lockscreen/AuthUI.qml"
+            button = shell / "contents/components/GenericButton.qml"
+            logo = shell / "contents/images/branding.png"
+            for path in (auth, button, logo):
+                path.parent.mkdir(parents=True, exist_ok=True)
+            auth.write_text('Image {\n        source: "../images/branding.png"\n}\n')
+            button.write_text('Label {\n        id: btnLabel\n\n        anchors.fill: parent\n}\n')
+            logo.write_bytes(b"old logo")
+            source = root / "branding.png"
+            source.write_bytes(b"correct logo")
+            brand_plasma_lock_screen(root / "shells", source)
+            for path in (auth, button, logo):
+                os.utime(path, ns=(1_000_000_000, 1_000_000_000))
+            before = {path: (path.read_bytes(), path.stat().st_mtime_ns)
+                      for path in (auth, button, logo)}
+
+            self.assertEqual(brand_plasma_lock_screen(root / "shells", source), [shell])
+
+            self.assertEqual(before, {path: (path.read_bytes(), path.stat().st_mtime_ns)
+                                      for path in (auth, button, logo)})
+
+    def test_prebranded_lock_button_accepts_spacing_but_not_wrong_label_or_color(self):
+        cases = (
+            ('        id: btnLabel\n\n        color: "white"\n        anchors.fill: parent\n', True),
+            ('        id: btnLabel\n        color: "white"\n\n        anchors.fill: parent\n', True),
+            ('        id: btnLabel\n\n        color: "black"\n        anchors.fill: parent\n', False),
+            ('        id: anotherLabel\n\n        color: "white"\n        anchors.fill: parent\n', False),
+        )
+        for label, valid in cases:
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                shell = root / "shells/io.gitgud.wackyideas.desktop"
+                auth = shell / "contents/lockscreen/AuthUI.qml"
+                button = shell / "contents/components/GenericButton.qml"
+                logo = shell / "contents/images/branding.png"
+                for path in (auth, button, logo):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                auth.write_text('Image {\n        source: "../images/branding.png"\n        fillMode: Image.PreserveAspectFit\n}\n')
+                button.write_text('Label {\n' + label + '}\n')
+                logo.write_bytes(b"correct logo")
+                source = root / "branding.png"
+                source.write_bytes(b"correct logo")
+                before = {path: (path.read_bytes(), path.stat().st_mtime_ns) for path in (auth, button, logo)}
+                if valid:
+                    self.assertEqual(brand_plasma_lock_screen(root / "shells", source), [shell])
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "button layout changed"):
+                        brand_plasma_lock_screen(root / "shells", source)
+                self.assertEqual(before, {path: (path.read_bytes(), path.stat().st_mtime_ns)
+                                          for path in (auth, button, logo)})
 
     def test_target_identity_replaces_arch_os_release_symlink(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -838,17 +1044,21 @@ class DiskPlanTest(unittest.TestCase):
                 "required\n", encoding="utf-8"
             )
             (share / "beta2-optional-package-names.txt").write_text(
-                "programs-center-beta\n", encoding="utf-8"
+                "programs-center-beta\naero7-credential-vault\n", encoding="utf-8"
             )
             required = packages / "required-1-1-x86_64.pkg.tar.zst"
             optional = packages / "programs-center-beta-1-1-x86_64.pkg.tar.zst"
             required.write_bytes(b"required package")
             optional.write_bytes(b"optional package")
+            vault = packages / "aero7-credential-vault-0.1.0-1-x86_64.pkg.tar.zst"
+            vault.write_bytes(b"optional vault package")
+            vault_hash = hashlib.sha256(vault.read_bytes()).hexdigest()
             required_hash = hashlib.sha256(required.read_bytes()).hexdigest()
             optional_hash = hashlib.sha256(optional.read_bytes()).hexdigest()
             (share / "beta2-local-packages.sha256").write_text(
                 f"{required_hash}  local-packages/{required.name}\n"
-                f"{optional_hash}  local-packages/{optional.name}\n",
+                f"{optional_hash}  local-packages/{optional.name}\n"
+                f"{vault_hash}  local-packages/{vault.name}\n",
                 encoding="utf-8",
             )
             runner = RecordingRunner()
@@ -871,6 +1081,11 @@ class DiskPlanTest(unittest.TestCase):
                 encoding="utf-8"
             )
             self.assertNotIn("programs-center-beta", requested)
+            self.assertNotIn("aero7-credential-vault", requested)
+            self.assertFalse(any("aero7-credential-vault" in arg for arg in local_install))
+            vault_cache = cache / "aero7-credential-vault.pkg.tar.zst"
+            self.assertEqual(vault_cache.read_bytes(), vault.read_bytes())
+            self.assertEqual(Path(f"{vault_cache}.sha256").read_text().strip(), vault_hash)
 
     def test_local_package_checksum_mismatch_stops_before_install(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -961,9 +1176,13 @@ class DiskPlanTest(unittest.TestCase):
             config = root / "etc/sddm.conf.d/10-aero7-first-login.conf"
             systemd = root / "etc/systemd/system"
 
-            session = configure_one_time_autologin("geko", config, sessions, systemd)
+            state = root / "var/lib/sddm/state.conf"
+            session = configure_one_time_autologin("geko", config, sessions, systemd, state)
 
             self.assertEqual(session, "aerothemeplasma.desktop")
+            self.assertEqual(state.stat().st_mode & 0o777, 0o600)
+            self.assertIn(f"Session={sessions / session}\n", state.read_text())
+            self.assertIn("User=geko\n", state.read_text())
             self.assertEqual(config.stat().st_mode & 0o777, 0o644)
             self.assertEqual(
                 config.read_text(encoding="utf-8"),
@@ -987,13 +1206,73 @@ class DiskPlanTest(unittest.TestCase):
             self.assertIn("OnActiveSec=45s", timer.read_text(encoding="utf-8"))
             self.assertIn("Persistent=false", timer.read_text(encoding="utf-8"))
             with self.assertRaisesRegex(SafetyError, "username"):
-                configure_one_time_autologin("Bad User", config, sessions, systemd)
+                configure_one_time_autologin("Bad User", config, sessions, systemd, state)
+
+    def test_normal_session_wins_over_safe_mode_and_survives_cleanup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sessions = root / "sessions"
+            sessions.mkdir()
+            for name in ("aero7-safe.desktop", "aero7.desktop", "plasma.desktop"):
+                (sessions / name).write_text("[Desktop Entry]\n")
+            config, state = root / "first-login.conf", root / "sddm/state.conf"
+            self.assertEqual(configure_one_time_autologin(
+                "tester", config, sessions, root / "systemd", state), "aero7.desktop")
+            config.unlink()
+            self.assertIn(f"Session={sessions / 'aero7.desktop'}\n", state.read_text())
+            self.assertNotIn("Autologin", state.read_text())
+
+    def test_esp_mount_masks_protect_files_and_directories(self):
+        self.assertEqual(esp_mount_arguments("/dev/vda1", Path("/target/boot")),
+                         ["mount", "-o", "fmask=0077,dmask=0077", "/dev/vda1", "/target/boot"])
 
     def test_command_failure_reports_recent_log_output(self):
         with tempfile.TemporaryDirectory() as directory:
             runner = CommandRunner(Path(directory) / "installer.log")
             with self.assertRaisesRegex(RuntimeError, "diagnostic detail"):
                 runner.run(["/bin/sh", "-c", "printf 'diagnostic detail\\n'; exit 7"])
+
+    def test_command_locale_is_utf8_even_before_target_locale_generation(self):
+        for heartbeat in (False, True):
+            with self.subTest(heartbeat=heartbeat), tempfile.TemporaryDirectory() as directory:
+                log = Path(directory) / "installer.log"
+                runner = CommandRunner(log)
+                command = [sys.executable, "-c",
+                           "import os; print(os.environ['LANG']); "
+                           "print(os.environ['LC_ALL']); "
+                           "print(os.environ['LANGUAGE']); "
+                           "print(os.environ['AERO7_QA_SENTINEL'])"]
+                inherited = {"LANG": "not_generated.UTF-8", "LC_ALL": "not_generated.UTF-8",
+                             "LANGUAGE": "nl",
+                             "AERO7_QA_SENTINEL": "preserved"}
+                with patch.dict(os.environ, inherited):
+                    if heartbeat:
+                        with runner.progress_heartbeat(lambda: None, interval=0.02):
+                            runner.run(command)
+                    else:
+                        runner.run(command)
+                    self.assertEqual(os.environ["LANG"], inherited["LANG"])
+                    self.assertEqual(os.environ["LC_ALL"], inherited["LC_ALL"])
+                    self.assertEqual(os.environ["LANGUAGE"], inherited["LANGUAGE"])
+                self.assertIn("C.UTF-8\nC.UTF-8\nC\npreserved\n", log.read_text())
+
+    @unittest.skipUnless(shutil.which("perl"), "Perl package-hook regression requires Perl")
+    def test_perl_hook_does_not_warn_about_an_ungenerated_inherited_locale(self):
+        for heartbeat in (False, True):
+            with self.subTest(heartbeat=heartbeat), tempfile.TemporaryDirectory() as directory:
+                log = Path(directory) / "installer.log"
+                runner = CommandRunner(log)
+                command = ["perl", "-e", 'print "PERL_HOOK_OK\\n"']
+                with patch.dict(os.environ, {"LANG": "not_generated.UTF-8",
+                                              "LC_ALL": "not_generated.UTF-8"}):
+                    if heartbeat:
+                        with runner.progress_heartbeat(lambda: None, interval=0.02):
+                            runner.run(command)
+                    else:
+                        runner.run(command)
+                output = log.read_text()
+                self.assertIn("PERL_HOOK_OK\n", output)
+                self.assertNotIn("perl: warning:", output)
 
     def test_progress_pulse_emits_monotonic_stage_and_overall_percentages(self):
         with patch("aero7_install_backend.event") as emit:
@@ -1335,6 +1614,18 @@ class DiskPlanTest(unittest.TestCase):
                 arguments,
                 ["pacstrap", "-U", "/mnt/aero7-target", str(package)],
             )
+
+    def test_offline_pacstrap_orders_pacman_before_scriptlet_consumers(self):
+        archives = [Path(name) for name in (
+            "fontconfig-2:2.18.3-2-x86_64.pkg.tar.zst",
+            "pacman-mirrorlist-20260610-1-any.pkg.tar.zst",
+            "pacman-7.1.0.r9.g54d9411-2-x86_64.pkg.tar.zst",
+            "zlib-1.3.2-3-x86_64.pkg.tar.zst",
+        )]
+        arguments = pacstrap_arguments(Path("/mnt/test-target"), [], iter(archives))
+        self.assertEqual(arguments[:3], ["pacstrap", "-U", "/mnt/test-target"])
+        self.assertEqual(arguments[3:], [str(archives[i]) for i in (2, 0, 1, 3)])
+        self.assertEqual(len(arguments[3:]), len(archives))
 
     def test_install_variant_rejects_unknown_media_mode(self):
         with tempfile.TemporaryDirectory() as directory:

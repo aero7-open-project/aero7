@@ -10,10 +10,9 @@ SetupPage {
     showBack: true
 
     property date now: new Date()
-    property int calendarYear: now.getFullYear()
-    property int calendarMonth: now.getMonth()
-    property int firstWeekday: new Date(calendarYear, calendarMonth, 1).getDay()
-    property int daysInMonth: new Date(calendarYear, calendarMonth + 1, 0).getDate()
+    readonly property var preview: page.controller.clockPreview(now.getTime(), page.controller.timezone)
+    readonly property int firstWeekday: preview.firstWeekday || 0
+    readonly property int daysInMonth: preview.daysInMonth || 0
 
     Timer { interval: 1000; running: true; repeat: true; onTriggered: page.now = new Date() }
 
@@ -28,13 +27,19 @@ SetupPage {
             AeroComboBox {
                 width: 500
                 model: ["Europe/Amsterdam", "Europe/London", "Europe/Berlin", "America/New_York", "America/Los_Angeles", "Asia/Tokyo"]
-                currentIndex: Math.max(0, model.indexOf(controller.timezone))
-                onActivated: controller.timezone = currentText
+                currentIndex: Math.max(0, model.indexOf(page.controller.timezone))
+                onActivated: page.controller.timezone = currentText
             }
 
             AeroCheckBox {
                 checked: true
+                enabled: false
                 text: qsTr("Automatically adjust the clock for Daylight Saving Time")
+            }
+            Text {
+                text: qsTr("Daylight saving follows the selected time zone automatically.")
+                color: "#25323b"
+                font.pixelSize: 11
             }
 
             Item { width: 1; height: 7 }
@@ -57,7 +62,7 @@ SetupPage {
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.top: parent.top
                             anchors.topMargin: 8
-                            text: Qt.formatDate(page.now, "MMMM yyyy")
+                            text: page.preview.monthTitle || ""
                             color: "#24313b"
                             font.pixelSize: 13
                         }
@@ -91,7 +96,7 @@ SetupPage {
                             rowSpacing: 1
 
                             Repeater {
-                                model: [qsTr("Su"), qsTr("Mo"), qsTr("Tu"), qsTr("We"), qsTr("Th"), qsTr("Fr"), qsTr("Sa")]
+                                model: page.preview.weekdayNames || []
                                 Text {
                                     required property string modelData
                                     width: 30
@@ -116,7 +121,7 @@ SetupPage {
                                         anchors.centerIn: parent
                                         width: 23
                                         height: 18
-                                        visible: parent.dayNumber === page.now.getDate()
+                                        visible: parent.dayNumber === page.preview.day
                                         color: "#c9eaff"
                                         border.color: "#3a9bd4"
                                     }
@@ -139,10 +144,18 @@ SetupPage {
                     width: 170
                     spacing: 7
                     Text { text: qsTr("Time:"); color: "#25323b"; font.pixelSize: 12 }
-                    AnalogClock { anchors.horizontalCenter: parent.horizontalCenter; width: 150; height: 150; now: page.now }
-                    Text {
+                    AnalogClock {
+                        objectName: "setupTimeClock"
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatTime(page.now, "h:mm:ss AP")
+                        width: 150; height: 150
+                        hours: page.preview.hour || 0
+                        minutes: page.preview.minute || 0
+                        seconds: page.preview.second || 0
+                    }
+                    Text {
+                        objectName: "setupTimeText"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: page.preview.valid ? page.preview.timeText + " " + page.preview.abbreviation : qsTr("Select a valid time zone")
                         color: "#25323b"
                         font.pixelSize: 12
                     }

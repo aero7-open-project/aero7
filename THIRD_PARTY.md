@@ -94,8 +94,19 @@ distributor remains responsible for any additional permission required.
   Adwaita Sans typeface from GNOME's `adwaita-fonts` project. It is embedded in
   the installer so local renders and the booted ISO use identical typography;
   its license is retained as `third_party/AdwaitaFonts-LICENSE`.
-- The cursor, analog clock, disk/network/update symbols, progress artwork,
-  check mark, warning symbol, and recycle-bin illustration are original
+- `installer/assets/icons/check-green.png` and `recycle-bin.png` are unchanged
+  copies from `aerothemeplasma-icons-git-11.r96950b8-3`: respectively
+  `Windows 7 Aero/emblems/32/emblem-default.png` and
+  `Windows 7 Aero/places/256/user-trash.png`. Their hashes and retained notices
+  are pinned in `config/installer-icons.sha256`. The package's LICENSE and
+  README are copied verbatim to `third_party/AeroThemePlasma-Icons-LICENSE`
+  and `third_party/AeroThemePlasma-Icons-NOTICE`; CMake installs both notices
+  with the standalone frontend. The installed desktop's icon package also
+  retains its originals under `/usr/share/licenses/aerothemeplasma-icons-git`.
+  These replace the installer's earlier original check/recycle SVGs. The
+  attribution and redistribution caveats above continue to apply.
+- The cursor, analog clock, disk/network/update symbols, progress artwork
+  and warning symbol are original
   code-native SVG/QML artwork created for this installer.
 
 The reference screenshots supplied during development are not embedded in the

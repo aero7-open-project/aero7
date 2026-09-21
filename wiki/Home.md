@@ -10,17 +10,18 @@ system with a Windows-7-era-inspired installer and KDE Plasma 6 Wayland desktop.
 Visit the [official Aero7 website](https://aero7.miku-dayo.com/) for project
 news, downloads, screenshots, and an overview of the complete system.
 
-![Aero7 desktop](images/desktop-overview.png)
+[![Aero7 desktop documentation VM at 1920×1080](images/beta2-1080p/desktop.png)](Screenshot-Gallery)
 
 > **Beta 1 supports x86-64 UEFI PCs and virtual machines.** The guarded
 > installer accepts non-removable SATA, NVMe, MMC, and VirtIO disks. Back up
 > important data, disconnect unrelated disks, and verify the selected disk:
 > Beta software and partition changes can still cause data loss.
 
-> **Beta 2 status:** source, package definitions, release notes, and handbook
-> updates are prepared. The online and offline ISO files are intentionally not
-> published until the remaining fresh-install and graphical release gates pass.
-> Beta 1 remains the current public download.
+> **Beta 2 status:** rebuilt online and offline test candidates passed fresh
+> installation, OOBE, login, exported-log and graphical acceptance on
+> 21 September. The ISO files remain intentionally unpublished until the owner
+> approves the final build and website release. Beta 1 remains the current
+> public download.
 
 ## Start here
 
@@ -28,6 +29,7 @@ news, downloads, screenshots, and an overview of the complete system.
 | --- | --- |
 | Download and install Beta 1 | [Installation](Installation.md) |
 | Review the Beta 2 candidate | [Beta 2 Release Notes](Beta-2-Release-Notes.md) |
+| Learn the Beta 2 desktop and image choices | [Beta 2 Desktop Guide](Beta-2-Desktop-Guide) |
 | Check whether my VM or test PC is supported | [System Requirements](System-Requirements.md) |
 | Understand every setup page | [Installer Guide](Installer-Guide.md) |
 | Learn what happens after restart | [First Boot and OOBE](First-Boot-and-OOBE.md) |

@@ -67,6 +67,17 @@ public Aero7 repository key into the temporary Archiso profile. Git metadata,
 tests, caches, and development output are excluded. The build does not execute
 the source installer or write into the clone.
 
+Before Archiso removes temporary build trees or begins image construction,
+`scripts/check-build-space.py` performs a read-only capacity check. Its conservative
+workspace floor is 16 GiB plus three times the prepared profile's apparent size,
+covering live-root, SquashFS and staged-image coexistence. A separate output
+filesystem also needs 4 GiB plus the profile size for the final copy. Root-reserved
+blocks are excluded. Missing/unreadable paths fail closed; the check creates or
+deletes nothing. This is a minimum staging safeguard, not a guarantee against
+concurrent disk use or package growth. A shortage stops before cleanup so previous
+images and diagnostics remain available for an explicitly reviewed cleanup or
+relocation. It does not check or change the user's installation target disk.
+
 Aero7-shell remains an independent repository with its own history, tests,
 release decisions, and update path. The ISO repository owns only the installer,
 OOBE, boot media, and the exact shell revision pin. Updating the desktop requires
@@ -79,3 +90,24 @@ The QML root fills the output with original background artwork. Installer panels
 are placed on a 1024×768 logical canvas and uniformly scaled, preserving spacing
 and hierarchy at all required resolutions. Controls support mouse, keyboard
 focus, Tab/Shift+Tab, Enter, Escape, and visible focus indicators.
+
+The frontend passes the controller and capture/documentation settings using
+`QQmlApplicationEngine::setInitialProperties`, not ambient context globals.
+`Main.qml` requires a controller. Its Loader supplies the same controller and
+documentation mode when constructing each screen. All screens inherit the
+`InstallerScreen` input contract, directly or through `SetupPage`.
+`GlassWindow` exposes `backEnabled` and `backRequested`; its presentation does
+not reach into the installer controller itself. Root IDs and bound delegate
+scopes make dependencies visible to standalone `qmllint`.
+
+The installer-help CTest suite also checks the complete 20-screen resource set,
+missing-controller rejection, forward/reverse loading in one engine, both
+capture resolutions and documentation modes, navigation buttons, help dialogs
+and live time-preview updates. These are simulation tests; real installation,
+OOBE and session handoff still require fresh-VM acceptance on the final ISOs.
+
+The completed-stage check mark and desktop-preview Recycle Bin are unchanged
+PNG copies from the selected AeroThemePlasma icon package. Their provenance,
+hashes, notices and QML resource references are tested. The UI test suite fails
+on native rendering warnings as well as QML engine diagnostics; this prevents
+an SVG parser warning from being mistaken for a clean rendering pass.

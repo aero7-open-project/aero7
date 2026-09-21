@@ -1,5 +1,38 @@
 # Recovery and Logs
 
+## Physical-install diagnostic folder
+
+Diagnostic test images place **Aero7 Physical Install Logs** on the installed
+user's desktop after OOBE. Before sharing a report, double-click **Collect
+Aero7 Logs Now** in that folder if the desktop is still usable. Wait for the
+collection to finish, then copy the entire folder rather than one screenshot
+of the last error. Keep the original until the report has been received.
+
+System collection refreshes every ten minutes and desktop-session collection
+every five minutes. Per-boot directories separate sessions, and a SHA-256
+manifest helps check the returned collection. This folder is a diagnostic
+test-media feature; do not assume an older ISO already contains it.
+
+| Area | What it helps diagnose |
+| --- | --- |
+| Installer | Installer/OOBE output, storage actions, retained live-media logs, and installation source |
+| System | Current/previous boot journals, kernel messages, failed services, mounts, memory, and disk space |
+| Hardware | CPU, firmware, graphics, USB, storage health, networking, and detected devices |
+| Packages | Installed versions, pacman history, repository configuration, and integrity results |
+| Desktop/session | SDDM, Aero7 and user-session state, display information, and selected application logs |
+| Crashes | Crash summaries without full process core-memory images |
+
+The collector deliberately avoids copying passwords, NetworkManager
+connection-profile files, browser data, personal document contents, and full
+core images. **It is not a guarantee of anonymity:** journals and application
+logs can contain account/computer names, disk serials, MAC addresses, network
+names, file paths, or application-provided text. Review before sharing and
+prefer a private transfer for sensitive diagnostics.
+
+Include the ISO filename, online/offline edition, hardware model, approximate
+failure time, visible error, and whether installation or first login had
+completed. A screenshot alone does not show the complete dependency error.
+
 ## Open recovery
 
 Press **Alt+F2** to switch to the recovery console. Press **Alt+F1** to return to

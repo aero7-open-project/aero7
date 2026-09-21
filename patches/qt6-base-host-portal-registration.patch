@@ -1,0 +1,99 @@
+diff --git a/src/gui/platform/unix/qdesktopunixservices.cpp b/src/gui/platform/unix/qdesktopunixservices.cpp
+index 5fa911399f..32455a4ec5 100644
+--- a/src/gui/platform/unix/qdesktopunixservices.cpp
++++ b/src/gui/platform/unix/qdesktopunixservices.cpp
+@@ -375,21 +375,48 @@ private:
+     const QString m_parentWindowId;
+ };
+
++struct HostPortalRegistrationState
++{
++    bool registered = false;
++    bool pending = false;
++    quint64 generation = 0;
++    QString previousOwner;
++    QString currentOwner;
++};
++
++HostPortalRegistrationState &hostPortalRegistrationState()
++{
++    static HostPortalRegistrationState state;
++    return state;
++}
++
+ void registerWithHostPortal()
+ {
+-    static bool registered = false;
+-    if (registered) {
++    auto &state = hostPortalRegistrationState();
++    if (state.registered || state.pending) {
++        return;
++    }
++    if (QGuiApplication::desktopFileName().isEmpty()) {
++        qCInfo(lcQpaServices) << "QGuiApplication::desktopFileName not set. Unable to register application with portal registry";
+         return;
+     }
+
++    // Portal activation can deliver serviceOwnerChanged while this call is
++    // pending. A connection must register only once with each portal owner.
++    state.pending = true;
++    const auto generation = state.generation;
+     auto message = QDBusMessage::createMethodCall(
+             "org.freedesktop.portal.Desktop"_L1, "/org/freedesktop/portal/desktop"_L1,
+             "org.freedesktop.host.portal.Registry"_L1, "Register"_L1);
+     message.setArguments({ QGuiApplication::desktopFileName(), QVariantMap() });
+     auto watcher =
+             new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(message), qGuiApp);
+-    QObject::connect(watcher, &QDBusPendingCallWatcher::finished, watcher, [watcher] {
++    QObject::connect(watcher, &QDBusPendingCallWatcher::finished, watcher, [watcher, generation] {
+         watcher->deleteLater();
++        auto &state = hostPortalRegistrationState();
++        if (generation != state.generation)
++            return; // An old owner's reply must not affect its replacement.
++        state.pending = false;
+         if (watcher->isError()) {
+             // Expected error when running against an older portal
+             if (watcher->error().type() == QDBusError::UnknownInterface || watcher->error().type() == QDBusError::UnknownMethod)
+@@ -398,10 +425,29 @@ void registerWithHostPortal()
+                 qCWarning(lcQpaServices) << "Failed to register with host portal" << watcher->error();
+         } else {
+             qCDebug(lcQpaServices) << "Successfully registered with host portal as" << QGuiApplication::desktopFileName();
+-            registered = true;
++            state.registered = true;
+         }
+     });
+ }
++
++void hostPortalOwnerChanged(const QString &, const QString &oldOwner, const QString &newOwner)
++{
++    auto &state = hostPortalRegistrationState();
++    // More than one platform-services object can watch the same owner change.
++    // Invalidate once, not once per watcher. Initial activation (empty oldOwner)
++    // must not invalidate an in-flight registration to the newly started portal.
++    if (oldOwner != state.previousOwner || newOwner != state.currentOwner) {
++        state.previousOwner = oldOwner;
++        state.currentOwner = newOwner;
++        if (!oldOwner.isEmpty()) {
++            state.registered = false;
++            state.pending = false;
++            ++state.generation;
++        }
++    }
++    if (!newOwner.isEmpty())
++        registerWithHostPortal();
++}
+ } // namespace
+
+ #endif // QT_CONFIG(dbus)
+@@ -454,9 +500,9 @@ QDesktopUnixServices::QDesktopUnixServices()
+     }
+     m_portalWatcher = std::make_unique<QDBusServiceWatcher>(
+             "org.freedesktop.portal.Desktop"_L1, QDBusConnection::sessionBus(),
+-            QDBusServiceWatcher::WatchForRegistration);
+-    QObject::connect(m_portalWatcher.get(), &QDBusServiceWatcher::serviceRegistered,
+-                     m_portalWatcher.get(), &registerWithHostPortal);
++            QDBusServiceWatcher::WatchForOwnerChange);
++    QObject::connect(m_portalWatcher.get(), &QDBusServiceWatcher::serviceOwnerChanged,
++                     m_portalWatcher.get(), &hostPortalOwnerChanged);
+ #endif
+ }

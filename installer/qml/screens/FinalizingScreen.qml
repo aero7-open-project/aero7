@@ -1,7 +1,8 @@
 import QtQuick
 import "../components"
 
-Item {
+InstallerScreen {
+    id: root
     anchors.fill: parent
 
     Rectangle { anchors.fill: parent; color: "#000000" }
@@ -32,10 +33,10 @@ Item {
         }
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: controller.progressStage + "  " + controller.progress + "%"
+            text: root.controller.progressStage + "  " + root.controller.progress + "%"
             color: "#c6ccd0"
             font.pixelSize: 13
         }
-        AeroProgressBar { width: 430; height: 12; value: controller.progress }
+        AeroProgressBar { width: 430; height: 12; value: root.controller.progress }
     }
 }

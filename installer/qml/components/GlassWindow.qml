@@ -6,6 +6,8 @@ Item {
 
     property string title: "Aero7 Setup"
     property bool showBack: false
+    property bool backEnabled: false
+    signal backRequested()
     property bool showCaptionButtons: true
     property string captionMode: showCaptionButtons ? "all" : "none"
     property int panelWidth: 780
@@ -142,7 +144,7 @@ Item {
                 anchors.topMargin: 2
                 source: "qrc:/assets/smod/back.png"
                 sourceClipRect: Qt.rect(0,
-                    !controller.canGoBack ? 81
+                    !root.backEnabled ? 81
                     : backMouse.pressed ? 54
                     : backMouse.containsMouse ? 27 : 0,
                     29, 27)
@@ -151,10 +153,11 @@ Item {
 
                 MouseArea {
                     id: backMouse
+                    objectName: "setupBackButton"
                     anchors.fill: parent
-                    enabled: controller.canGoBack
+                    enabled: root.backEnabled
                     hoverEnabled: true
-                    onClicked: controller.goBack()
+                    onClicked: root.backRequested()
                 }
             }
 

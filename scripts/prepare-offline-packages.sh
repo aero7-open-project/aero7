@@ -45,6 +45,13 @@ mapfile -t base_packages < <(
 mapfile -t aero_packages < <(
   sed '/^[[:space:]]*#/d;/^[[:space:]]*$/d' "$project_root/config/aero7-packages.txt"
 )
+mapfile -t embedded_packages < <(
+  cat \
+    "$project_root/config/beta2-local-package-names.txt" \
+    "$project_root/config/beta2-optional-package-names.txt" \
+    | sed '/^[[:space:]]*#/d;/^[[:space:]]*$/d' \
+    | sort -u
+)
 ((${#base_packages[@]} && ${#aero_packages[@]})) || {
   printf 'The base or Aero7 package list is empty.\n' >&2
   exit 1
@@ -87,6 +94,10 @@ while IFS= read -r -d '' package_file; do
   install -m 0644 "$package_file" "$base_cache/${package_file##*/}"
 done < <(find "$base_download_cache" -maxdepth 1 -type f -name '*.pkg.tar.*' ! -name '*.sig' -print0)
 declare -A base_package_names=()
+declare -A embedded_package_names=()
+for package_name in "${embedded_packages[@]}"; do
+  embedded_package_names["$package_name"]=1
+done
 while IFS= read -r -d '' package_file; do
   package_name="$(bsdtar -xOf "$package_file" .PKGINFO | sed -n 's/^pkgname = //p')"
   [[ -n "$package_name" ]] || {
@@ -103,7 +114,8 @@ while IFS= read -r -d '' package_file; do
   }
   # The base transaction is installed first. Keep only packages that are not
   # already present there, avoiding hundreds of duplicate archives in the ISO.
-  if [[ ! -v "base_package_names[$package_name]" ]]; then
+  if [[ ! -v "base_package_names[$package_name]" \
+      && ! -v "embedded_package_names[$package_name]" ]]; then
     install -m 0644 "$package_file" "$aero_cache/${package_file##*/}"
   fi
 done < <(find "$aero_download_cache" -maxdepth 1 -type f -name '*.pkg.tar.*' ! -name '*.sig' -print0)

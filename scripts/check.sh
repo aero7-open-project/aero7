@@ -66,7 +66,7 @@ command -v bsdtar >/dev/null 2>&1 || {
 }
 (
   cd "$project_root"
-  sha256sum --check "${local_package_manifest#$project_root/}"
+  sha256sum --check "${local_package_manifest#"$project_root"/}"
 )
 declare -A package_owners=()
 while read -r package_hash package_path; do
@@ -128,6 +128,13 @@ for icon_size in 32x32 256x256; do
     exit 1
   }
 done
+
+paint_package_path="$(
+  awk '$2 ~ /^local-packages\/aero7-kolourpaint-.*\.pkg\.tar\.zst$/ { print $2 }' \
+    "$local_package_manifest"
+)"
+bash "$project_root/scripts/verify-dialog-packages.sh" \
+  "$project_root/$file_explorer_package_path" "$project_root/$paint_package_path"
 
 grep -Fqx 'aero7_shell_path=../aero7-beta2-test-inputs/aero7-shell-pinned' "$project_root/sources.lock" || {
   printf 'The ISO must consume Aero7-shell from its separate sibling clone.\n' >&2
@@ -363,7 +370,7 @@ if rg -n 'Continue|AeroButton' \
   printf 'The automatic OOBE Welcome screen still contains a manual button.\n' >&2
   exit 1
 fi
-grep -Fq 'opacity: controller.desktopHandoff ? 1 : 0' \
+grep -Fq 'opacity: window.controller.desktopHandoff ? 1 : 0' \
   "$project_root/installer/qml/Main.qml"
 grep -Fq 'QStringLiteral("aero7-first-login-cleanup.timer")' \
   "$project_root/installer/src/installercontroller.cpp"
@@ -386,6 +393,10 @@ if rg -n '\balpha software\b' "$project_root/installer/qml" >/dev/null 2>&1; the
 fi
 
 printf 'Pinned visual assets\n'
+(
+  cd "$project_root"
+  sha256sum --check config/installer-icons.sha256
+)
 for required_file in \
   "$project_root/third_party/PlymouthVista/LICENSE" \
   "$project_root/third_party/PlymouthVista/generate-aero7-boot-frames.sh" \
@@ -407,8 +418,8 @@ for required_file in \
   "$project_root/installer/assets/fonts/AdwaitaSans-Regular.ttf" \
   "$project_root/installer/assets/loading/spinner_0.png" \
   "$project_root/installer/assets/loading/spinner_17.png" \
-  "$project_root/installer/assets/icons/check-green.svg" \
-  "$project_root/installer/assets/icons/recycle-bin.svg" \
+  "$project_root/installer/assets/icons/check-green.png" \
+  "$project_root/installer/assets/icons/recycle-bin.png" \
   "$project_root/installer/assets/smod/top.png" \
   "$project_root/installer/assets/smod/close.png" \
   "$project_root/installer/assets/controls/button-normal.png"; do
@@ -469,6 +480,7 @@ theme_package_path="$(
   printf 'The embedded AeroTheme desktop package is missing.\n' >&2
   exit 1
 }
+python "$project_root/scripts/verify-theme-branding.py" "$project_root/$theme_package_path"
 for branding_member in \
   usr/share/sddm/themes/sddm-theme-mod/Assets/aero7-branding-r3.png \
   usr/share/plasma/shells/io.gitgud.wackyideas.desktop/contents/images/branding.png; do
@@ -571,6 +583,16 @@ printf 'Aero7-shell package parity\n'
 while IFS= read -r package_name; do
   [[ -n "$package_name" && "$package_name" != \#* ]] || continue
   case "$package_name" in
+    # Owner-approved Beta 2 backend replacement for fresh installs. Keep the
+    # standalone Shell source pin untouched, but require its explicit ISO
+    # replacement rather than silently dropping firewall coverage.
+    ufw)
+      grep -Fqx firewalld "$project_root/config/base-packages.txt" || {
+        printf 'The approved firewalld replacement is missing.\n' >&2
+        exit 1
+      }
+      continue
+      ;;
     # Source-build and optional utility packages used by the standalone shell
     # installer are intentionally absent from the binary-package ISO target.
     cmake|extra-cmake-modules|ninja|base-devel|wayland-protocols|vulkan-headers|kate|okular)
@@ -615,7 +637,7 @@ for required_desktop_application in qterminal vlc spectacle kcalc featherpad; do
     exit 1
   fi
 done
-for required_control_panel_backend in plasma-nm iptables ufw hunspell hunspell-en_us hunspell-nl \
+for required_control_panel_backend in plasma-nm iptables firewalld hunspell hunspell-en_us hunspell-nl \
     accountsservice upower power-profiles-daemon pipewire-pulse wireplumber; do
   if ! grep -Fqx "$required_control_panel_backend" "$project_root/config/base-packages.txt"; then
     printf 'Required Control Panel backend package is missing: %s\n' \
@@ -623,9 +645,9 @@ for required_control_panel_backend in plasma-nm iptables ufw hunspell hunspell-e
     exit 1
   fi
 done
-grep -Fq '"systemctl", "enable", "ufw.service"' \
+grep -Fq 'prepare_fresh_firewall(TARGET_ROOT, runner)' \
   "$project_root/backend/aero7_install_backend.py" || {
-    printf 'The installed system does not enable UFW rule restoration.\n' >&2
+    printf 'The installed system does not configure the approved fresh-install firewall.\n' >&2
     exit 1
   }
 for available_application in linux-devmgmt tuxmanager; do

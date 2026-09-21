@@ -1,7 +1,8 @@
 import QtQuick
 import "../components"
 
-Item {
+InstallerScreen {
+    id: root
     anchors.fill: parent
 
     Row {

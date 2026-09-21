@@ -15,6 +15,9 @@ aero7-internet-explorer
 linux-control-panel
 aero7-kolourpaint
 aero7-gadgets
+orca
+speech-dispatcher
+espeak-ng
 baloo-widgets
 cups
 execbin

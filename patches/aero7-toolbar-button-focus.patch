@@ -1,0 +1,100 @@
+--- a/src/Gui/ButtonGrid.qml
++++ b/src/Gui/ButtonGrid.qml
+@@ -10,7 +10,7 @@
+ Grid {
+     id: root
+     property int displayMode: QQC.AbstractButton.TextBesideIcon
+-    property int focusPolicy: Qt.StrongFocus
++    property int buttonFocusPolicy: Qt.StrongFocus
+     readonly property bool mirrored: effectiveLayoutDirection === Qt.RightToLeft
+     property bool animationsEnabled: false
+
+--- a/src/Gui/UndoRedoGroup.qml
++++ b/src/Gui/UndoRedoGroup.qml
+@@ -10,7 +10,7 @@
+
+ Grid {
+     id: root
+-    property int focusPolicy: Qt.StrongFocus
++    property int buttonFocusPolicy: Qt.StrongFocus
+     property real buttonHeight: undoButton.implicitHeight
+     property bool animationsEnabled: true
+     spacing: Kirigami.Units.mediumSpacing
+@@ -26,7 +26,7 @@
+         id: undoButton
+         enabled: SpectacleCore.annotationDocument.undoStackDepth > 0
+         height: root.buttonHeight
+-        focusPolicy: root.focusPolicy
++        focusPolicy: root.buttonFocusPolicy
+         display: QQC.ToolButton.IconOnly
+         text: i18n("Undo")
+         icon.name: "edit-undo"
+@@ -37,7 +37,7 @@
+     TtToolButton {
+         enabled: SpectacleCore.annotationDocument.redoStackDepth > 0
+         height: root.buttonHeight
+-        focusPolicy: root.focusPolicy
++        focusPolicy: root.buttonFocusPolicy
+         display: QQC.ToolButton.IconOnly
+         text: i18n("Redo")
+         icon.name: "edit-redo"
+--- a/src/Gui/AnnotationOptionsToolBarContents.qml
++++ b/src/Gui/AnnotationOptionsToolBarContents.qml
+@@ -19,7 +19,7 @@
+     readonly property bool useSelectionOptions: tool.type === AnnotationTool.SelectTool || (tool.type === AnnotationTool.TextTool && selectedItem.options & AnnotationTool.TextOption)
+     readonly property int options: useSelectionOptions ? selectedItem.options : tool.options
+     property int displayMode: QQC.AbstractButton.TextBesideIcon
+-    property int focusPolicy: Qt.StrongFocus
++    property int buttonFocusPolicy: Qt.StrongFocus
+     readonly property bool mirrored: effectiveLayoutDirection === Qt.RightToLeft
+
+     clip: childrenRect.width > width || childrenRect.height > height
+@@ -39,7 +39,7 @@
+     }
+
+     component ToolButton: TtToolButton {
+-        focusPolicy: root.focusPolicy
++        focusPolicy: root.buttonFocusPolicy
+         display: root.displayMode
+     }
+
+--- a/src/Gui/AnnotationsToolBarContents.qml
++++ b/src/Gui/AnnotationsToolBarContents.qml
+@@ -26,7 +26,7 @@
+             buttonHeight: QmlUtils.iconTextButtonHeight
+             height: flow === Grid.LeftToRight ? buttonHeight : implicitHeight
+             width: flow === Grid.TopToBottom ? buttonHeight : implicitWidth
+-            focusPolicy: root.focusPolicy
++            buttonFocusPolicy: root.buttonFocusPolicy
+             flow: root.flow
+             spacing: root.spacing
+         }
+@@ -77,7 +77,7 @@
+         id: button
+         property string extraHelp: ""
+         implicitHeight: QmlUtils.iconTextButtonHeight
+-        focusPolicy: root.focusPolicy
++        focusPolicy: root.buttonFocusPolicy
+         display: root.displayMode
+         checkable: true
+         containmentMask: Item {
+--- a/src/Gui/CaptureOverlay.qml
++++ b/src/Gui/CaptureOverlay.qml
+@@ -696,7 +696,7 @@
+                     id: annotationsContents
+                     spacing: parent.spacing
+                     displayMode: QQC.AbstractButton.IconOnly
+-                    focusPolicy: Qt.NoFocus
++                    buttonFocusPolicy: Qt.NoFocus
+                     isFullscreenCapture: true
+                 }
+
+@@ -849,7 +849,7 @@
+                         contentItem: AnnotationOptionsToolBarContents {
+                             spacing: parent.spacing
+                             displayMode: QQC.AbstractButton.IconOnly
+-                            focusPolicy: Qt.NoFocus
++                            buttonFocusPolicy: Qt.NoFocus
+                         }
+                         topLeftRadius: ((annotationsToolBar.valignment & Qt.AlignBottom) || SelectionEditor.selection.empty) && otbLoader.x >= 0 ? 0 : radius
+                         topRightRadius: ((annotationsToolBar.valignment & Qt.AlignBottom) || SelectionEditor.selection.empty) && otbLoader.x + width <= annotationsToolBar.width ? 0 : radius

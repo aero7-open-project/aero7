@@ -67,6 +67,10 @@ public:
     [[nodiscard]] QString failureDetails() const;
     [[nodiscard]] int restartSeconds() const;
     [[nodiscard]] bool desktopHandoff() const;
+    [[nodiscard]] QVariantMap installationPreferences() const;
+
+    // Display-only conversion: never changes the live or target system clock.
+    Q_INVOKABLE QVariantMap clockPreview(qint64 epochMilliseconds, const QString &zoneId) const;
 
     Q_INVOKABLE void goNext();
     Q_INVOKABLE void goBack();

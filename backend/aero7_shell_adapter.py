@@ -48,7 +48,7 @@ def read_local_package_manifest(path: Path) -> dict[str, str]:
         if not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise RuntimeError("invalid Beta 2 local package checksum")
         match = re.fullmatch(
-            r"local-packages/([A-Za-z0-9@+_.-]+\.pkg\.tar\.zst)",
+            r"local-packages/([A-Za-z0-9@+_.:-]+\.pkg\.tar\.zst)",
             relative_path,
         )
         if match is None:

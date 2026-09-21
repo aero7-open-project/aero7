@@ -9,7 +9,10 @@
 - [Included Software](Included-Software.md)
 - [Aero7 Optional Features](Optional-Features.md)
 - [Beta 2 Release Notes](Beta-2-Release-Notes.md)
+- [Beta 2 Desktop Guide](Beta-2-Desktop-Guide)
 - [Screenshot Gallery](Screenshot-Gallery.md)
+- [Screenshot Capture Details](Screenshot-Capture-Details)
+- [Historical Beta 1 Screenshots](Historical-Screenshots)
 
 ## Help
 

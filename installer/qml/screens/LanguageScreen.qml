@@ -1,8 +1,8 @@
 import QtQuick
-import QtQuick.Controls
 import "../components"
 
-Item {
+InstallerScreen {
+    id: root
     anchors.fill: parent
 
     GlassWindow {
@@ -36,22 +36,22 @@ Item {
             AeroComboBox {
                 width: 400
                 model: ["English", "Nederlands"]
-                currentIndex: controller.language === "Nederlands" ? 1 : 0
-                onActivated: controller.language = currentText
+                currentIndex: root.controller.language === "Nederlands" ? 1 : 0
+                onActivated: root.controller.language = currentText
             }
             Text { text: qsTr("Time and currency format:"); color: "#f7fbff"; style: Text.Outline; styleColor: "#24537c"; font.pixelSize: 15; width: 210; horizontalAlignment: Text.AlignRight }
             AeroComboBox {
                 width: 400
                 model: ["English (United States)", "Nederlands (Nederland)"]
-                currentIndex: controller.timeFormat.indexOf("Nederlands") === 0 ? 1 : 0
-                onActivated: controller.timeFormat = currentText
+                currentIndex: root.controller.timeFormat.indexOf("Nederlands") === 0 ? 1 : 0
+                onActivated: root.controller.timeFormat = currentText
             }
             Text { text: qsTr("Keyboard or input method:"); color: "#f7fbff"; style: Text.Outline; styleColor: "#24537c"; font.pixelSize: 15; width: 210; horizontalAlignment: Text.AlignRight }
             AeroComboBox {
                 width: 400
                 model: ["US", "Dutch"]
-                currentIndex: controller.keyboard === "Dutch" ? 1 : 0
-                onActivated: controller.keyboard = currentText
+                currentIndex: root.controller.keyboard === "Dutch" ? 1 : 0
+                onActivated: root.controller.keyboard = currentText
             }
         }
 
@@ -84,7 +84,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 24
             text: qsTr("Next")
-            onClicked: controller.goNext()
+            onClicked: root.controller.goNext()
         }
     }
 }

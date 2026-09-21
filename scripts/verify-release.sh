@@ -18,6 +18,8 @@ case "${image##*/}" in
     ;;
 esac
 
+python3 "$project_root/scripts/verify-candidate-packages.py" --variant "$expected_variant"
+
 for command_name in file rg sha256sum strings unsquashfs xorriso; do
   command -v "$command_name" >/dev/null 2>&1 || {
     printf 'Missing release verification tool: %s\n' "$command_name" >&2
@@ -62,6 +64,29 @@ unsquashfs -cat "$squashfs" usr/share/aero7/beta2-optional-package-names.txt \
   >"$embedded_optional_names"
 cmp -s "$project_root/config/beta2-optional-package-names.txt" "$embedded_optional_names"
 
+# Presence checks alone can accept a stale backend containing older versions
+# of the same functions. Compare the exact source shipped in this candidate.
+unsquashfs -cat "$squashfs" usr/lib/aero7/firewall_defaults.py \
+  > "$verify_root/firewall_defaults.py"
+cmp -s "$project_root/backend/firewall_defaults.py" "$verify_root/firewall_defaults.py" || {
+  printf 'The ISO firewall setup differs from the current candidate.\n' >&2
+  exit 1
+}
+unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
+  > "$verify_root/aero7-install-backend"
+cmp -s "$project_root/backend/aero7_install_backend.py" \
+  "$verify_root/aero7-install-backend" || {
+    printf 'The ISO installer backend differs from the current candidate.\n' >&2
+    exit 1
+  }
+unsquashfs -cat "$squashfs" usr/lib/aero7/aero7_shell_adapter.py \
+  > "$verify_root/aero7_shell_adapter.py"
+cmp -s "$project_root/backend/aero7_shell_adapter.py" \
+  "$verify_root/aero7_shell_adapter.py" || {
+    printf 'The ISO package adapter differs from the current candidate.\n' >&2
+    exit 1
+  }
+
 unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
   | rg -F 'def brand_plasma_look_and_feel(' >/dev/null
 unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
@@ -99,10 +124,29 @@ unsquashfs -cat "$squashfs" etc/systemd/journald.conf.d/50-aero7-test-logging.co
 for advanced_storage_binary in usr/bin/ntfsresize usr/bin/parted; do
   unsquashfs -cat "$squashfs" "$advanced_storage_binary" >/dev/null
 done
-unsquashfs -cat "$squashfs" usr/bin/aero7-installer \
-  | strings | rg -F 'Aero7 is beta software supplied without warranty' >/dev/null
-unsquashfs -cat "$squashfs" usr/bin/aero7-installer \
-  | strings -el | rg -F 'aero7-first-login-cleanup.timer' >/dev/null
+# An old frontend can contain the same marker strings but omit current QML
+# fixes. Verify the exact frontend produced by the candidate's prepare build.
+candidate_frontend="$project_root/build/installer/aero7-installer"
+[[ -f "$candidate_frontend" ]] || {
+  printf 'The candidate frontend is missing; prepare the candidate before verification.\n' >&2
+  exit 1
+}
+unsquashfs -cat "$squashfs" usr/bin/aero7-installer > "$verify_root/aero7-installer"
+cmp -s "$candidate_frontend" "$verify_root/aero7-installer" || {
+  printf 'The ISO installer frontend differs from the current compiled candidate.\n' >&2
+  exit 1
+}
+strings "$verify_root/aero7-installer" | rg -F 'Aero7 is beta software supplied without warranty' >/dev/null
+strings -el "$verify_root/aero7-installer" | rg -F 'aero7-first-login-cleanup.timer' >/dev/null
+
+for icon_notice in AeroThemePlasma-Icons-LICENSE AeroThemePlasma-Icons-NOTICE; do
+  unsquashfs -cat "$squashfs" "usr/share/licenses/aero7-installer/$icon_notice" \
+    > "$verify_root/$icon_notice"
+  cmp -s "$project_root/third_party/$icon_notice" "$verify_root/$icon_notice" || {
+    printf 'The ISO installer icon notice is missing or changed: %s\n' "$icon_notice" >&2
+    exit 1
+  }
+done
 
 unsquashfs -cat "$squashfs" usr/share/aero7/source/lib/plasma.sh >"$embedded_plasma"
 rg -F 'new Panel("io.gitgud.wackyideas.panel")' "$embedded_plasma" >/dev/null
@@ -132,14 +176,16 @@ grep -Fqx plasma-desktop "$embedded_base_packages"
 for required_desktop_application in qterminal vlc spectacle kcalc featherpad; do
   grep -Fqx "$required_desktop_application" "$embedded_base_packages"
 done
-for required_control_panel_backend in plasma-nm iptables ufw hunspell hunspell-en_us hunspell-nl \
+# lsof identifies processes blocking native safe removal; the other helpers
+# provide the Control Panel's working system backends.
+for required_system_backend in lsof plasma-nm iptables firewalld pacman-contrib fakeroot libnotify hunspell hunspell-en_us hunspell-nl \
     accountsservice upower power-profiles-daemon pipewire-pulse wireplumber \
     efibootmgr wireless-regdb rtkit; do
-  grep -Fqx "$required_control_panel_backend" "$embedded_base_packages"
+  grep -Fqx "$required_system_backend" "$embedded_base_packages"
 done
-for excluded_target_package in plasma-meta kde-applications-meta konsole; do
+for excluded_target_package in plasma-meta kde-applications-meta konsole ufw; do
   if grep -Fqx "$excluded_target_package" "$embedded_base_packages"; then
-    printf 'The release ISO contains an unwanted desktop meta-package: %s\n' \
+    printf 'The release ISO contains an excluded fresh-install package: %s\n' \
       "$excluded_target_package" >&2
     exit 1
   fi

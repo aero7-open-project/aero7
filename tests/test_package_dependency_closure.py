@@ -56,6 +56,50 @@ def capabilities(metadata: dict[str, list[str]]) -> set[str]:
     }
 
 
+def satisfies(dependency: str, metadata: dict[str, list[str]]) -> bool:
+    match = re.fullmatch(r"([^<>=]+)(>=|<=|=|>|<)?([^<>=]*)", dependency)
+    if not match:
+        raise ValueError(f"invalid dependency: {dependency}")
+    name, operator, expected = match.groups()
+    offers = [metadata["pkgname"][0] + "=" + metadata["pkgver"][0]]
+    offers += metadata.get("provides", [])
+    for offer in offers:
+        offered_name, _, version = offer.partition("=")
+        if offered_name != name:
+            continue
+        if not operator:
+            return True
+        if not version:
+            continue
+        comparison = int(subprocess.check_output(["vercmp", version, expected], text=True))
+        if {"=": comparison == 0, ">=": comparison >= 0, "<=": comparison <= 0,
+            ">": comparison > 0, "<": comparison < 0}[operator]:
+            return True
+    return False
+
+
+class DependencyVersionTests(unittest.TestCase):
+    def test_old_version_does_not_satisfy_vault_requirement(self) -> None:
+        old = {"pkgname": ["kwallet"], "pkgver": ["6.28.0-1"]}
+        current = {"pkgname": ["kwallet"], "pkgver": ["6.29.0-1"]}
+        self.assertFalse(satisfies("kwallet>=6.29.0", old))
+        self.assertTrue(satisfies("kwallet>=6.29.0", current))
+
+    def test_unversioned_provider_is_not_a_versioned_dependency(self) -> None:
+        provider = {"pkgname": ["replacement"], "pkgver": ["99-1"], "provides": ["library"]}
+        self.assertTrue(satisfies("library", provider))
+        self.assertFalse(satisfies("library>=1", provider))
+        provider["provides"] = ["library=2"]
+        self.assertTrue(satisfies("library>=1", provider))
+        self.assertFalse(satisfies("library=1", provider))
+
+    def test_epoch_and_package_release_use_pacman_comparison(self) -> None:
+        package = {"pkgname": ["example"], "pkgver": ["1:6.7.4-3"]}
+        self.assertTrue(satisfies("example>6.7.4-99", package))
+        self.assertTrue(satisfies("example=1:6.7.4", package))
+        self.assertFalse(satisfies("example>=1:6.7.4-4", package))
+
+
 class PackageDependencyClosureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -87,6 +131,46 @@ class PackageDependencyClosureTests(unittest.TestCase):
             (path, package_metadata(path))
             for path in manifest_packages(ROOT / "config/beta2-local-packages.sha256")
         ]
+
+    def test_firewalld_offline_recursive_versioned_dependencies(self) -> None:
+        # The earlier local-transaction check only verifies dependencies of
+        # Aero7 packages. The new fresh-install firewall lives in the base
+        # bundle and needs its complete Python/library chain, including SONAME
+        # and exact-version requirements, without using network resolution.
+        providers = {}
+        for path, metadata in self.base:
+            entries = [metadata["pkgname"][0] + "=" + metadata["pkgver"][0]]
+            entries += metadata.get("provides", [])
+            for entry in entries:
+                name, _, version = entry.partition("=")
+                providers.setdefault(name, []).append((version, path, metadata))
+        self.assertNotIn("ufw", providers,
+                         "Offline pacstrap installs every base archive; UFW must not be in the fresh-install bundle")
+        pending = ["firewalld"]
+        visited = set()
+        while pending:
+            dependency = pending.pop()
+            match = re.fullmatch(r"([^<>=]+)([<>=]+)?(.*)", dependency)
+            self.assertIsNotNone(match, dependency)
+            name, operator, expected = match.groups()
+            selected = None
+            for version, path, metadata in providers.get(name, []):
+                if operator:
+                    if not version:
+                        continue
+                    comparison = int(subprocess.check_output(["vercmp", version, expected], text=True))
+                    if not {"=": comparison == 0, ">=": comparison >= 0,
+                            "<=": comparison <= 0, ">": comparison > 0,
+                            "<": comparison < 0}.get(operator, False):
+                        continue
+                selected = (path, metadata)
+                break
+            self.assertIsNotNone(selected, "Missing offline firewall dependency: " + dependency)
+            path, metadata = selected
+            if path in visited:
+                continue
+            visited.add(path)
+            pending.extend(metadata.get("depend", []))
 
     def test_local_transaction_dependencies_are_satisfied(self) -> None:
         base_capabilities = set().union(
@@ -173,6 +257,53 @@ class PackageDependencyClosureTests(unittest.TestCase):
             {}, optional_missing,
             "locally retained optional packages have missing dependencies",
         )
+
+        # Check versions against the final selected set, not an obsolete base
+        # archive that a local replacement removes. This is a metadata check,
+        # not a substitute for a real pacman transaction or boot test.
+        replacements = {metadata["pkgname"][0]: metadata
+                        for _, metadata in list(selected.values()) + required_local}
+        final = {metadata["pkgname"][0]: metadata for _, metadata in self.base
+                 if metadata["pkgname"][0] not in replacements
+                 and not any(satisfies(conflict, metadata)
+                             for replacement in replacements.values()
+                             for conflict in replacement.get("conflict", []))}
+        final.update(replacements)
+        conflicts = [(name, other, conflict)
+                     for name, metadata in final.items()
+                     for conflict in metadata.get("conflict", [])
+                     for other, provider in final.items()
+                     if other != name and satisfies(conflict, provider)]
+        self.assertEqual([], conflicts, "final package set contains mutually conflicting packages")
+        versioned_missing = {}
+        for name, metadata in final.items():
+            absent = [dependency for dependency in metadata.get("depend", [])
+                      if not any(satisfies(dependency, provider) for provider in final.values())]
+            if absent:
+                versioned_missing[name] = absent
+        self.assertEqual({}, versioned_missing, "final package set has unsatisfied versioned dependencies")
+        for _, metadata in optional_local:
+            available = list(final.values()) + [metadata]
+            absent = [dependency for dependency in metadata.get("depend", [])
+                      if not any(satisfies(dependency, provider) for provider in available)]
+            self.assertEqual([], absent, metadata["pkgname"][0]
+                             + " cannot be enabled independently from the offline cache")
+
+    def test_older_embedded_kwallet_is_rejected(self) -> None:
+        # Mutate only in-memory metadata; archives and host packages stay intact.
+        self.base = [(path, {**metadata, "pkgver": ["6.28.0-1"]}
+                      if metadata["pkgname"][0] == "kwallet" else metadata)
+                     for path, metadata in self.base]
+        with self.assertRaisesRegex(AssertionError, r"kwallet>=6\.29\.0"):
+            self.test_local_transaction_dependencies_are_satisfied()
+
+    def test_one_optional_feature_cannot_supply_anothers_dependency(self) -> None:
+        self.local = [(path, {**metadata, "depend": metadata.get("depend", [])
+                              + ["aero7-credential-vault"]}
+                       if metadata["pkgname"][0] == "aero7-programs-center-git" else metadata)
+                      for path, metadata in self.local]
+        with self.assertRaisesRegex(AssertionError, "cannot be enabled independently"):
+            self.test_local_transaction_dependencies_are_satisfied()
 
     def test_internet_explorer_uses_approved_icon_pack_asset(self) -> None:
         package = next(

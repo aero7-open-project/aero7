@@ -2,21 +2,21 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import "../components"
 
-Item {
+InstallerScreen {
     id: root
     anchors.fill: parent
 
-    readonly property int visualStageIndex: controller.progressStageIndex <= 1 ? 0
-                                            : controller.progressStageIndex === 2 ? 1
-                                            : controller.progressStageIndex === 3 ? 2
-                                            : controller.progressStageIndex <= 5 ? 3 : 4
+    readonly property int visualStageIndex: root.controller.progressStageIndex <= 1 ? 0
+                                            : root.controller.progressStageIndex === 2 ? 1
+                                            : root.controller.progressStageIndex === 3 ? 2
+                                            : root.controller.progressStageIndex <= 5 ? 3 : 4
 
     function stagePercent(index) {
         if (index < visualStageIndex)
             return 100
         if (index > visualStageIndex)
             return 0
-        return controller.progressStagePercent
+        return root.controller.progressStagePercent
     }
 
     GlassWindow {
@@ -57,7 +57,7 @@ Item {
             anchors.top: parent.top
             anchors.topMargin: 132
             spacing: 3
-            visible: !controller.setupFailed
+            visible: !root.controller.setupFailed
 
             Repeater {
                 model: [
@@ -80,11 +80,12 @@ Item {
                         width: 23
                         height: 23
                         Image {
+                            objectName: "setupCompletedStageIcon" + stageRow.index
                             anchors.centerIn: parent
                             width: 22
                             height: 22
                             visible: stageRow.index < root.visualStageIndex
-                            source: "qrc:/assets/icons/check-green.svg"
+                            source: "qrc:/assets/icons/check-green.png"
                             fillMode: Image.PreserveAspectFit
                         }
                     }
@@ -112,7 +113,7 @@ Item {
             anchors.rightMargin: 46
             anchors.topMargin: 132
             height: 218
-            visible: controller.setupFailed
+            visible: root.controller.setupFailed
             radius: 4
             color: "#fff4f2"
             border.color: "#b9473b"
@@ -132,7 +133,7 @@ Item {
                 Text {
                     width: parent.width
                     height: 124
-                    text: controller.failureDetails
+                    text: root.controller.failureDetails
                     color: "#3f2926"
                     font.pixelSize: 12
                     wrapMode: Text.Wrap
@@ -155,7 +156,7 @@ Item {
             anchors.leftMargin: 46
             anchors.bottom: overallProgress.top
             anchors.bottomMargin: 9
-            text: controller.progressStage
+            text: root.controller.progressStage
             color: "#59656d"
             font.pixelSize: 12
         }
@@ -169,7 +170,7 @@ Item {
             anchors.rightMargin: 46
             anchors.bottomMargin: 24
             height: 12
-            value: controller.progress
+            value: root.controller.progress
         }
     }
 

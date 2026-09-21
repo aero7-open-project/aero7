@@ -454,6 +454,7 @@ db770cfc06bd30cdf47da5cb925c172c7f21643f940c103fa74b8f8b95ce8c09  offline-packag
 ad4454d1b969192e7a878066400a583b984210322d67c6fa8958ad1175342658  offline-packages/base/llvm-libs-22.1.8-2-x86_64.pkg.tar.zst
 5363304255a506cf71e1ed4f0464166e5f2aad6f0ae444fe08cafd8c83bf11ff  offline-packages/base/lm_sensors-1:3.6.2-1-x86_64.pkg.tar.zst
 50ae8083860e1ffadf4fab3c173a043fd97be41f5ceda7d2e77c528cd84d2386  offline-packages/base/lmdb-0.9.35-1-x86_64.pkg.tar.zst
+798590776e511d13ddde0763ed0b7e8cfc6e9a366be5bdc73e81e235dac857d0  offline-packages/base/lsof-4.99.7-1-x86_64.pkg.tar.zst
 2cd360ab4590950b40adae136dd45a22a50b0621c67db5691e066751f6f2416f  offline-packages/base/lua-5.5.1-1-x86_64.pkg.tar.zst
 c616c82fdac134ede59f7bf7321a6a2606769982839b62215301911871118691  offline-packages/base/lua51-5.1.5-13-x86_64.pkg.tar.zst
 ceda43657ee1d54eef282f636772baf4a7bacc86b5cd461d1891d26c23141ff1  offline-packages/base/lua54-5.4.9-1-x86_64.pkg.tar.zst
@@ -643,7 +644,6 @@ cf3c0ae816f6086fc29481e6d82a928d35abde22924fb8cd936f13dd9fe4bd05  offline-packag
 16cd8a6134a928ab9453b11518258aca74559bf6782d93a5c484f693ad8384e0  offline-packages/base/twolame-0.4.0-4-x86_64.pkg.tar.zst
 3be0345f3a9393f30b5e1167ab4593f55c75031daa123526a581b975d45ec5e3  offline-packages/base/tzdata-2026c-1-x86_64.pkg.tar.zst
 4b6fa221f14a248cc86d0ea8e0380d09965305a38d3cb19aba318508fe61efdb  offline-packages/base/udisks2-2.11.2-1-x86_64.pkg.tar.zst
-2730f7449bed709b5aa9d6d603f6c2b47d423f7ab198bae16642f4cbba1f7ec9  offline-packages/base/ufw-0.36.2-7-any.pkg.tar.zst
 12afd31b30f4335ed56cda717fc2ea0e817ee8d13e0562177ddbb20bd2dc937a  offline-packages/base/unzip-6.0-23-x86_64.pkg.tar.zst
 61fb1fc99fb4ac7c37cf19eb2c1e3b895af797108ddcfc9b68a0d97d4b9c55b0  offline-packages/base/upower-1.91.3-1-x86_64.pkg.tar.zst
 2e209bc71618469647efaee3000f3d41ec04851cc3ff085c3a0fa6283e19cd08  offline-packages/base/usbutils-019-1-x86_64.pkg.tar.zst
@@ -737,3 +737,12 @@ cfd009bc43571c04a189dff125c57552f826840e82cfb146eb94990339adf9a6  offline-packag
 52971dcf5ca5e763a070518da9d615be52ea8f645fd44ee323211b6251d1cc67  offline-packages/base/zlib-ng-2.3.3-1-x86_64.pkg.tar.zst
 d4cf0049137124c8a025eedfad267a3e8a02310c9efb9d1ae4a61aa1d02789fc  offline-packages/base/zstd-1.5.7-3-x86_64.pkg.tar.zst
 4d8c25e0234e264fa0a34687c674fa2ae0d257734783a6982c4985163621141c  offline-packages/base/zxing-cpp-3.1.1-1-x86_64.pkg.tar.zst
+190d0a557a7863023007407832bf8003345e12ee9cc39f6e3c740b4b56cd234e  offline-packages/base/pacman-contrib-1.13.1-1-x86_64.pkg.tar.zst
+701b3f060240ce9392613a4dcb132589f1e1d8251b159074d8dbca3cfc032f22  offline-packages/base/fakeroot-1:1.37.2-3-x86_64.pkg.tar.zst
+0b89d526b76a7b2c5a963807385c0f643910db9d4fdb2b5d0e489f69a1d33209  offline-packages/base/firewalld-2.5.1-2-any.pkg.tar.zst
+68495be23fc8b012e67f6107b415e73b383a99d715d38ab192620a2e380af307  offline-packages/base/gobject-introspection-runtime-1.86.0-2-x86_64.pkg.tar.zst
+edf68340a4aab5c4e5a7a2886512367c7ed6ad2be5e1f07ffc6aff07ebb0a1bf  offline-packages/base/libgirepository-1.86.0-2-x86_64.pkg.tar.zst
+0af655d6dca7aabea220d7f735eaf4c7e7552e7c3995c14fd2e1bee9a4862484  offline-packages/base/python-capng-0.9.5-1-x86_64.pkg.tar.zst
+7f1a7a1d5f3cfb5747defcda3b535839a97a3a9977f25cc4e75ed7afc6bfeb04  offline-packages/base/python-dbus-1.4.0-2-x86_64.pkg.tar.zst
+699e129fd5117598fdacb36452b9243f8e685b5cea40f1d91fe0b485d39be578  offline-packages/base/python-firewall-2.5.1-2-any.pkg.tar.zst
+291cac7fc55c0e9949848cb3f98ff75a3d2e73520f1f11f4334dff1a3f332b58  offline-packages/base/python-gobject-3.56.3-1-x86_64.pkg.tar.zst
