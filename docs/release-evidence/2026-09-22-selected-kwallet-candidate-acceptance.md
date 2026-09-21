@@ -16,8 +16,9 @@ artifacts in this record were rebuilt and verified on 22 September:
 | `aero7-beta2-online-2026.09.21-x86_64.iso` | 1,604,804,608 | `473af71c81bb3686fdcf43250aee67dc23172a2840a50fa30e584fcf1b3bf6c1` |
 | `aero7-beta2-offline-2026.09.21-x86_64.iso` | 3,407,151,104 | `44e687a2edcc8fcad9faf0300d3080ccbceed16f6b973e51d65fb5650ad215f8` |
 
-The builder completed both exports with exit status 0. The source gate passed
-155 integration tests. Release verification passed bootability and embedded
+The builder completed both exports with exit status 0. The source gate now
+passes 160 integration tests, including five later final-artifact metadata
+guards. Release verification passed bootability and embedded
 source checks for both images, including 19 selected online archives and the
 offline set of 84 dependency archives plus 65 repository entries. The selected
 KWallet archive digest is

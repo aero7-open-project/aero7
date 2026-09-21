@@ -146,7 +146,7 @@ optional package, and pass the native Aero7-titled first-use/password dialog
 replay. This closes the refreshed-image vault gate without turning the test
 candidates into approved final downloads.
 
-The latest selected manifest passes 155 integration tests, static checks,
+The latest selected manifest passes 160 integration tests, static checks,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
 checks and 65 offline repository identity/checksum checks. These are local
 results, not new GitHub CI results.

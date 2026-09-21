@@ -60,7 +60,7 @@ separate login Ease of Access gate.
 
 **Latest pre-build review:** The [requirement/website review](release-evidence/2026-09-13-prebuild-requirement-review.md)
 reconciles later test evidence with historical pending statements. A fresh run
-passes 155 integration tests, static checks, 19 online candidate-archive checks,
+passes 160 integration tests, static checks, 19 online candidate-archive checks,
 84 offline candidate/dependency-archive checks, 65 offline repository-entry
 checks and the release-note version/optionality guard. [Reviewed storage cleanup](release-evidence/2026-09-13-build-space-plan.md)
 leaves 38.9 GiB host capacity at its checkpoint. The review originally found two

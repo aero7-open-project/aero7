@@ -10,7 +10,8 @@ publishing or promoting packages is not authorized by a passing local test.
 - The selected package manifest contains 17 required packages and two optional
   packages. The [current release notes](BETA2-RELEASE-NOTES.md) match all 19
   archive identities and optional labels. The current source gate passes all
-  155 integration tests and both archive-variant checks. The earlier
+  160 integration tests and both archive-variant checks. The five additional
+  tests cover fail-closed final-artifact metadata generation. The earlier
   [documentation checkpoint](release-evidence/2026-09-13-vault-overlap-and-docs.md)
   records the preceding 18-package/153-test selection for history.
 - [Desktop 33](release-evidence/2026-09-13-desktop-source-cleanup.md) and

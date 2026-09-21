@@ -41,6 +41,24 @@ not required in the first cleanup set and should remain until the new final
 images pass exact-artifact verification. No broad VM directory, glob, repository
 work tree or reference disk is an approved deletion target.
 
+## Artifact-metadata finalizer follow-up
+
+The final build now has a fail-closed local metadata step in
+`scripts/finalize-release-artifacts.py`. It requires one regular, non-symlink
+online image and one offline image with matching final-date filenames. It runs
+the full release verifier on the recommended offline image first and the online
+image second, then writes an offline-first `SHA256SUMS` and a Markdown artifact
+table. Existing metadata is not overwritten, and a verifier failure leaves no
+metadata behind.
+
+Five focused tests cover the accepted pair, mismatched dates, wrong variants,
+symlinks, verifier failure and overwrite refusal. The complete project suite now
+passes all 160 tests. An end-to-end dry run against the two accepted 21 September
+internal candidates reran both full release verifiers and reproduced their
+recorded sizes and SHA-256 values in temporary metadata. Those dry-run files
+were not retained as final artifacts and do not authorize signing, upload or
+publication.
+
 ## Build boundary
 
 After explicit approval, recheck open handles and free space, remove only the

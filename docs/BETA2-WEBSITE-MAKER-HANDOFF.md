@@ -19,7 +19,7 @@ must not be presented as acceptance of the final package set or final ISOs.
 The current candidate selects Desktop 33, Gadgets 25, Control Panel 55,
 KWin 7.3 and optional Vault 7 alongside the other corrected packages. The
 [release notes](BETA2-RELEASE-NOTES.md) match all 19 selected archive identities
-and optional labels. The latest recorded integration run passes 155 tests,
+and optional labels. The latest recorded integration run passes 160 tests,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
 checks and 65 offline repository-entry checks.
 
@@ -168,6 +168,12 @@ connection. Other feature dependencies may require downloads.
 Do not reuse the hashes from the failed 4/5 September candidates. Rebuilt files
 can have the same filename but different contents. After upload, verify the
 actual downloaded bytes against the final checksum file before enabling buttons.
+After the owner-approved pair is built, run
+`scripts/finalize-release-artifacts.py` with both exact ISO paths and a clean
+metadata directory. It runs the full release verifier on the recommended
+offline image and then the online image, requires matching release dates, and
+creates `SHA256SUMS` plus `BETA2-ARTIFACTS.md` only after both pass. These local
+files do not sign, upload, publish or approve the release.
 
 ### Verification instructions for visitors
 

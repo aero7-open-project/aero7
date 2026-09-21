@@ -261,6 +261,16 @@ if rg -n 'work_root/archive|out_root/archive' \
 fi
 
 printf 'Online and offline installer variants\n'
+[[ -x "$project_root/scripts/finalize-release-artifacts.py" ]] || {
+  printf 'The final artifact metadata generator is not executable.\n' >&2
+  exit 1
+}
+grep -Fq 'verifier(offline)' \
+  "$project_root/scripts/finalize-release-artifacts.py"
+grep -Fq 'verifier(online)' \
+  "$project_root/scripts/finalize-release-artifacts.py"
+grep -Fq 'not signing or publication approval' \
+  "$project_root/scripts/finalize-release-artifacts.py"
 grep -Fq 'Usage: %s [--variant online|offline]' \
   "$project_root/scripts/build-iso.sh"
 grep -Fq 'iso_name="aero7-beta2-online"' \
