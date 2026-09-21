@@ -36,18 +36,22 @@ then upgrades the test package normally, reboots and exits 0 after real Aero7
 unlock/error/cancel/relock UI, two simultaneous clients and two decoded
 synthetic read/lock cycles. Wallet filenames/non-ciphertext metadata, packages,
 desktop services and final lock state are preserved with no failed units. The
-test override remains unselected, so online/offline package integration and the
-login Ease of Access gate are still open.
+accepted override is now selected in the source manifest. The 21 September
+candidate images predate that selection, so refreshed online/offline package
+integration and native prompt replay remain open. The rebuilt candidates close
+the separate login Ease of Access gate.
 
 **Latest pre-build review:** The [requirement/website review](release-evidence/2026-09-13-prebuild-requirement-review.md)
 reconciles later test evidence with historical pending statements. A fresh run
-passes 153 integration tests, static checks, both archive variants and the
-release-note version/optionality guard. [Reviewed storage cleanup](release-evidence/2026-09-13-build-space-plan.md)
+passes 155 integration tests, static checks, 19 online candidate-archive checks,
+84 offline candidate/dependency-archive checks, 65 offline repository-entry
+checks and the release-note version/optionality guard. [Reviewed storage cleanup](release-evidence/2026-09-13-build-space-plan.md)
 leaves 38.9 GiB host capacity at its checkpoint. The review originally found two
 unmet presentation requirements. The later installed-VM checkpoint above
 resolves the scoped Aero7 vault prompt behavior, subject to release-package
-selection. The full login Ease of Access dialog and bottom session tab remain
-unimplemented. Final-image build and release gates remain unchanged.
+selection. The rebuilt 21 September candidates subsequently close the full login
+Ease of Access dialog and bottom session-tab requirement. Final-image build and
+release gates remain unchanged.
 
 **Latest native vault checkpoint:** [Two-window prompt replay and retention](release-evidence/2026-09-13-vault-native-prompts.md)
 verifies shared cancellation, retry, closing one waiting client and successful

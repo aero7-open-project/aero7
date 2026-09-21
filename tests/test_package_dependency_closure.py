@@ -289,11 +289,32 @@ class PackageDependencyClosureTests(unittest.TestCase):
             self.assertEqual([], absent, metadata["pkgname"][0]
                              + " cannot be enabled independently from the offline cache")
 
-    def test_older_embedded_kwallet_is_rejected(self) -> None:
+    def test_selected_kwallet_has_accepted_aero7_presentation(self) -> None:
+        required = set(read_list(ROOT / "config/beta2-local-package-names.txt"))
+        self.assertIn("kwallet", required)
+        package, metadata = next(
+            item for item in self.local if item[1]["pkgname"][0] == "kwallet"
+        )
+        self.assertEqual(["6.29.0-1.1"], metadata["pkgver"])
+        with package.open("rb") as stream:
+            self.assertEqual(
+                "1079461023f7d105646675cc88ac6d4e14754cec379bee49c14046d552faf8db",
+                hashlib.file_digest(stream, "sha256").hexdigest(),
+            )
+        members = set(subprocess.check_output(
+            ["bsdtar", "-tf", str(package)], text=True
+        ).splitlines())
+        self.assertIn("usr/bin/ksecretd", members)
+        self.assertIn("usr/share/doc/kwallet/aero7-vault-presentation.md", members)
+        self.assertIn(
+            "usr/share/licenses/kwallet/aero7-vault-icon/PROVENANCE.md", members
+        )
+
+    def test_older_selected_kwallet_is_rejected(self) -> None:
         # Mutate only in-memory metadata; archives and host packages stay intact.
-        self.base = [(path, {**metadata, "pkgver": ["6.28.0-1"]}
+        self.local = [(path, {**metadata, "pkgver": ["6.28.0-1"]}
                       if metadata["pkgname"][0] == "kwallet" else metadata)
-                     for path, metadata in self.base]
+                     for path, metadata in self.local]
         with self.assertRaisesRegex(AssertionError, r"kwallet>=6\.29\.0"):
             self.test_local_transaction_dependencies_are_satisfied()
 

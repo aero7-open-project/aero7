@@ -14,3 +14,4 @@ plasma-workspace
 qt6-base
 uac-polkit-agent-git
 kwin
+kwallet

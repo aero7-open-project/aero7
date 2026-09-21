@@ -13,6 +13,7 @@ eda2eeb5c9d255fa500dc179e804f6b67590bebfbeb1a1eb3b22c4c92bb1280d  local-packages
 d918e0041351a7c1b9643e15e8eee7e05547e6062b80b4bfd95cc29fb206797b  local-packages/spectacle-1:6.7.4-3-x86_64.pkg.tar.zst
 d586c6f0a3e9ccdd1dde50628621ddc163ece25371286bed5dc9be74ad2f2e09  local-packages/plasma-workspace-6.7.4-3.2-x86_64.pkg.tar.zst
 55cae7104828152b935e3b72315dd588a898c48b12072a05039708e5aaa0e50e  local-packages/aero7-credential-vault-0.1.0-7-x86_64.pkg.tar.zst
+1079461023f7d105646675cc88ac6d4e14754cec379bee49c14046d552faf8db  local-packages/kwallet-6.29.0-1.1-x86_64.pkg.tar.zst
 eb0dd4e417acc1f75a29c0ac134acafb90aaf061a7b2198ffd5531272fa3c690  local-packages/qt6-base-6.11.2-3.1-x86_64.pkg.tar.zst
 38e9b7c690671c355a87fe7ce0c676719775706e183acd552167fe3813717132  local-packages/uac-polkit-agent-git-6.7.0_816.rd8c2262-2-x86_64.pkg.tar.zst
 32fdebc384498639412bbfd10822c47ae7139c4c041de4e8a93ba58dcd35ca75  local-packages/kwin-6.7.4-7.3-x86_64.pkg.tar.zst

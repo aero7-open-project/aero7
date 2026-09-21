@@ -18,9 +18,10 @@ must not be presented as acceptance of the final package set or final ISOs.
 
 The current candidate selects Desktop 33, Gadgets 25, Control Panel 55,
 KWin 7.3 and optional Vault 7 alongside the other corrected packages. The
-[release notes](BETA2-RELEASE-NOTES.md) match all 18 selected archive identities
-and optional labels. The latest recorded integration run passes 153 tests,
-18 online / 53 offline archive checks and 35 offline repository-entry checks.
+[release notes](BETA2-RELEASE-NOTES.md) match all 19 selected archive identities
+and optional labels. The latest recorded integration run passes 155 tests,
+19 online candidate-archive checks, 84 offline candidate/dependency-archive
+checks and 65 offline repository-entry checks.
 
 The [selected-stack alignment report](release-evidence/2026-09-13-selected-stack-alignment.md)
 now verifies all 16 core versions after normal reboot/password login in both
@@ -54,14 +55,15 @@ two former presentation findings: the requested login Ease of Access dialog and
 the stock KDE Wallet password dialog. The later
 [installed-VM vault replay](release-evidence/2026-09-20-vault-presentation-native-vm.md)
 passes the scoped Aero7 prompt, retry, cancel, overlap and retention behavior;
-the selected package now includes it. The rebuilt candidates also include and
+the selected source manifest now includes it. The rebuilt candidates include and
 pass the SDDM Ease of Access dialog and desktop-session selector. These later
-results supersede the older open-gate wording without erasing the historical
-evidence.
-The [vault presentation source patch](release-evidence/2026-09-13-vault-presentation-source.md)
-now builds and passes isolated tests using the existing pack icon. Its test
-package also passes the installed-VM replay, but it is not selected for either
-ISO. Keep this as engineering progress, not a shipped-feature claim.
+results close the SDDM gate without erasing the historical evidence. The
+[vault presentation source patch](release-evidence/2026-09-13-vault-presentation-source.md)
+builds and passes isolated tests using the existing pack icon. Its accepted
+`kwallet 6.29.0-1.1` package now belongs to the required local transaction, but
+the 21 September candidate images predate that manifest change. Keep the vault
+presentation as engineering progress until refreshed images pass native replay;
+do not describe it as shipped yet.
 The [native vault follow-up](release-evidence/2026-09-13-vault-native-prompts.md)
 verifies cancellation, retry, client closure and retained synthetic credentials
 through two read/lock cycles. The original ciphertext-hash failure is preserved

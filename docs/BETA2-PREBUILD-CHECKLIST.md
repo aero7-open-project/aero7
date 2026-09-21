@@ -1,22 +1,23 @@
 # Beta 2 pre-build closure checklist
 
-Updated 13 September 2026. Internal working record, not release approval.
+Updated 21 September 2026. Internal working record, not release approval.
 The goal is to finish the bug-fix pass and website-update Markdown, then request
 approval to build the final online and offline images. Building, signing,
 publishing or promoting packages is not authorized by a passing local test.
 
 ## Evidence already established
 
-- The selected package manifest contains 16 required packages and two optional
-  packages. The [current release notes](BETA2-RELEASE-NOTES.md) match all 18
-  archive identities and optional labels. All 153 integration tests and both
-  archive-variant checks pass in the
-  [latest recorded run](release-evidence/2026-09-13-vault-overlap-and-docs.md).
+- The selected package manifest contains 17 required packages and two optional
+  packages. The [current release notes](BETA2-RELEASE-NOTES.md) match all 19
+  archive identities and optional labels. The current source gate passes all
+  155 integration tests and both archive-variant checks. The earlier
+  [documentation checkpoint](release-evidence/2026-09-13-vault-overlap-and-docs.md)
+  records the preceding 18-package/153-test selection for history.
 - [Desktop 33](release-evidence/2026-09-13-desktop-source-cleanup.md) and
   [Control Panel 55](release-evidence/2026-09-13-control-panel-source-cleanup.md)
   have cleaned source exports and passing package tests. Their reports retain
   the exact runtime/source comparison boundaries.
-- All 18 selected archives have retained build recipes whose hashes match their
+- The original 18 selected archives have retained build recipes whose hashes match their
   embedded BUILDINFO. The [machine-readable audit](release-evidence/selected-stack-logs/build-recipes.json)
   records the original and relocated paths. This is local traceability, not
   proof of source completeness, reproducible binaries or trusted signing.
@@ -63,14 +64,17 @@ publishing or promoting packages is not authorized by a passing local test.
   leave 38.9 GiB host space at the recorded checkpoint, with current guests,
   selected packages and retained sources/evidence protected. Fresh capacity
   checks remain mandatory before any approved build.
-- [ ] Complete the requested login Ease of Access dialog, including its six
-  accessibility options and bottom desktop-environment tab, or obtain explicit
-  owner deferral. The current flat session/keyboard popup is not that dialog.
+- [x] Complete the requested login Ease of Access dialog, including its six
+  accessibility options and bottom desktop-environment tab. The rebuilt
+  [21 September candidates](release-evidence/2026-09-21-rebuilt-online-offline-acceptance.md)
+  pass the lower-left dialog and Aero7/AeroThemePlasma/Plasma session selector.
 - [ ] Resolve the normal-session vault password-dialog ownership/branding gap,
   or obtain explicit owner deferral. The
   [20 September installed-VM replay](release-evidence/2026-09-20-vault-presentation-native-vm.md)
   proves the scoped Aero7 prompt, retry, cancel, overlap and retention behavior,
-  but the release-built package is not selected into online/offline media yet.
+  and the accepted `kwallet 6.29.0-1.1` override is now selected in the source
+  manifest. Refreshed online/offline image integration and native prompt replay
+  remain required before this item can be checked.
 
 Newly reproduced product defects belong in this list with a regression test and
 native replay where applicable. Passing these actions is the point to notify

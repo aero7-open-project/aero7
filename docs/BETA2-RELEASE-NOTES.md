@@ -110,7 +110,7 @@ and collected files before sharing them.
 ## Current local candidate packages
 
 These are local QA selections, not a published repository availability claim.
-Versions were read from all 18 package metadata records referenced by the
+Versions were read from all 19 package metadata records referenced by the
 [local checksum manifest](../config/beta2-local-packages.sha256).
 
 | Package | Selected version |
@@ -133,12 +133,21 @@ Versions were read from all 18 package metadata records referenced by the
 | `kwin` | `6.7.4-7.3` |
 | `aero7-programs-center-git` (optional) | `0.1.0.r12.g0405a2e-3` |
 | `aero7-credential-vault` (optional) | `0.1.0-7` |
+| `kwallet` | `6.29.0-1.1` |
 
 ## Acceptance and release gates
 
-The latest selected manifest passes 153 integration tests, static checks,
-18 online archive checks, 53 offline archive checks and 35 offline repository
-identity/checksum checks. These are local results, not new GitHub CI results.
+The latest selected manifest adds the accepted Aero7-scoped KWallet presentation
+package to the required local transaction. The earlier 21 September rebuilt
+candidates predate that selection, so their successful clean-install results
+remain evidence for the rest of the stack but do not close the refreshed-image
+vault gate. A new online/offline candidate cycle is required before final-build
+approval.
+
+The latest selected manifest passes 155 integration tests, static checks,
+19 online candidate-archive checks, 84 offline candidate/dependency-archive
+checks and 65 offline repository identity/checksum checks. These are local
+results, not new GitHub CI results.
 
 Fresh installations from both rebuilt 21 September test candidates verify the
 selected stack after OOBE and password login. Both collector manifests verify

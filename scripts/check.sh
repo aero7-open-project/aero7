@@ -23,7 +23,9 @@ done
 
 printf 'Repository structure\n'
 mapfile -t tracked_readmes < <(
-  git -C "$project_root" ls-files | grep -Ei '(^|/)readme([^/]*)$' || true
+  git -C "$project_root" ls-files \
+    | grep -Ev '^(docs|wiki)/' \
+    | grep -Ei '(^|/)readme([^/]*)$' || true
 )
 if ((${#tracked_readmes[@]} != 1)) || [[ "${tracked_readmes[0]:-}" != "README.md" ]]; then
   printf 'Keep one public README at the repository root; found:\n' >&2
