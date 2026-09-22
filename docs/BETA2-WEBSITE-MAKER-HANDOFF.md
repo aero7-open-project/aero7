@@ -418,11 +418,17 @@ CPU and network performance differ. We do not promise a fixed installation time.
 
 ## 7. Screenshot handoff
 
-Final asset directory and capture evidence: **PENDING new-image acceptance**.
-Use 1920×1080 at 100% scale, PNG, without stretching or compositing UI states.
-Do not use private QA logs, deliberate failure screens or password-entry shots
-as promotional assets. Where the diagnostic folder is visible, label the image
-as diagnostic test media; do not silently erase it and imply a different build.
+**Replace every previous Aero7 website screenshot with the new final set in
+`docs/website-assets/beta2-final-1080p/`.** These assets were captured on
+22 September 2026 from a fresh installation of the exact final Offline ISO.
+They are native 1920×1080 PNGs at 100% scale, not stretched, retouched or
+composited. Verify them with the adjacent `SHA256SUMS.txt` before upload.
+
+Do not keep older Beta 1, upgraded-test-VM or layout-preview screenshots on a
+page that describes Beta 2. Do not use private QA logs, deliberate failure
+screens or password-entry shots as promotional assets. Where the diagnostic
+folder is visible, label it as physical-install diagnostic media rather than
+silently removing it and implying a different build.
 
 | Suggested filename | Caption / alt text |
 | --- | --- |
@@ -430,11 +436,16 @@ as diagnostic test media; do not silently erase it and imply a different build.
 | beta2-start.png | Aero7 Start menu and searchable applications. |
 | beta2-computer.png | File Explorer Computer view with friendly drive information. |
 | beta2-libraries.png | File Explorer showing Documents, Music, Pictures and Videos libraries. |
+| beta2-library-properties.png | Documents Library Properties backed by the user's real folder. |
 | beta2-control-panel.png | All Control Panel Items in the five-column Aero7 layout. |
+| beta2-control-panel-home.png | Control Panel category view. |
 | beta2-screen-resolution.png | Aero7 Screen Resolution settings on the test display. |
 | beta2-features.png | Turn Aero7 features on or off, including optional Programs Center Beta. |
 | beta2-gadgets.png | Aero7 Desktop Gadgets gallery. |
-| beta2-login-menu.png | Aero7 login screen with available session and accessibility controls. |
+| beta2-login-screen.png | Aero7 SDDM login screen with complete Professional branding. |
+| beta2-login-ease-of-access.png | Windows-style Ease of Access dialog at login. |
+| beta2-login-menu.png | Desktop-environment selector with Aero7 and Plasma fallback sessions. |
+| beta2-login-keyboard.png | On-screen keyboard at the Aero7 login screen. |
 | beta2-lock-screen.png | Aero7 lock screen with fully visible Professional branding. |
 | beta2-screenshot-saved.png | Screenshot saved notification after a rectangular capture. |
 
@@ -442,11 +453,11 @@ Retain original PNG downloads; responsive web copies may be optimized without
 changing the depicted UI. Add real alt text and do not put essential instructions
 only inside screenshots. Do not publish a missing asset link as if it exists.
 
-**Local handoff integrity check, 22 September:** all 148 relative links across
-this handoff, the release notes, pre-build checklist and QA status resolve. The
-nine intermediate preview PNGs and four fresh-r3 preview PNGs match their
-retained SHA-256 inventories and are all exactly 1920×1080. They remain labeled
-QA/layout previews and do not fill the pending final-image asset directory.
+**Final image acceptance, 22 September:** all 16 website assets and all 16 wiki
+gallery assets are exactly 1920×1080 and have fresh SHA-256 manifests. The
+installer, OOBE, desktop-shell and application screenshot sets were also
+replaced with final-ISO captures at the same native resolution. Preview images
+are no longer substitutes for the release gallery.
 
 ## 8. Announcement draft — use only after approval
 

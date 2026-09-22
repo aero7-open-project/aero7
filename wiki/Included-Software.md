@@ -83,11 +83,12 @@ copy of the exact request is stored at:
 /var/lib/aero7/requested-aero7-packages.txt
 ```
 
-## Historical Beta 1 application captures
+## Beta 2 application captures
 
-These older images are retained for reference, not presented as the Beta 2
-desktop. The [new 1920×1080 VM tour](Screenshot-Gallery) identifies its exact
-test-package versions and remaining visual differences.
+These application images were recaptured at 1920×1080 from the final Beta 2
+Offline ISO on 22 September 2026. The
+[VM tour](Screenshot-Gallery) identifies the exact package versions and
+capture boundary.
 
 | File Explorer | Photo Viewer |
 | --- | --- |

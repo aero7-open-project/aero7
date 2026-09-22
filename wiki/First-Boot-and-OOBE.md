@@ -1,11 +1,9 @@
 # First Boot and OOBE
 
 The first installed boot starts a one-time Cage/Qt setup service instead of a
-normal desktop login.
-
-| Applying system settings | Checking video performance |
-| --- | --- |
-| ![Applying system settings](images/oobe-01-applying-settings.png) | ![Checking video performance](images/oobe-02-video-performance.png) |
+normal desktop login. The final Beta 2 flow opens directly on account setup;
+the old separate “applying settings” and “checking video performance” pages
+are no longer part of the published sequence.
 
 ## Personalization pages
 
@@ -46,7 +44,8 @@ manual Continue button.
 
 The first desktop session logs in automatically so the transition feels
 continuous. A self-disabling cleanup timer removes that temporary SDDM setting
-after 45 seconds. Later boots require the account password normally.
+after 45 seconds. Later boots require the account password normally. The
+22 September gallery captures this exact final-ISO flow at 1920×1080.
 
 ## User name rules
 

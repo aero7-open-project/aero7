@@ -12,7 +12,7 @@
 - [Beta 2 Desktop Guide](Beta-2-Desktop-Guide)
 - [Screenshot Gallery](Screenshot-Gallery.md)
 - [Screenshot Capture Details](Screenshot-Capture-Details)
-- [Historical Beta 1 Screenshots](Historical-Screenshots)
+- [Beta 2 App Screenshots](Historical-Screenshots)
 
 ## Help
 

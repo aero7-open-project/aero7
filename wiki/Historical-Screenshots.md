@@ -1,12 +1,11 @@
-# Historical Beta 1 Screenshots
+# Beta 2 Desktop and Application Screenshots
 
-These images document the older Aero7 Beta 1 candidate, not the current Beta 2
-desktop work. See the [new 1920×1080 VM gallery](Screenshot-Gallery) for the
-latest documentation captures. Installer and OOBE
-screens are deterministic captures rendered from the same Qt/QML sources used
-by the ISO. Desktop and application screens were captured after a clean
-installation, OOBE, and first-login repair in the documented QEMU/KVM test
-profile.
+These images were replaced on 22 September 2026 with native 1920×1080 captures
+from a fresh installation of the final Aero7 Beta 2 Offline ISO. See the
+[curated VM gallery](Screenshot-Gallery) and
+[capture details](Screenshot-Capture-Details) for the exact media checksum,
+package versions and scope. The page name is retained so existing wiki links do
+not break.
 
 ## Desktop
 
@@ -62,11 +61,12 @@ profile.
 
 The complete ordered setup sequences are kept on their dedicated pages:
 
-- [Installer Guide](Installer-Guide.md) — every installer page from language
-  selection through restart;
+- [Installer Guide](Installer-Guide.md) — every published installer page from
+  language selection through the automatic first boot;
 - [First Boot and OOBE](First-Boot-and-OOBE.md) — every first-boot page through
   the desktop handoff.
 
 The Snipping Tool uses a background region-selection overlay and copies the
 result directly to the clipboard, so it does not have a persistent application
-window to include here.
+window to include here. Its fresh saved-notification capture is in the
+[Screenshot Gallery](Screenshot-Gallery#screenshot-workflow).

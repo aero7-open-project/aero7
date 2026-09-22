@@ -3,13 +3,13 @@
 ## Language and region
 
 Choose the installer language, time and currency format, and keyboard layout.
-Beta 1 currently presents the English/US choices used by the validated flow.
+Beta 2 currently presents the English/US choices used by the validated flow.
 
 ![Language, region, and keyboard selection](images/installer-01-language.png)
 
 ## Install now
 
-Starts setup. **Upgrade** is visibly disabled because Beta 1 performs only clean
+Starts setup. **Upgrade** is visibly disabled because Beta 2 performs only clean
 installations. **Repair your computer** asks for confirmation, starts the TTY2
 recovery shell, and switches to it.
 
@@ -70,17 +70,17 @@ Detailed output is written to `/var/log/aero7-installer.log`.
 
 ![Installation progress](images/installer-09-progress.png)
 
-## Restart
+## Restart and first boot
 
-The QEMU launcher prefers the installed virtual disk over the still-attached
-DVD. On hardware, remove the USB or choose the installed disk if firmware boots
-the installer again. The installed Plymouth animation
-plays before OOBE begins.
+After installation completes, setup restarts into the installed system and
+continues directly to OOBE. The QEMU launcher prefers the installed virtual
+disk over the still-attached DVD. On hardware, remove the USB or choose the
+installed disk if firmware boots the installer again. The installed Plymouth
+animation plays before OOBE begins.
 
-![Restart to continue](images/installer-10-restart.png)
-
-The complete gallery above is generated directly from the current QML source;
-no historical installer screenshots are mixed into this page.
+The complete gallery above comes from the fresh final Beta 2 Offline ISO
+installation captured on 22 September 2026. No historical installer images
+are mixed into the published sequence.
 
 ## Keyboard navigation
 
