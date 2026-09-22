@@ -3,11 +3,13 @@
 **Working draft — DO NOT PUBLISH OR ENABLE DOWNLOADS YET.**
 
 Updated 22 September 2026. Rebuilt online and offline test candidates have
-completed clean-install acceptance. They are not final downloads: the owner
-must still approve the final build, artifact upload and website publication.
-This document supplies website copy, implementation requirements and a release
-checklist. Draft announcement wording is conditional on the release gates below.
-It is not approval to publish, nor a claim that Beta 2 is already available.
+completed clean-install acceptance, and the exact final local image pair has now
+passed the same connected-online and disconnected-offline VM gate. The artifacts
+are not public downloads: signing/upload decisions, hosted-file verification
+and website publication approval remain open. This document supplies website
+copy, implementation requirements and a release checklist. Draft announcement
+wording is conditional on the remaining gates below. It is not approval to
+publish, nor a claim that Beta 2 is already available.
 
 Current QA status and package identities are recorded in the
 [QA status and evidence history](BETA2-QA-STATUS.md). Its linked reports distinguish
@@ -22,6 +24,15 @@ KWin 7.3 and optional Vault 7 alongside the other corrected packages. The
 and optional labels. The latest recorded integration run passes 160 tests,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
 checks and 65 offline repository-entry checks.
+
+The [final-media acceptance report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
+records both locally finalized artifacts. Each exact ISO completed a clean
+installation, OOBE, first-login audit, optional Programs Center install/removal,
+reboot and pinned File Explorer launch at 1920x1080. The offline image ran with
+no network adapter; the online image verified networking and synchronized time.
+Both prove that the PolicyKit agent is active before the first privileged
+feature request. Final URLs, signing state and upload-back verification remain
+pending.
 
 The [selected-stack alignment report](release-evidence/2026-09-13-selected-stack-alignment.md)
 now verifies all 16 core versions after normal reboot/password login in both
@@ -80,12 +91,11 @@ the earlier clean reboot checkpoints do not mean permanent zero-error status.
 Do not claim warning-free logs or verified physical-hardware compatibility.
 No security checks were weakened or failed units cleared to suppress diagnostics.
 
-The rebuilt test candidates contain the selected fixes and passed fresh
-online/offline installation. Final release image building still requires
-explicit approval, followed by exact-media verification. Use sections 1–9 below as conditional
-website copy. Keep downloads disabled, final artifact fields pending and the
-current public release unchanged until release checks and publication approval
-are complete.
+The final local images contain the selected fixes and passed fresh exact-media
+online/offline installation. Use sections 1–9 below as conditional website copy.
+Keep downloads disabled and the current public release unchanged until the
+remaining signing/upload, hosted-file verification and publication-approval
+checks are complete.
 
 ## 1. What the website team should change
 
@@ -158,10 +168,10 @@ connection. Other feature dependencies may require downloads.
 
 | Field | Offline | Online |
 | --- | --- | --- |
-| Final filename | PENDING owner approval | PENDING owner approval |
-| Exact byte size | PENDING final build | PENDING final build |
-| Display size | PENDING final build | PENDING final build |
-| SHA-256 | PENDING final build | PENDING final build |
+| Final filename | `aero7-beta2-offline-2026.09.22-x86_64.iso` | `aero7-beta2-online-2026.09.22-x86_64.iso` |
+| Exact byte size | 3,407,151,104 bytes | 1,604,804,608 bytes |
+| Display size | 3.17 GiB | 1.49 GiB |
+| SHA-256 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 | Direct HTTPS download URL | Website owner to provide | Website owner to provide |
 | Release date | Set when publication is approved | Same release date |
 
@@ -506,9 +516,11 @@ Use project website download URLs for ISO buttons, not repository archive links.
 
 ### Launch checks
 
-- [x] Both rebuilt test candidates pass embedded-package/checksum verification.
-- [x] Fresh online installation, OOBE and normal reboot/login pass.
-- [x] Fresh offline installation passes with no network adapter attached.
+- [x] Both exact final local images pass embedded-package/checksum verification.
+- [x] The exact final online image passes fresh installation, OOBE and normal
+  reboot/login.
+- [x] The exact final offline image passes fresh installation with no network
+  adapter attached.
 - [x] First-login collector manifests pass with zero failed units/coredumps.
 - [x] Optional Programs Center installs and removes through the feature manager.
 - [x] Login/lock branding, SDDM accessibility and session selection pass.
@@ -526,7 +538,9 @@ Use project website download URLs for ISO buttons, not repository archive links.
   physical multi-monitor, unsupported voice control and unavailable optional
   backends from the tested claim.
 - [ ] Release package provenance/signing and repository promotion are verified.
-- [ ] Final artifact table, checksum file and screenshot inventory are complete.
+- [x] Final artifact table and local checksum file are complete. Exact local
+  bytes and hashes are recorded in the final-media acceptance report; hosted
+  URLs and download-back verification remain separate checks.
 - [ ] Website owner provides the final URLs and explicit publication approval.
 - [ ] Uploaded ISO downloads match the published byte sizes and SHA-256 values.
 - [ ] Download cards, checksum links, mobile layout and help links are tested.

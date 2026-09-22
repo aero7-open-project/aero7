@@ -1,9 +1,9 @@
-# Beta 2 pre-build closure checklist
+# Beta 2 build and release closure checklist
 
 Updated 22 September 2026. Internal working record, not release approval.
-The goal is to finish the bug-fix pass and website-update Markdown, then request
-approval to build the final online and offline images. Building, signing,
-publishing or promoting packages is not authorized by a passing local test.
+The bug-fix pass, final online/offline build and exact-media VM acceptance are
+complete. Signing, uploading, publishing or promoting packages is not
+authorized by a passing local test.
 
 ## Evidence already established
 
@@ -86,15 +86,29 @@ publishing or promoting packages is not authorized by a passing local test.
   presentation titled **Aero7 Credential Vault** with the retained pack icon.
 
 Newly reproduced product defects belong in this list with a regression test and
-native replay where applicable. Passing these actions is the point to notify
-the user and request final-build approval, not permission to publish.
+native replay where applicable. The build approval was exercised for the local
+pair below; it did not grant permission to sign, upload or publish.
 
-## Later gates, after explicit approval
+## Exact-media and publication gates
+
+- [x] Build and finalize the exact online/offline image pair. The
+  [final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
+  records filenames, exact byte sizes, SHA-256 values and successful artifact
+  finalization.
+- [x] Run a new no-network offline installation through OOBE, first login,
+  optional-feature install/removal and reboot.
+- [x] Run a separate new connected online installation through the same gate.
+- [x] Verify first-login PolicyKit/UAC readiness and the rebooted taskbar File
+  Explorer shortcut on both installed systems.
+- [x] Preserve 1920×1080 login, desktop, feature-manager and File Explorer
+  evidence while keeping physical GPU/hotplug and physical multi-monitor claims
+  explicitly out of scope.
+- [ ] Decide and verify package/release signing and repository-promotion state.
+- [ ] Obtain final website download URLs, upload the exact artifacts and re-hash
+  the downloaded bytes.
+- [ ] Finish website layout/link checks and obtain explicit publication approval.
 
 The [website handoff launch checklist](BETA2-WEBSITE-MAKER-HANDOFF.md#launch-checks)
-still requires the exact newly built online/offline images to pass fresh
-installation, first-run setup, reboot/login, desktop and failure-path checks.
-Then obtain final 1920×1080 promotional screenshots, artifact checksums and
-website download URLs. Package signing/repository promotion and publication
-require their own verified, approved actions. Old r10 images and upgraded guests
-do not substitute for those final-image tests.
+tracks those remaining publication actions. Old r10 images and upgraded guests
+are historical only; they are not being used as substitutes for the final-image
+tests.

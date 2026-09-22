@@ -1,10 +1,9 @@
 # Aero7 Beta 2 — release notes draft
 
 Updated 22 September 2026. **Not approved for publication or downloads.**
-Rebuilt online and offline test candidates have passed fresh-install acceptance.
-They remain internal candidates until the owner approves the final build and
-website publication; their filenames and hashes are not public release
-identifiers.
+The exact final online and offline images have passed fresh-install VM
+acceptance. They remain local release artifacts until signing/upload decisions,
+website verification and explicit publication approval are complete.
 
 The [website maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website copy,
 download-card requirements, feature explanations and announcement drafts.
@@ -21,10 +20,17 @@ candidate results must not be presented as tests of a later image.
   during installation and requires a stable connection. Corrected Aero7
   components remain pinned by the candidate manifest.
 
-Both variants configure repositories for updates after installation. Final ISO
-files and checksums will be hosted on the Aero7 website, **not GitHub Releases**.
-Filenames, sizes, hashes and download URLs remain pending until build, acceptance
-and publication approval.
+Both variants configure repositories for updates after installation. The ISO
+files and checksums are intended for the Aero7 website, **not GitHub Releases**.
+The accepted local identities are:
+
+| Variant | Filename | Exact bytes | SHA-256 |
+| --- | --- | ---: | --- |
+| Offline — recommended | `aero7-beta2-offline-2026.09.22-x86_64.iso` | 3,407,151,104 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` |
+| Online | `aero7-beta2-online-2026.09.22-x86_64.iso` | 1,604,804,608 | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
+
+Final HTTPS URLs and the release date remain pending. Upload verification must
+re-hash the website-hosted bytes before download buttons are enabled.
 
 ## Desktop and application changes
 
@@ -159,18 +165,18 @@ branding, Explorer identity, optional package install/removal and the complete
 screenshot save/clipboard/notification path. Vault 7 retains its separate native
 overlap, retained-content and isolated backend evidence.
 
-The source and refreshed-candidate bug-test pass is complete. Before final release:
+The source bug-test pass and exact-media VM acceptance are complete. The
+[final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
+records clean connected-online and no-network offline installation, OOBE,
+first-login PolicyKit/UAC readiness, optional Programs Center install/removal,
+reboot/login and pinned File Explorer launch. Before publication:
 
-1. Obtain approval for the final build, then build both variants from the
-   approved sources/packages without bypassing dependency or signature checks.
-2. Validate each exact image and repeat fresh online and disconnected offline
-   installation checks against those final artifacts.
-3. Repeat first-run setup, reboot/login/lock, optional features, taskbar/Start,
-   Explorer, Control Panel, screenshot and gadget checks on that final media.
-4. Record actual multi-monitor/recovery coverage, hardware limitations,
-   signing/repository promotion, final 1920×1080 screenshots, sizes and hashes.
-5. Obtain publication approval and verify the website-hosted files and links
-   before enabling downloads or announcing availability.
+1. Decide and record release signing and repository-promotion state.
+2. Upload both exact artifacts and the matching checksum file to the website.
+3. Re-download and verify byte size plus SHA-256 for both website-hosted files.
+4. Add the final HTTPS URLs and approved release date to the website copy.
+5. Test download cards, checksum links, responsive layout and help links, then
+   obtain explicit publication approval before announcing availability.
 
 Physical GPU/hotplug behavior, alternative vault configurations and other
 unverified backends are not advertised as tested. Full Windows 7 parity and

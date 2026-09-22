@@ -7,9 +7,22 @@ authorizes publication. Follow the handoff for website copy and release gates.
 
 ### Current editorial hold
 
-**Testing continues. Do not publish downloads or the release announcement.**
-The download table intentionally has no final filenames, sizes or hashes yet.
-Internal candidate names below are evidence labels, not public release names.
+**The final local image pair has passed VM acceptance, but do not publish the
+downloads or release announcement yet.** Signing, upload verification, final
+website URLs and explicit publication approval remain open.
+
+**Exact final-media acceptance:** The
+[22 September final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
+records the locally finalized offline and online images, exact byte sizes and
+SHA-256 values. Each exact image completed a clean UEFI installation, OOBE,
+first login, installed-system audit, optional Programs Center install/removal,
+reboot and taskbar File Explorer launch at 1920x1080. The offline installation
+ran with no network adapter; the online installation verified live networking
+and synchronized time. Both systems had zero failed user/system units and no
+collected coredumps. Both also proved that the rebuilt graphical-session
+PolicyKit link starts `/usr/lib/uac-polkit-agent` before the first privileged
+feature-manager request. The rebooted login branding was unclipped. These are
+VM results, not physical GPU/hotplug or physical multi-monitor certification.
 
 **Fresh rebuilt test-candidate acceptance:** both the online and offline
 21 September images now pass structural verification, clean installation,
