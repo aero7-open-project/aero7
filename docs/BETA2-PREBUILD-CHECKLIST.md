@@ -106,7 +106,8 @@ pair below; it did not grant permission to sign, upload or publish.
 - [ ] Decide and verify package/release signing and repository-promotion state.
 - [ ] Obtain final website download URLs, upload the exact artifacts and re-hash
   the downloaded bytes.
-- [ ] Finish website layout/link checks and obtain explicit publication approval.
+- [x] Obtain explicit Beta 2 publication approval from the release owner.
+- [ ] Finish website layout and link checks after the exact artifacts are uploaded.
 
 The [website handoff launch checklist](BETA2-WEBSITE-MAKER-HANDOFF.md#launch-checks)
 tracks those remaining publication actions. Old r10 images and upgraded guests

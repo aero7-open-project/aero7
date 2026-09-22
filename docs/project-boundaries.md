@@ -4,7 +4,7 @@ Aero7's installer image and desktop shell are separate projects.
 
 ## Aero7 ISO
 
-The `memegeko/aero7` repository owns the Archiso profile, graphical installer,
+The `aero7-open-project/aero7` repository owns the Archiso profile, graphical installer,
 disk backend, OOBE, recovery environment, media validation, and ISO-specific
 documentation. It does not own or vendor the Aero7-shell source repository.
 
@@ -29,9 +29,8 @@ pin is updated only after those checks pass.
 
 ## Beta 2 release boundary
 
-The existing Beta 1 download and package endpoint remain available. Beta 2
-source, package recipes, documentation, and CI checks may be published for
-review. The online ISO, offline ISO, checksum sidecars, and promoted binary
-package repository are separate release artifacts: none is uploaded or promoted
-until its validation evidence is complete and publication is explicitly
-approved.
+Beta 2 source, package recipes, documentation and CI checks are published in
+the project repository. The online ISO, offline ISO and checksums are separate
+website release artifacts and are never attached to GitHub Releases. Exact
+website-hosted bytes must match the accepted release hashes before their
+download buttons are enabled.

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible Aero7 Beta 1 problem
+description: Report a reproducible Aero7 Beta 2 problem
 title: "[Bug]: "
 labels: [bug]
 body:
@@ -29,7 +29,7 @@ body:
     id: commit
     attributes:
       label: Source commit or release tag
-      placeholder: v0.1.0-beta.1 or commit SHA
+      placeholder: v0.2.0-beta.2 or commit SHA
     validations:
       required: true
   - type: dropdown

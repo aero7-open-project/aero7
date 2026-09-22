@@ -1,40 +1,40 @@
 # Installation
 
-Beta 1 can be installed on an x86-64 UEFI PC or in a virtual machine. Back up
+Beta 2 can be installed on an x86-64 UEFI PC or in a virtual machine. Back up
 important data, disconnect unrelated drives, and verify the model and size of
 the selected target before continuing. Whole-disk installation permanently
 erases the selected disk.
 
 ## 1. Download
 
-> **Recommended when Beta 2 is published:** download the offline ISO. It embeds the complete
+> **Recommended:** download the offline ISO. It embeds the complete
 > package set, so installation does not pause for mirrors or package downloads
 > and is usually much faster on slower laptops. The installed system still uses
 > the normal configured repositories for later updates. Use the smaller online
 > ISO only when download size matters and reliable Internet will remain
 > available throughout setup.
 
-The Beta 2 files are not public yet. Until their release checks are complete,
-Beta 1 remains the current downloadable installation image.
+Open the [official Aero7 website](https://aero7.miku-dayo.com/) and download
+either Beta 2 ISO plus the matching checksum file. GitHub contains the source
+release and documentation, not ISO attachments.
 
-Open the [Aero7 Beta 1 release](https://github.com/memegeko/aero7/releases/tag/v0.1.0-beta.1)
-and download the current ISO and its matching `.sha256` file.
-
-- `aero7-beta1-YYYY.MM.DD-x86_64.iso`
-- `aero7-beta1-YYYY.MM.DD-x86_64.iso.sha256`
+- `aero7-beta2-offline-2026.09.22-x86_64.iso` — recommended
+- `aero7-beta2-online-2026.09.22-x86_64.iso`
+- `SHA256SUMS`
 
 ## 2. Verify the download
 
 On Linux, place both files in the same directory and run:
 
 ```bash
-sha256sum -c aero7-beta1-*.iso.sha256
+sha256sum -c SHA256SUMS
 ```
 
 Expected result:
 
 ```text
-aero7-beta1-YYYY.MM.DD-x86_64.iso: OK
+aero7-beta2-offline-2026.09.22-x86_64.iso: OK
+aero7-beta2-online-2026.09.22-x86_64.iso: OK
 ```
 
 The filename and checksum must match the values shown on the release page.
@@ -81,8 +81,8 @@ the writer finishes.
 
 - use x86-64 UEFI firmware and disable Secure Boot;
 - set the storage controller to **AHCI**, not Disabled, RAID On, or Intel RST;
-- use wired networking when possible because packages are downloaded during
-  setup;
+- use wired networking for the online ISO; the offline ISO does not require a
+  connection during base installation;
 - keep the PC connected to power;
 - disconnect disks that Aero7 must not modify.
 
@@ -103,9 +103,9 @@ Recommended configuration:
 | Input | VirtIO tablet |
 | Network | User-mode/NAT with internet access |
 | Disk | New 40 GiB VirtIO block disk |
-| Installation media | Aero7 Beta 1 ISO |
+| Installation media | Aero7 Beta 2 offline or online ISO |
 
-Beta 1 accepts writable, non-removable `/dev/vd*`,
+Beta 2 accepts writable, non-removable `/dev/vd*`,
 `/dev/sd*`, `/dev/nvme*n*`, and `/dev/mmcblk*` whole disks. Mounted, read-only,
 removable, undersized, live-media, and unsupported device paths are rejected.
 
@@ -131,15 +131,16 @@ erase-disk option creates:
 3. an ext4 root partition using the remaining space;
 4. a systemd-boot UEFI entry.
 
-The installer downloads official Arch packages and signed Aero7 packages, so
-the system must have internet access.
+The online installer downloads distribution packages and therefore needs a
+stable connection. The offline image installs the base system from its embedded
+checksum-pinned repository without internet.
 
 ![Installation progress](images/installer-09-progress.png)
 
 ### Guided advanced drive options
 
 Select **Drive options (advanced)** to show existing partitions and unallocated
-regions. Beta 1 provides:
+regions. Beta 2 provides:
 
 - **New** on at least 17 GiB of unallocated space, preserving existing
   partitions;

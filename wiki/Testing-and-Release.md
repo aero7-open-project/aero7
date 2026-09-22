@@ -2,10 +2,9 @@
 
 ## Current publication status
 
-The existing Beta 1 image remains available. Beta 2 source, package definitions,
-release notes, and handbook updates are published for review. Beta 2 ISO files
-and the promoted package-repository payload remain unpublished until the
-remaining release gates pass and publication is explicitly approved.
+Beta 2 source, release notes and handbook updates were published on
+22 September 2026. GitHub contains no ISO attachments; exact online and offline
+media plus checksums are distributed through the official Aero7 website.
 
 Beta releases use four gates: source validation, image validation, a fresh
 installation, and a second installed-system boot.
@@ -86,18 +85,22 @@ Boot the same VM disk again. OOBE must remain disabled and SDDM must require the
 created account password, proving that temporary first-login autologin was
 removed.
 
-## Beta 1 artifact
+## Beta 2 artifacts
 
-- file: `aero7-beta1-2026.08.09-x86_64.iso`
-- size: `1,401,708,544` bytes
-- SHA-256: `107d044c41f4bba8e8c308e11b7986858ff46a525937e8f0508181d0c9c6c710`
-- release tag: `v0.1.0-beta.1`
+- offline file: `aero7-beta2-offline-2026.09.22-x86_64.iso`
+- offline size: `3,407,151,104` bytes
+- offline SHA-256: `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5`
+- online file: `aero7-beta2-online-2026.09.22-x86_64.iso`
+- online size: `1,604,804,608` bytes
+- online SHA-256: `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936`
+- source release tag: `v0.2.0-beta.2`
 
-The repository's `docs/validation.md` is the detailed automated, VM, and
-real-hardware test record for this release line.
+The repository's `docs/BETA2-QA-STATUS.md` and linked evidence reports record
+the automated and VM acceptance scope for this release line.
 
 ## Beta 2 release gate
 
-See [Beta 2 Release Notes](Beta-2-Release-Notes.md) for the candidate package
-set, completed source checks, and the fresh-install and graphical checks that
-must still be recorded before either ISO can be published.
+The source, exact-media, fresh-install and second-boot gates are complete. See
+[Beta 2 Release Notes](Beta-2-Release-Notes.md) for the tested scope and known
+boundaries. Each website upload must still be downloaded again and checked
+against the published byte size and SHA-256 before its button is enabled.

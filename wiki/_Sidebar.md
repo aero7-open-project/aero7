@@ -31,4 +31,4 @@
 
 ---
 
-[Aero7 Beta 1](https://github.com/memegeko/aero7/releases/tag/v0.1.0-beta.1)
+[Aero7 Beta 2](https://github.com/aero7-open-project/aero7/releases/tag/v0.2.0-beta.2)

@@ -68,7 +68,7 @@ autologin; the normal first-login setting is deliberately temporary.
 
 ## Report a useful bug
 
-Open an [Aero7 issue](https://github.com/memegeko/aero7/issues/new) with:
+Open an [Aero7 issue](https://github.com/aero7-open-project/aero7/issues/new/choose) with:
 
 - exact ISO filename and SHA-256;
 - QEMU version and launch settings;

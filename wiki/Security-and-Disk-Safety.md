@@ -1,6 +1,6 @@
 # Security and Disk Safety
 
-The Beta 1 backend is intentionally narrow. It aborts unless every safety
+The Beta 2 backend is intentionally narrow. It aborts unless every safety
 condition is true at execution time.
 
 ## Required conditions

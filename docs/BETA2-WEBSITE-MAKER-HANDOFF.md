@@ -1,15 +1,15 @@
-# Aero7 Beta 2 — website maker handoff and announcement drafts
+# Aero7 Beta 2 — approved website release handoff
 
-**Working draft — DO NOT PUBLISH OR ENABLE DOWNLOADS YET.**
+**Release approved 22 September 2026. Upload and verify the exact files before
+enabling either download button.**
 
 Updated 22 September 2026. Rebuilt online and offline test candidates have
 completed clean-install acceptance, and the exact final local image pair has now
 passed the same connected-online and disconnected-offline VM gate. The artifacts
-are not public downloads: signing/upload decisions, hosted-file verification
-and website publication approval remain open. This document supplies website
-copy, implementation requirements and a release checklist. Draft announcement
-wording is conditional on the remaining gates below. It is not approval to
-publish, nor a claim that Beta 2 is already available.
+are not GitHub release assets: hosted-file verification and the website rollout
+remain to be completed. This document is the approved website copy,
+implementation requirements and release checklist. Public availability begins
+only after the uploaded files and download paths pass the checks below.
 
 Current QA status and package identities are recorded in the
 [QA status and evidence history](BETA2-QA-STATUS.md). Its linked reports distinguish
@@ -31,8 +31,7 @@ installation, OOBE, first-login audit, optional Programs Center install/removal,
 reboot and pinned File Explorer launch at 1920x1080. The offline image ran with
 no network adapter; the online image verified networking and synchronized time.
 Both prove that the PolicyKit agent is active before the first privileged
-feature request. Final URLs, signing state and upload-back verification remain
-pending.
+feature request. Final website URLs and upload-back verification remain pending.
 
 The [selected-stack alignment report](release-evidence/2026-09-13-selected-stack-alignment.md)
 now verifies all 16 core versions after normal reboot/password login in both
@@ -75,8 +74,8 @@ builds and passes isolated tests using the existing pack icon. Its accepted
 [22 September refreshed-candidate acceptance](release-evidence/2026-09-22-selected-kwallet-candidate-acceptance.md)
 verifies both new test images, exact installed selection, default-off Vault 7
 state and the native Aero7-titled first-use/password presentation. This closes
-the engineering gate, but do not describe it as shipped until the owner approves
-and the exact final website-hosted images pass the release checks.
+the engineering gate. Describe it as downloadable only after the exact final
+website-hosted images pass the release checks.
 The [native vault follow-up](release-evidence/2026-09-13-vault-native-prompts.md)
 verifies cancellation, retry, client closure and retained synthetic credentials
 through two read/lock cycles. The original ciphertext-hash failure is preserved
@@ -92,10 +91,8 @@ Do not claim warning-free logs or verified physical-hardware compatibility.
 No security checks were weakened or failed units cleared to suppress diagnostics.
 
 The final local images contain the selected fixes and passed fresh exact-media
-online/offline installation. Use sections 1–9 below as conditional website copy.
-Keep downloads disabled and the current public release unchanged until the
-remaining signing/upload, hosted-file verification and publication-approval
-checks are complete.
+online/offline installation. Use sections 1–9 below as approved website copy.
+Keep downloads disabled until upload and hosted-file verification are complete.
 
 ## 1. What the website team should change
 
@@ -110,7 +107,8 @@ checks are complete.
   from the accepted images. Keep old screenshots only in a labeled archive.
 - Add installation choices, update instructions, known limitations and safe
   diagnostic-log sharing guidance to the help pages.
-- Keep the currently published release unchanged until explicit release approval.
+- Do not enable either download button until its hosted bytes and link have
+  passed the verification checklist.
 
 Do not redesign application icons or generate new ones. Use the established
 AeroThemePlasma icon pack and the project-owned Aero7 branding already in the
@@ -173,7 +171,7 @@ connection. Other feature dependencies may require downloads.
 | Display size | 3.17 GiB | 1.49 GiB |
 | SHA-256 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 | Direct HTTPS download URL | Website owner to provide | Website owner to provide |
-| Release date | Set when publication is approved | Same release date |
+| Release date | 22 September 2026 | 22 September 2026 |
 
 Do not reuse the hashes from the failed 4/5 September candidates. Rebuilt files
 can have the same filename but different contents. After upload, verify the
@@ -311,13 +309,13 @@ any sign-out/restart requirement. Never tell visitors to bypass dependency,
 signature or checksum validation to make a failing transaction continue.
 
 Vault-specific guidance: existing account wallet/portal overrides are preserved.
-The selected candidate does not yet include the scoped Aero7 password-dialog
-override, and unrelated KWallet/GPG surfaces retain upstream branding. If locking
-cannot be verified, sign out before leaving the computer; a cleared list alone
-is not proof that the backend locked. Never ask users to share vault passwords
-or decrypted entries in bug reports. The vault protects its saved collection,
-not every file on the computer. It is a local candidate until included in the
-accepted release images; see the [native lock and two-client evidence](release-evidence/2026-09-09-vault-lock-verification.md).
+The accepted images include the scoped Aero7 password-dialog presentation;
+unrelated KWallet/GPG surfaces can retain upstream branding. If locking cannot
+be verified, sign out before leaving the computer; a cleared list alone is not
+proof that the backend locked. Never ask users to share vault passwords or
+decrypted entries in bug reports. The vault protects its saved collection, not
+every file on the computer. See the
+[native lock and two-client evidence](release-evidence/2026-09-09-vault-lock-verification.md).
 
 ## 6. Installation, updates and support pages
 
@@ -459,7 +457,7 @@ installer, OOBE, desktop-shell and application screenshot sets were also
 replaced with final-ISO captures at the same native resolution. Preview images
 are no longer substitutes for the release gallery.
 
-## 8. Announcement draft — use only after approval
+## 8. Approved announcement copy — publish after download verification
 
 ### Long announcement
 
@@ -495,13 +493,6 @@ Aero7 Beta 2 is ready for testing: dedicated Aero7 Desktop, Dolphin-based File
 Explorer, Control Panel, Gadgets and optional Programs Center Beta. Two ISOs are
 available; Offline is recommended and installs the base system without internet.
 Back up first—this is beta software. Downloads and notes: [WEBSITE URL]
-
-### Pre-release alternative, if the gate is still incomplete
-
-The rebuilt Aero7 Beta 2 online and offline test candidates have passed fresh
-installation and desktop acceptance. The Offline ISO remains the recommended
-option. Downloads will be announced only after the owner approves the final
-build and the website-hosted files are verified; Beta 2 is not available yet.
 
 ## 9. Release gate and website launch checklist
 
@@ -552,7 +543,8 @@ Use project website download URLs for ISO buttons, not repository archive links.
 - [x] Final artifact table and local checksum file are complete. Exact local
   bytes and hashes are recorded in the final-media acceptance report; hosted
   URLs and download-back verification remain separate checks.
-- [ ] Website owner provides the final URLs and explicit publication approval.
+- [x] Release owner explicitly approved Beta 2 publication on 22 September 2026.
+- [ ] Website owner provides the final download URLs.
 - [ ] Uploaded ISO downloads match the published byte sizes and SHA-256 values.
 - [ ] Download cards, checksum links, mobile layout and help links are tested.
 - [ ] Announcement placeholders are replaced and claims match the evidence.

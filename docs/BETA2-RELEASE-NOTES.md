@@ -1,16 +1,16 @@
-# Aero7 Beta 2 — release notes draft
+# Aero7 Beta 2 — release notes
 
-Updated 22 September 2026. **Not approved for publication or downloads.**
-The exact final online and offline images have passed fresh-install VM
-acceptance. They remain local release artifacts until signing/upload decisions,
-website verification and explicit publication approval are complete.
+Released 22 September 2026. The exact final online and offline images passed
+fresh-install VM acceptance. GitHub publishes the source tag and release notes
+without ISO attachments; installation media and checksums are distributed only
+through the official Aero7 website.
 
-The [website maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website copy,
-download-card requirements, feature explanations and announcement drafts.
+The [approved website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website
+copy, download-card requirements, feature explanations and announcement text.
 The [QA status record](BETA2-QA-STATUS.md) is the evidence index. Historical
 candidate results must not be presented as tests of a later image.
 
-## Planned installation images
+## Installation images
 
 - **Offline ISO — recommended.** Includes the installation package dependency
   closure and a checksum-pinned local repository. Installation works without
@@ -29,8 +29,8 @@ The accepted local identities are:
 | Offline — recommended | `aero7-beta2-offline-2026.09.22-x86_64.iso` | 3,407,151,104 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` |
 | Online | `aero7-beta2-online-2026.09.22-x86_64.iso` | 1,604,804,608 | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 
-Final HTTPS URLs and the release date remain pending. Upload verification must
-re-hash the website-hosted bytes before download buttons are enabled.
+The release date is 22 September 2026. Website publication must re-hash the
+hosted bytes before download buttons are enabled.
 
 ## Desktop and application changes
 
@@ -141,7 +141,7 @@ Versions were read from all 19 package metadata records referenced by the
 | `aero7-credential-vault` (optional) | `0.1.0-7` |
 | `kwallet` | `6.29.0-1.1` |
 
-## Acceptance and release gates
+## Acceptance and publication record
 
 The latest selected manifest adds the accepted Aero7-scoped KWallet presentation
 package to the required local transaction. The
@@ -149,8 +149,8 @@ package to the required local transaction. The
 now verifies both image variants through installation and first-run setup. The
 installed systems report `kwallet 6.29.0-1.1`, retain Vault 7 as an off-by-default
 optional package, and pass the native Aero7-titled first-use/password dialog
-replay. This closes the refreshed-image vault gate without turning the test
-candidates into approved final downloads.
+replay. This closed the refreshed-image vault gate for the accepted final
+downloads.
 
 The latest selected manifest passes 160 integration tests, static checks,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
@@ -169,14 +169,14 @@ The source bug-test pass and exact-media VM acceptance are complete. The
 [final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
 records clean connected-online and no-network offline installation, OOBE,
 first-login PolicyKit/UAC readiness, optional Programs Center install/removal,
-reboot/login and pinned File Explorer launch. Before publication:
+reboot/login and pinned File Explorer launch. GitHub publication includes only
+the tagged source and release notes. Before enabling website downloads:
 
-1. Decide and record release signing and repository-promotion state.
-2. Upload both exact artifacts and the matching checksum file to the website.
-3. Re-download and verify byte size plus SHA-256 for both website-hosted files.
-4. Add the final HTTPS URLs and approved release date to the website copy.
-5. Test download cards, checksum links, responsive layout and help links, then
-   obtain explicit publication approval before announcing availability.
+1. Upload both exact artifacts and the matching checksum file to the website.
+2. Re-download and verify byte size plus SHA-256 for both website-hosted files.
+3. Add the final HTTPS URLs and release date to the website copy.
+4. Test download cards, checksum links, responsive layout and help links before
+   enabling public download buttons.
 
 Physical GPU/hotplug behavior, alternative vault configurations and other
 unverified backends are not advertised as tested. Full Windows 7 parity and

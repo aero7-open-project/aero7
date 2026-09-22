@@ -1,19 +1,19 @@
 # System Requirements
 
-## Beta 1
+## Beta 2
 
 | Requirement | Supported configuration |
 | --- | --- |
 | CPU architecture | x86-64 |
-| Firmware | UEFI; Secure Boot disabled for the unsigned test image |
+| Firmware | UEFI; Secure Boot disabled |
 | Environment | x86-64 UEFI PC or QEMU/KVM virtual machine |
 | RAM | 4 GiB minimum; 8 GiB recommended |
 | CPU allocation | Two cores minimum; four recommended |
 | Target disk | Writable, non-removable SATA, NVMe, MMC, or VirtIO disk |
 | Disk size | 16 GiB minimum; 40 GiB recommended |
 | Display | Intel/AMD graphics on hardware; QXL/SPICE in QEMU |
-| Network | Required during installation |
-| Desktop session | KDE Plasma 6 Wayland |
+| Network | Not required by the offline ISO; required by the online ISO |
+| Desktop session | Aero7 Desktop on Plasma 6/KWin Wayland infrastructure |
 
 Physical installation requires Secure Boot to be disabled and the storage
 controller to expose the disk to Linux. On systems offering RAID On/Intel RST
@@ -28,7 +28,6 @@ or AHCI, use AHCI after safely preparing any existing operating system.
 - treating guided preservation as a substitute for a verified backup;
 - full-disk encryption;
 - full free-form manual partitioning;
-- offline package installation;
 - Plasma X11 sessions.
 
 The installer accepts only explicit Linux disk paths (`/dev/vd*`, `/dev/sd*`,

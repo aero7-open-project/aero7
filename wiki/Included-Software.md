@@ -1,13 +1,13 @@
 # Included Software
 
-This page describes the Beta 2 package selection, not the unchanged contents
-of the public Beta 1 ISO. Beta 2 source/package preparation is separate from
-ISO publication. See [Beta 2 Release Notes](Beta-2-Release-Notes).
+This page describes the released Beta 2 package selection. See
+[Beta 2 Release Notes](Beta-2-Release-Notes) for exact media identities and the
+tested scope.
 
 Aero7 installs a focused desktop foundation rather than the broad
 `plasma-meta` or `kde-applications-meta` collections. Runtime dependencies are
 resolved normally and the Aero7 packages supply the maintained desktop and
-companions. The offline image is recommended when released because it carries
+companions. The offline image is recommended because it carries
 the complete base-install package set.
 
 ## Foundation

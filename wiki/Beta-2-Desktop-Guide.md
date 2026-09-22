@@ -1,9 +1,8 @@
 # Beta 2 Desktop Guide
 
-This guide describes the Beta 2 source/integration line. It does not announce
-an ISO release. Check [Beta 2 Release Notes](Beta-2-Release-Notes) and the
-official release page before downloading; the online/offline Beta 2 images
-remain withheld until their release checks are complete.
+This guide describes the released Beta 2 desktop. Read
+[Beta 2 Release Notes](Beta-2-Release-Notes) and download official installation
+media only through the [Aero7 website](https://aero7.miku-dayo.com/).
 
 ## Choose an installation image
 
@@ -80,10 +79,9 @@ screen reading are different capabilities. CardSpace is not installable.
 
 ## Test and report honestly
 
-The [new screenshot gallery](Screenshot-Gallery) records an existing VM
-updated with local test packages at 1920×1080/100% scale. It is not evidence of
-a clean final-ISO installation, physical GPU certification, working suspend,
-or successful offline optional-feature transactions.
+The [screenshot gallery](Screenshot-Gallery) records a fresh installation of
+the final offline ISO at 1920×1080/100% scale. It is not physical GPU
+certification or a claim that every optional backend works on all hardware.
 
 After a physical-install issue, use **Collect Aero7 Logs Now** when available,
 review the resulting diagnostic folder for private information, and provide

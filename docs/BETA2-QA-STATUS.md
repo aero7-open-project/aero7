@@ -1,15 +1,16 @@
 # Aero7 Beta 2 — QA status and evidence history
 
 Updated 22 September 2026. This engineering record supports the
-[website maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md). It preserves the distinction
-between frozen-media tests and later component upgrades. Nothing in this record
-authorizes publication. Follow the handoff for website copy and release gates.
+[approved website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md). It preserves the distinction
+between frozen-media tests and later component upgrades. The release owner's
+publication approval is recorded in that handoff; this file remains technical
+evidence rather than website copy.
 
-### Current editorial hold
+### Current website rollout state
 
-**The final local image pair has passed VM acceptance, but do not publish the
-downloads or release announcement yet.** Signing, upload verification, final
-website URLs and explicit publication approval remain open.
+**The final local image pair has passed VM acceptance and Beta 2 publication is
+approved.** Do not enable either website download until its uploaded bytes,
+final URL and checksum have been verified.
 
 **Exact final-media acceptance:** The
 [22 September final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)

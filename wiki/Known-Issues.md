@@ -1,15 +1,17 @@
 # Known Issues
 
-## Beta 1 limitations
+## Beta 2 limitations
 
-- The physical-hardware compatibility matrix is still limited. Beta 1 has a
+- The physical-hardware compatibility matrix is still limited. Beta 2 has a
   guarded installer, but unusual storage controllers, firmware, or graphics
   hardware may require the debug boot option or may not work yet.
 - Only x86-64 UEFI is supported.
-- Internet access is required for Arch and Aero7 package downloads.
-- Encryption, free-form manual partitioning, offline installation, and legacy
-  BIOS are unavailable. RAID On/Intel RST disks may be invisible until firmware
-  is safely changed to AHCI.
+- The online ISO requires internet throughout package installation. The
+  recommended offline ISO installs the base system without a connection, but
+  later updates and some optional features still require repositories.
+- Full-disk encryption, free-form manual partitioning and legacy BIOS are
+  unavailable. RAID On/Intel RST disks may be invisible until firmware is
+  safely changed to AHCI.
 - Advanced mode currently installs its own Aero7 ESP. Existing firmware boot
   entries are preserved, so another OS may be selected through the firmware
   boot menu rather than the Aero7 systemd-boot menu.
@@ -35,9 +37,11 @@ branding, and menu indexing once per account.
 
 ## Packaging
 
-Beta 1 consumes current Arch packages during installation. A future incompatible
-upstream package can therefore affect an old ISO even when the ISO itself has
-not changed. Report the installer log and date when filing a package failure.
+The online ISO consumes distribution packages during installation. A future
+incompatible upstream package can therefore affect an unchanged online image.
+The offline ISO uses its checksum-pinned embedded repository for the base
+installation. Report the ISO variant, checksum, installer log and date when
+filing a package failure.
 
 ## Licensing
 

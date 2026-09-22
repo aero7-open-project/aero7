@@ -6,16 +6,16 @@ No. Aero7 is an independent Arch Linux-based operating system with KDE Plasma
 6 and an Aero-inspired interface. It does not contain a licensed copy of
 Microsoft Windows.
 
-## Can I install Beta 1 on a real PC?
+## Can I install Beta 2 on a real PC?
 
-Yes. Beta 1 supports guarded physical installation on x86-64 UEFI systems using
+Yes. Beta 2 supports guarded physical installation on x86-64 UEFI systems using
 non-removable SATA, NVMe, or MMC storage. Disable Secure Boot, use AHCI instead
 of RAID On/Intel RST, and keep a verified backup. Beta software and partition
 changes can still cause data loss.
 
 ## Can it dual boot or keep my files?
 
-Beta 1 can preserve existing GPT partitions by installing
+Beta 2 can preserve existing GPT partitions by installing
 into unallocated space, replace one selected partition, or shrink NTFS and use
 the released space. This is not a backup:
 partitioning can still cause data loss, and encryption and free-form manual
@@ -23,17 +23,15 @@ partitioning remain unavailable.
 
 ## Why is Upgrade greyed out?
 
-It communicates the familiar installer structure while making the Beta 1
+It communicates the familiar installer structure while making the Beta 2
 capability honest: only clean custom installation is implemented.
 
 ## Does installation need internet access?
 
-The published Beta 1 image needs internet access. Beta 2 has two planned media
-variants: the smaller online ISO needs a stable connection throughout package
-installation, while the recommended offline ISO embeds the complete package
-set and installs without internet. Both retain the configured repositories for
-normal updates after setup. The Beta 2 images are not public until their
-remaining release gates pass.
+Beta 2 has two media variants: the smaller online ISO needs a stable connection
+throughout package installation, while the recommended offline ISO embeds the
+complete base package set and installs without internet. Both retain the
+configured repositories for normal updates after setup.
 
 ## Why did the VM boot into setup again?
 

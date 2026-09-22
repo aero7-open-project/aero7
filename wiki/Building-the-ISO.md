@@ -1,8 +1,8 @@
 # Building the ISO
 
 This page is for developers and advanced testers. Most people should download
-the signed Beta 1 artifact from [Installation](Installation.md) instead of
-rebuilding it.
+an official Beta 2 image from the website by following
+[Installation](Installation.md) instead of rebuilding it.
 
 ## Build host
 

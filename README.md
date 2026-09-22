@@ -12,16 +12,15 @@ Aero7 is an independent Arch Linux-based operating system with a guided,
 full-screen installer and a KDE Plasma 6 Wayland desktop inspired by the calm,
 glassy desktop design of the late 2000s.
 
-[![Release](https://img.shields.io/badge/release-Beta%201-66B8FF?style=for-the-badge)](https://github.com/memegeko/aero7/releases/tag/v0.1.0-beta.1)
-[![Beta 2](https://img.shields.io/badge/Beta%202-source%20ready-F3B44B?style=for-the-badge)](docs/BETA2-RELEASE-NOTES.md)
+[![Release](https://img.shields.io/badge/release-Beta%202-66B8FF?style=for-the-badge)](https://github.com/aero7-open-project/aero7/releases/tag/v0.2.0-beta.2)
 [![Arch Linux](https://img.shields.io/badge/base-Arch%20Linux-1793D1?style=for-the-badge&logo=archlinux&logoColor=white)](https://archlinux.org/)
 [![KDE Plasma](https://img.shields.io/badge/desktop-Plasma%206-1D99F3?style=for-the-badge&logo=kde&logoColor=white)](https://kde.org/plasma-desktop/)
 [![Wayland](https://img.shields.io/badge/session-Wayland-7D4CDB?style=for-the-badge)](https://wayland.freedesktop.org/)
 
 [**Official Website**](https://aero7.miku-dayo.com/) ·
-[**Download Beta 1**](https://github.com/memegeko/aero7/releases/tag/v0.1.0-beta.1) ·
+[**Download Beta 2**](https://aero7.miku-dayo.com/) ·
 [**Read the Handbook**](wiki/Home.md) ·
-[**Report a bug**](https://github.com/memegeko/aero7/issues/new) ·
+[**Report a bug**](https://github.com/aero7-open-project/aero7/issues/new/choose) ·
 [**Aero7-shell**](https://github.com/memegeko/aero7-shell)
 
 </div>
@@ -29,7 +28,7 @@ glassy desktop design of the late 2000s.
 ---
 
 > [!IMPORTANT]
-> **Beta 1 supports guarded installation on x86-64 UEFI PCs and virtual
+> **Beta 2 supports guarded installation on x86-64 UEFI PCs and virtual
 > machines.** It can target non-removable SATA, NVMe, MMC, and VirtIO disks when
 > booted from genuine Aero7 installation media. This remains Beta software:
 > back up important data, disconnect unrelated disks, and verify the
@@ -37,10 +36,10 @@ glassy desktop design of the late 2000s.
 > legacy BIOS, and Secure Boot remain unsupported.
 
 > [!NOTE]
-> **Beta 2 source and documentation are prepared, but the Beta 2 ISO files are
-> not published yet.** Beta 1 remains the current download. The Beta 2 online
-> and offline images will be published only after the remaining fresh-install
-> and graphical release gates pass.
+> **Beta 2 source is published on GitHub without ISO attachments.** Official
+> online and offline installation media, sizes and SHA-256 checksums are
+> distributed through the [Aero7 website](https://aero7.miku-dayo.com/). Do not
+> trust unofficial mirrors or an ISO whose complete checksum does not match.
 
 ## Meet Aero7
 
@@ -119,17 +118,18 @@ checksum-verified package is retained locally so it can be enabled through
 WinXplorer remains optional and is not installed by the ISO. Sevulet is not
 included because its source and redistribution terms have not been verified.
 
-## Current download and Beta 2 media
+## Download Beta 2
 
-When Beta 2 media is published, the **offline ISO is recommended**. It includes the
+The **offline ISO is recommended**. It includes the
 complete installation package set and is normally much faster and more
 reliable, especially on slower laptops, because setup does not wait for package
 mirrors. Choose the smaller online ISO only when download size is more important
 and the computer will have a stable Internet connection for the entire install.
 Both variants retain the configured repositories for updates after setup.
 
-1. Open the [Beta 1 release](https://github.com/memegeko/aero7/releases/tag/v0.1.0-beta.1).
-2. Download the `.iso` and matching `.sha256` file.
+1. Open the [official Aero7 website](https://aero7.miku-dayo.com/).
+2. Download either the recommended offline ISO or the smaller online ISO, plus
+   the matching checksum file.
 3. Verify the checksum before booting the image.
 4. Write the ISO to a USB drive with Ventoy or Rufus, or attach it to an x86-64
    UEFI virtual machine.
@@ -184,19 +184,17 @@ versioned pages are also ready to synchronize to GitHub Wiki:
 
 ## Project status
 
-Aero7 is experimental Beta software. Beta 2 source, package definitions, and
-documentation are prepared on their project branches; ISO artifacts remain
-withheld until fresh online and offline installations, reboot behavior, desktop
-interaction, and failure recovery are accepted. Automated checks cover the
+Aero7 is experimental Beta software. Beta 2 source, package definitions and
+documentation are published, and the accepted online and offline installation
+media are distributed only through the official website. Automated checks cover the
 installer state machine, destructive-operation gates, package manifests, OOBE,
 boot configuration, QML, optional-feature transactions, and embedded release
 contents. Do not use a test build on a production workstation or a disk
 containing irreplaceable data.
 
-See the [Beta 2 release notes](docs/BETA2-RELEASE-NOTES.md) for the candidate
-scope and remaining gates. The [Beta 1 release notes](docs/BETA1-RELEASE-NOTES.md)
-and [validation report](docs/validation.md) remain the record for the currently
-published artifact.
+See the [Beta 2 release notes](docs/BETA2-RELEASE-NOTES.md) for the tested scope,
+checksums and known boundaries. The [Beta 1 release notes](docs/BETA1-RELEASE-NOTES.md)
+and [validation report](docs/validation.md) remain the historical Beta 1 record.
 
 ## License and trademark notice
 

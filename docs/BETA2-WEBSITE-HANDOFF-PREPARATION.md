@@ -1,5 +1,9 @@
 # Beta 2 website handoff — preparation only
 
+> **Superseded 22 September 2026.** Beta 2 publication is approved. Use the
+> [approved website release handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) for current
+> copy, exact artifacts and launch checks.
+
 Status: **Historical preparation brief; not a release announcement.**
 Use the expanded [website-maker handoff](BETA2-WEBSITE-MAKER-HANDOFF.md)
 for current draft copy and the
