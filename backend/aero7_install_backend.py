@@ -72,6 +72,7 @@ DIAGNOSTIC_USER_UNITS = (
     "aero7-diagnostic-session.service",
     "aero7-diagnostic-session.timer",
 )
+POLKIT_AGENT_USER_UNIT = "plasma-polkit-agent.service"
 PLYMOUTH_HOLD_SECONDS = 6
 SHELL_EXECUTABLES = (
     "install.sh",
@@ -1399,6 +1400,34 @@ def copy_payload(target: Path) -> None:
     ensure_shell_payload_modes(shell_target)
 
 
+def enable_graphical_user_service(target: Path, unit: str) -> Path:
+    """Start a required global user service with each graphical session.
+
+    Plasma's PolicyKit desktop file is D-Bus activated and can otherwise lose
+    the very first authorization request while its agent is still starting.
+    A global user-unit symlink makes the agent ready before applications ask
+    for elevation, while retaining systemd's single supervised instance.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9_.@-]+\.service", unit):
+        raise SafetyError("invalid graphical user service")
+    installed_unit = target / "usr/lib/systemd/user" / unit
+    if not installed_unit.is_file():
+        raise RuntimeError(f"required graphical user service is missing: {installed_unit}")
+
+    wants = target / "etc/systemd/user/graphical-session.target.wants"
+    wants.mkdir(parents=True, exist_ok=True)
+    link = wants / unit
+    destination = f"/usr/lib/systemd/user/{unit}"
+    if link.is_symlink():
+        if os.readlink(link) != destination:
+            raise RuntimeError(f"graphical user service link has an unexpected target: {link}")
+        return link
+    if link.exists():
+        raise RuntimeError(f"graphical user service link is not a symlink: {link}")
+    link.symlink_to(destination)
+    return link
+
+
 def ensure_shell_payload_modes(shell_root: Path) -> None:
     """Restore executable modes normalized by Archiso's airootfs overlay."""
     for relative_path in SHELL_EXECUTABLES:
@@ -2256,6 +2285,7 @@ def install(plan: dict[str, Any], confirm_device: str) -> None:
         features.emit()
         with runner.progress_heartbeat(features.advance):
             configure_and_install(TARGET_ROOT, runner, AERO7_SHARE_DIR)
+            enable_graphical_user_service(TARGET_ROOT, POLKIT_AGENT_USER_UNIT)
         features.complete()
 
         updates_boot = ProgressPulse(

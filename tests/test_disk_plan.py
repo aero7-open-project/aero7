@@ -46,6 +46,7 @@ from aero7_install_backend import (  # noqa: E402
     enable_plymouth_hook,
     ensure_install_network,
     ensure_install_tools,
+    enable_graphical_user_service,
     enforce_light_desktop_defaults,
     enforce_execution_gate,
     esp_mount_arguments,
@@ -503,6 +504,30 @@ class DiskPlanTest(unittest.TestCase):
         self.assertIn("100-plymouth", skipped)
         self.assertIn("110-fastfetch", skipped)
         self.assertIn("120-wine", skipped)
+
+    def test_graphical_polkit_agent_is_enabled_before_first_login(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            unit = target / "usr/lib/systemd/user/plasma-polkit-agent.service"
+            unit.parent.mkdir(parents=True)
+            unit.write_text("[Service]\nExecStart=/usr/bin/true\n", encoding="utf-8")
+
+            link = enable_graphical_user_service(target, unit.name)
+
+            self.assertTrue(link.is_symlink())
+            self.assertEqual(
+                os.readlink(link),
+                "/usr/lib/systemd/user/plasma-polkit-agent.service",
+            )
+            self.assertEqual(enable_graphical_user_service(target, unit.name), link)
+
+    def test_graphical_user_service_enablement_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            with self.assertRaisesRegex(RuntimeError, "required graphical user service"):
+                enable_graphical_user_service(target, "missing.service")
+            with self.assertRaisesRegex(SafetyError, "invalid graphical user service"):
+                enable_graphical_user_service(target, "../bad.service")
 
     def test_image_core_services_use_selected_firewall_and_pinned_policy(self):
         with tempfile.TemporaryDirectory() as directory:
