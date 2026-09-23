@@ -17,7 +17,7 @@ from typing import Protocol
 
 
 FINGERPRINT = "72C79ABBBBE96446DD3324042694BFE1090F4FD6"
-REPOSITORY = "https://memegeko.github.io/aero7-repo/$arch"
+REPOSITORY = "https://aero7.org/repo/$arch"
 
 
 class Runner(Protocol):
@@ -149,10 +149,10 @@ def configure_and_install(target: Path, runner: Runner, share_dir: Path) -> None
     if variant not in {"online", "offline"}:
         raise RuntimeError("invalid Aero7 installer variant")
 
-    # Resolve and verify the embedded Beta 2 set before pacman contacts the
-    # public repository. That endpoint intentionally remains on Beta 1, so an
-    # older copy must not be downloaded when its replacement is already on the
-    # test ISO.
+    # Resolve and verify the exact signed repository set embedded for this
+    # candidate before pacman contacts the public endpoint. Embedding the
+    # selected Aero7 packages makes online and offline installs deterministic;
+    # the public repository remains configured for later updates.
     local_package_dir = share_dir / "local-packages"
     local_names_path = share_dir / "beta2-local-package-names.txt"
     optional_names_path = share_dir / "beta2-optional-package-names.txt"

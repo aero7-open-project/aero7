@@ -47,6 +47,8 @@ vlc
 spectacle
 kcalc
 featherpad
+kimageannotator
+libkdcraw
 plymouth
 imagemagick
 pipewire

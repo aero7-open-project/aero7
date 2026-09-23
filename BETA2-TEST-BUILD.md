@@ -21,18 +21,14 @@ Both images use the guarded Aero7 installer and the current Beta 2 desktop and
 package manifests. The build deliberately uses a separate, pinned shell input clone
 and does not read from the legacy local `aero_desktop` working tree.
 
-The current local test cache contains Aero7 Desktop 0.2.0-25, Gadgets 3.0.0-1,
-File Explorer 25.12.3-32, Internet Explorer compatibility launcher 0.1.0-4,
-Control Panel 0.1.0-37, AeroTheme desktop r38, Computer Management r19, and
-Programs Center fedcb21. The new `aero7.desktop` Wayland session is selected
-for the first login. The local Device Manager snapshot uses the renamed
-`aero7-device-manager` executable and package while providing and replacing
-the previous `linux-devmgmt` identity.
-
-This cache is evidence for the completed physical-install debugging pass, not
-the final Beta 2 package manifest. Before either ISO is built for release, it
-must be refreshed from the reviewed 23-package repository recipes listed in
-`docs/BETA2-RELEASE-NOTES.md` and pass checksum and dependency-closure checks.
+The current candidate embeds the selected packages from signed Aero7 repository
+build `20260923T180513Z-ce604b74debf` at `https://aero7.org/repo/$arch`.
+The complete 23-package repository database, its detached signature and every
+selected package signature were verified against fingerprint
+`72C79ABBBBE96446DD3324042694BFE1090F4FD6` before candidate assembly. The
+supplemental Plasma, Qt, KWin, Spectacle, KWallet and optional encrypted-vault
+packages remain checksum-pinned local Beta 2 inputs because they are not part
+of that repository release.
 
 The pre-update package transaction explicitly installs `cups` and
 `baloo-widgets`, which are required by the embedded Control Panel and File
@@ -40,19 +36,20 @@ Explorer builds. A dependency-closure test reads the real package metadata and
 fails the build if another embedded package dependency would be missing from
 the installed target.
 
-Control Panel r37 makes **Turn Aero7 features on or off** visible immediately
+Control Panel r56 makes **Turn Aero7 features on or off** visible immediately
 in the Programs and Features sidebar, fixes the Programs-category task so it
 opens the Optional Features manager instead of silently doing nothing, publishes
 the same searchable entry in the Start menu, verifies the retained offline
 package before every transaction, and limits authorization to the signed-in
 local administrator.
 
-AeroTheme r38 carries the corrected, unclipped Aero7 Professional branding for
-both SDDM and the Plasma lock screen. Aero7 Desktop r25 pins File Explorer with
+AeroTheme `6.7.0_752.r8c7d820-3` carries the corrected, unclipped Aero7
+Professional branding for both SDDM and the Plasma lock screen. Aero7 Desktop
+0.2.0-36 pins File Explorer with
 the case-correct `org.aero7.FileExplorer.desktop` identity and migrates the
 broken lowercase factory pin written by earlier test images.
 
-File Explorer r32 gives both the launcher and the running window the stable
+File Explorer 25.12.3-56 gives both the launcher and the running window the stable
 `File Explorer` name and uses the project-pinned `system-file-manager` artwork
 from AeroThemePlasma Icons for its application icon. No host icon-theme lookup
 or newly drawn replacement icon is used. Its startup class matches the Wayland
@@ -87,3 +84,7 @@ network state, installed-package and integrity reports, user-session state,
 small application log files, and crash summaries. It excludes passwords,
 NetworkManager connection profiles, browser data, user documents, and full
 core-memory images.
+
+The exact 23 September candidate pair and its clean-install results are recorded
+in the [self-hosted repository acceptance report](docs/release-evidence/2026-09-23-self-hosted-repository-candidate-acceptance.md).
+Both candidates remain unpublished pending the Friday release decision.

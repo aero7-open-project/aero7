@@ -6,7 +6,7 @@ qmp_socket="$qemu_runtime_root/qmp.sock"
 hmp_socket="$qemu_runtime_root/monitor.sock"
 
 usage() {
-  printf 'Usage: %s click X Y | key QEMU_KEY | text LOWERCASE_TEXT\n' "${0##*/}" >&2
+  printf 'Usage: %s click X Y | key QEMU_KEY | text TEXT\n' "${0##*/}" >&2
   exit 2
 }
 
@@ -14,11 +14,15 @@ usage() {
   printf 'The Aero7 QEMU monitor sockets are not available.\n' >&2
   exit 1
 }
+command -v nc >/dev/null 2>&1 || {
+  printf 'The QEMU input helper requires netcat (nc).\n' >&2
+  exit 1
+}
 
 qmp_event() {
   local event="$1"
   printf '%s\n' '{"execute":"qmp_capabilities"}' "$event" |
-    socat - "UNIX-CONNECT:$qmp_socket" >/dev/null
+    nc -N -U "$qmp_socket" >/dev/null
 }
 
 case "${1:-}" in
@@ -37,20 +41,37 @@ case "${1:-}" in
     ;;
   key)
     [[ -n "${2:-}" && -z "${3:-}" ]] || usage
-    printf 'sendkey %s 80\n' "$2" | socat - "UNIX-CONNECT:$hmp_socket" >/dev/null
+    printf 'sendkey %s 80\n' "$2" | nc -N -U "$hmp_socket" >/dev/null
     ;;
   text)
     [[ -n "${2:-}" && -z "${3:-}" ]] || usage
     value="$2"
-    [[ "$value" =~ ^[a-z0-9-]+$ ]] || usage
     {
       for ((index = 0; index < ${#value}; index++)); do
         character="${value:index:1}"
-        [[ "$character" == '-' ]] && character=minus
-        printf 'sendkey %s 60\n' "$character"
+        case "$character" in
+          [a-z0-9]) key_name="$character" ;;
+          [A-Z]) key_name="shift-${character,,}" ;;
+          ' ') key_name=spc ;;
+          '-') key_name=minus ;;
+          '_') key_name=shift-minus ;;
+          '.') key_name='dot' ;;
+          '/') key_name=slash ;;
+          ':') key_name=shift-semicolon ;;
+          '=') key_name=equal ;;
+          '+') key_name=shift-equal ;;
+          ',') key_name=comma ;;
+          '@') key_name=shift-2 ;;
+          '~') key_name=shift-grave_accent ;;
+          *)
+            printf 'Unsupported text character for QEMU input: %q\n' "$character" >&2
+            exit 2
+            ;;
+        esac
+        printf 'sendkey %s 60\n' "$key_name"
         sleep 0.16
       done
-    } | socat - "UNIX-CONNECT:$hmp_socket" >/dev/null
+    } | nc -N -U "$hmp_socket" >/dev/null
     ;;
   *) usage ;;
 esac

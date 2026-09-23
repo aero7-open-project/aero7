@@ -6,10 +6,10 @@ aerothemeplasma-sounds-git
 aeroshell-smod-git
 uac-polkit-agent-git
 aerothemeplasma-desktop-git
-linux-devmgmt
+aero7-device-manager
 tuxmanager
 aero7-qt
-aero7-dolphin
+aero7-file-explorer
 aero7-gwenview
 aero7-internet-explorer
 linux-control-panel

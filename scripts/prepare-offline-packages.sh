@@ -57,9 +57,27 @@ mapfile -t embedded_packages < <(
   exit 1
 }
 
+repository_template="$(sed -n 's/^aero7_repository_url=//p' "$project_root/sources.lock")"
+repository_server="${repository_template//\$arch/x86_64}"
+repository_database_hash="$(sed -n 's/^aero7_repository_db_sha256=//p' "$project_root/sources.lock")"
+pacman-conf -r aero7 Server | grep -Fqx "$repository_server" || {
+  printf 'Host pacman configuration does not use the pinned Aero7 repository: %s\n' \
+    "$repository_server" >&2
+  exit 1
+}
+[[ "$repository_database_hash" =~ ^[0-9a-f]{64}$ ]] || {
+  printf 'The pinned Aero7 repository database checksum is invalid.\n' >&2
+  exit 1
+}
+
 # Refresh signed repository databases once at build time. The resulting ISO
 # never runs this command in offline mode.
 pacman -Sy --noconfirm
+printf '%s  %s\n' "$repository_database_hash" /var/lib/pacman/sync/aero7.db \
+  | sha256sum --check --status || {
+  printf 'The synchronized Aero7 database differs from the pinned signed build.\n' >&2
+  exit 1
+}
 
 download_bundle() {
   local name="$1"

@@ -99,6 +99,17 @@ file_explorer_package_path="$(
   printf 'The embedded File Explorer package is missing.\n' >&2
   exit 1
 }
+file_explorer_package_info="$(
+  bsdtar -xOf "$project_root/$file_explorer_package_path" .PKGINFO
+)"
+grep -Fqx 'pkgname = aero7-file-explorer' <<<"$file_explorer_package_info" || {
+  printf 'The embedded File Explorer package has the wrong package identity.\n' >&2
+  exit 1
+}
+grep -Fqx 'provides = aero7-dolphin' <<<"$file_explorer_package_info" || {
+  printf 'File Explorer no longer provides the pinned shell aero7-dolphin compatibility name.\n' >&2
+  exit 1
+}
 file_explorer_desktop="$(
   bsdtar -xOf "$project_root/$file_explorer_package_path" \
     usr/share/applications/org.aero7.FileExplorer.desktop
@@ -140,6 +151,23 @@ bash "$project_root/scripts/verify-dialog-packages.sh" \
 
 grep -Fqx 'aero7_shell_path=../aero7-beta2-test-inputs/aero7-shell-pinned' "$project_root/sources.lock" || {
   printf 'The ISO must consume Aero7-shell from its separate sibling clone.\n' >&2
+  exit 1
+}
+repository_url="$(sed -n 's/^aero7_repository_url=//p' "$project_root/sources.lock")"
+repository_fingerprint="$(sed -n 's/^aero7_repository_fingerprint=//p' "$project_root/sources.lock")"
+repository_database_hash="$(sed -n 's/^aero7_repository_db_sha256=//p' "$project_root/sources.lock")"
+[[ "$repository_url" == 'https://aero7.org/repo/$arch' ]] || {
+  printf 'The ISO is not pinned to the self-hosted Aero7 package repository.\n' >&2
+  exit 1
+}
+[[ "$repository_fingerprint" == '72C79ABBBBE96446DD3324042694BFE1090F4FD6' \
+    && "$repository_database_hash" =~ ^[0-9a-f]{64}$ ]] || {
+  printf 'The Aero7 repository signature or database pin is invalid.\n' >&2
+  exit 1
+}
+grep -Fqx "REPOSITORY = \"$repository_url\"" \
+  "$project_root/backend/aero7_shell_adapter.py" || {
+  printf 'The installer repository URL differs from sources.lock.\n' >&2
   exit 1
 }
 grep -Fq 'for source_item in assets commands config keys lib modules recipes stages ui; do' \
@@ -625,6 +653,17 @@ while IFS= read -r package_name; do
 done < "$source_path/config/aur-packages.conf"
 while IFS= read -r package_name; do
   [[ -n "$package_name" && "$package_name" != \#* ]] || continue
+  case "$package_name" in
+    # The maintained full Dolphin fork supersedes the legacy package name and
+    # is required above to advertise that compatibility through .PKGINFO.
+    aero7-dolphin)
+      grep -Fqx aero7-file-explorer "$project_root/config/aero7-packages.txt" || {
+        printf 'The approved aero7-file-explorer replacement is missing.\n' >&2
+        exit 1
+      }
+      continue
+      ;;
+  esac
   grep -Fqx "$package_name" "$project_root/config/aero7-packages.txt" || {
     printf 'Aero companion package from the pinned shell installer is missing: %s\n' "$package_name" >&2
     exit 1
@@ -662,7 +701,7 @@ grep -Fq 'prepare_fresh_firewall(TARGET_ROOT, runner)' \
     printf 'The installed system does not configure the approved fresh-install firewall.\n' >&2
     exit 1
   }
-for available_application in linux-devmgmt tuxmanager; do
+for available_application in aero7-device-manager tuxmanager; do
   grep -Fqx "$available_application" "$project_root/config/aero7-packages.txt" || {
     printf 'Available shell application package is missing: %s\n' "$available_application" >&2
     exit 1

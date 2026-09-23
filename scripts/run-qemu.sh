@@ -9,9 +9,10 @@ display_backend="spice"
 dualboot_fixture=0
 disk_management_fixture=0
 ssh_forward=0
+no_network=0
 
 usage() {
-  printf 'Usage: %s [--fresh] [--installed] [--dualboot-fixture] [--disk-management-fixture] [--ssh-forward] [--iso PATH] [--display spice|sdl|gtk]\n' "${0##*/}"
+  printf 'Usage: %s [--fresh] [--installed] [--dualboot-fixture] [--disk-management-fixture] [--ssh-forward|--no-network] [--iso PATH] [--display spice|spice-headless|sdl|gtk]\n' "${0##*/}"
 }
 
 while (($#)); do
@@ -21,6 +22,7 @@ while (($#)); do
     --dualboot-fixture) dualboot_fixture=1 ;;
     --disk-management-fixture) disk_management_fixture=1 ;;
     --ssh-forward) ssh_forward=1 ;;
+    --no-network) no_network=1 ;;
     --iso) shift; (($#)) || { usage >&2; exit 2; }; iso_path="$1" ;;
     --display) shift; (($#)) || { usage >&2; exit 2; }; display_backend="$1" ;;
     --help) usage; exit 0 ;;
@@ -30,7 +32,7 @@ while (($#)); do
 done
 
 case "$display_backend" in
-  spice) display_spec="none" ;;
+  spice|spice-headless) display_spec="none" ;;
   sdl)
     display_spec="sdl,gl=off"
     # QEMU's SDL frontend otherwise uses nearest-neighbour enlargement, which
@@ -39,13 +41,17 @@ case "$display_backend" in
     ;;
   gtk) display_spec="gtk,gl=off" ;;
   *)
-    printf 'Unsupported QEMU display backend: %s (use spice, sdl, or gtk).\n' "$display_backend" >&2
+    printf 'Unsupported QEMU display backend: %s (use spice, spice-headless, sdl, or gtk).\n' "$display_backend" >&2
     exit 2
     ;;
 esac
 
 if ((fresh && installed_only)); then
   printf '%s\n' '--fresh and --installed cannot be used together.' >&2
+  exit 2
+fi
+if ((ssh_forward && no_network)); then
+  printf '%s\n' '--ssh-forward and --no-network cannot be used together.' >&2
   exit 2
 fi
 
@@ -246,7 +252,12 @@ qemu_args=(
   -serial "file:$serial_path"
 )
 
-if ((ssh_forward)); then
+if ((no_network)); then
+  # QEMU adds a default userspace NIC when no networking option is present.
+  # An explicit none is therefore required for a genuinely disconnected test.
+  qemu_args+=(-nic none)
+  printf '%s\n' 'Network: no virtual network adapter attached'
+elif ((ssh_forward)); then
   qemu_args+=(
     -netdev "user,id=aero7net,hostfwd=tcp:127.0.0.1:22222-:22"
     -device "virtio-net-pci,netdev=aero7net"
@@ -254,6 +265,13 @@ if ((ssh_forward)); then
   printf '%s\n' 'SSH forwarding: 127.0.0.1:22222 -> guest:22'
 else
   qemu_args+=(-nic "user,model=virtio-net-pci")
+fi
+
+if [[ "$display_backend" == "spice-headless" ]]; then
+  qemu_args+=(
+    -spice "unix=on,addr=$spice_path,disable-ticketing=on,image-compression=off,streaming-video=off"
+  )
+  exec "${qemu_args[@]}"
 fi
 
 if [[ "$display_backend" != "spice" ]]; then

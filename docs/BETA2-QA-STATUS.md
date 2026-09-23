@@ -1,6 +1,6 @@
 # Aero7 Beta 2 — QA status and evidence history
 
-Updated 22 September 2026. This engineering record supports the
+Updated 23 September 2026. This engineering record supports the
 [approved website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md). It preserves the distinction
 between frozen-media tests and later component upgrades. The release owner's
 publication approval is recorded in that handoff; this file remains technical
@@ -8,9 +8,23 @@ evidence rather than website copy.
 
 ### Current website rollout state
 
-**The final local image pair has passed VM acceptance and Beta 2 publication is
-approved.** Do not enable either website download until its uploaded bytes,
-final URL and checksum have been verified.
+**The 23 September local candidate pair has passed clean-install VM acceptance,
+but remains unpublished until the planned Friday release decision.** Do not
+enable either website download until the release owner gives the final go-ahead
+and the uploaded bytes, final URL and checksum have been verified.
+
+**Self-hosted repository candidate acceptance:** The
+[23 September report](release-evidence/2026-09-23-self-hosted-repository-candidate-acceptance.md)
+records the exact online and offline ISO hashes rebuilt from signed repository
+build `20260923T180513Z-ce604b74debf`. Both exact images passed structural
+verification, clean UEFI installation, OOBE, first desktop, reboot/password
+login, File Explorer launch, diagnostic-manifest verification and powered-off
+disk checks. The online system also opened the searchable Optional Features
+manager and verified active firewalld. The offline cycle was repeated after a
+QEMU launcher defect was found; the accepted rerun used explicit `-nic none`,
+and its collected network inventory contains only loopback with no external
+route. All 162 integration tests pass. These are VM results, not physical
+GPU/hotplug or physical multi-monitor certification.
 
 **Exact final-media acceptance:** The
 [22 September final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)

@@ -115,33 +115,54 @@ and collected files before sharing them.
 
 ## Current local candidate packages
 
-These are local QA selections, not a published repository availability claim.
-Versions were read from all 19 package metadata records referenced by the
+These are the signed repository selections plus the checksum-pinned
+supplemental Beta 2 packages embedded in both candidates. Versions were read
+from all 28 package metadata records referenced by the
 [local checksum manifest](../config/beta2-local-packages.sha256).
 
 | Package | Selected version |
 | --- | --- |
-| `aero7-desktop` | `0.2.0-33` |
-| `aero7-file-explorer` | `25.12.3-55` |
-| `linux-control-panel` | `0.1.0-55` |
-| `aero7-device-manager` | `2.2.1.r1.g6d080f8-1` |
 | `aero7-computer-management-git` | `0.2.0.r20.g6d7fe79-2` |
-| `aero7-gadgets` | `3.0.0-25` |
+| `aero7-desktop` | `0.2.0-36` |
+| `aero7-device-manager` | `2.2.1.r1.g6d080f8-1` |
+| `aero7-file-explorer` | `25.12.3-56` |
+| `aero7-gadgets` | `3.0.0-27` |
+| `aero7-gwenview` | `25.12.2-2` |
+| `aero7-internet-explorer` | `0.1.0-7` |
 | `aero7-kolourpaint` | `25.12.3-9` |
-| `aero7-internet-explorer` | `0.1.0-5` |
-| `aerothemeplasma-desktop-git` | `6.7.0_742.r9c2d850-65` |
+| `aero7-programs-center-git` (optional) | `0.1.0.r12.g0405a2e-4` |
+| `aero7-qt` | `1.0.0-2` |
+| `aeroshell-kwin-components-git` | `6.7.5_62.r2cd1d52-1` |
+| `aeroshell-libplasma-git` | `6.7.5_18055.r6ed0921cf-1` |
+| `aeroshell-smod-git` | `6.7.4_61.rff4ab15-2` |
+| `aeroshell-workspace-git` | `6.7.5_22.rad919f4-1` |
+| `aerothemeplasma-desktop-git` | `6.7.0_752.r8c7d820-3` |
 | `aerothemeplasma-icons-git` | `11.r96950b8-3` |
 | `aerothemeplasma-sounds-git` | `4.r55d2f5f-3` |
-| `spectacle` | `1:6.7.4-3` |
-| `plasma-workspace` | `6.7.4-3.2` |
-| `qt6-base` | `6.11.2-3.1` |
-| `uac-polkit-agent-git` | `6.7.0_816.rd8c2262-2` |
-| `kwin` | `6.7.4-7.3` |
-| `aero7-programs-center-git` (optional) | `0.1.0.r12.g0405a2e-3` |
+| `execbin` | `0.23.0-7` |
 | `aero7-credential-vault` (optional) | `0.1.0-7` |
 | `kwallet` | `6.29.0-1.1` |
+| `kwin` | `6.7.4-7.3` |
+| `linux-control-panel` | `0.1.0-56` |
+| `linver` | `1.0.0-6` |
+| `plasma-workspace` | `6.7.4-3.2` |
+| `qt6-base` | `6.11.2-3.1` |
+| `spectacle` | `1:6.7.4-3` |
+| `tuxmanager` | `1.0.7-2` |
+| `uac-polkit-agent-git` | `6.7.0_816.rd8c2262-2` |
 
 ## Acceptance and publication record
+
+The [23 September self-hosted-repository candidate](release-evidence/2026-09-23-self-hosted-repository-candidate-acceptance.md)
+is the current unpublished pair. It uses signed repository build
+`20260923T180513Z-ce604b74debf` and passes 162 integration tests, exact-image
+verification, online clean installation and a repeated offline clean install
+with QEMU explicitly configured as `-nic none`. Both installed systems complete
+OOBE, reach the desktop, reboot through the Aero7 login screen, return after
+password login, validate their collected-log manifests, report zero failed
+user/system units and no coredumps, and pass powered-off disk checks. The
+offline logs contain only loopback networking and no external route. Publication
+is deferred until the planned Friday release decision.
 
 The latest selected manifest adds the accepted Aero7-scoped KWallet presentation
 package to the required local transaction. The
@@ -152,7 +173,7 @@ optional package, and pass the native Aero7-titled first-use/password dialog
 replay. This closed the refreshed-image vault gate for the accepted final
 downloads.
 
-The latest selected manifest passes 160 integration tests, static checks,
+The previous selected manifest passed 160 integration tests, static checks,
 19 online candidate-archive checks, 84 offline candidate/dependency-archive
 checks and 65 offline repository identity/checksum checks. These are local
 results, not new GitHub CI results.
@@ -165,12 +186,13 @@ branding, Explorer identity, optional package install/removal and the complete
 screenshot save/clipboard/notification path. Vault 7 retains its separate native
 overlap, retained-content and isolated backend evidence.
 
-The source bug-test pass and exact-media VM acceptance are complete. The
-[final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
-records clean connected-online and no-network offline installation, OOBE,
+The source bug-test pass and exact-media VM acceptance are complete. The current
+[candidate report](release-evidence/2026-09-23-self-hosted-repository-candidate-acceptance.md)
+records clean connected-online and explicit no-NIC offline installation, OOBE,
 first-login PolicyKit/UAC readiness, optional Programs Center install/removal,
-reboot/login and pinned File Explorer launch. GitHub publication includes only
-the tagged source and release notes. Before enabling website downloads:
+reboot/login and pinned File Explorer launch. The source commit belongs on the
+`testing` branch; neither ISO is published by this test pass. Before enabling
+website downloads:
 
 1. Upload both exact artifacts and the matching checksum file to the website.
 2. Re-download and verify byte size plus SHA-256 for both website-hosted files.
