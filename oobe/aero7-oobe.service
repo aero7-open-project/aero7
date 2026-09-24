@@ -1,7 +1,7 @@
 [Unit]
 Description=Aero7 first-boot setup
-After=systemd-user-sessions.service NetworkManager.service systemd-logind.service plymouth-quit.service
-Wants=NetworkManager.service systemd-logind.service
+After=aero7-clock-bootstrap.service systemd-user-sessions.service NetworkManager.service systemd-logind.service plymouth-quit.service
+Wants=aero7-clock-bootstrap.service NetworkManager.service systemd-logind.service
 Conflicts=getty@tty1.service sddm.service
 ConditionPathExists=!/var/lib/aero7/oobe-complete
 

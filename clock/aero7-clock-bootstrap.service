@@ -1,0 +1,15 @@
+[Unit]
+Description=Establish a safe Aero7 clock floor before network services
+Documentation=https://aero7.org/
+DefaultDependencies=no
+After=local-fs.target
+Before=network-pre.target NetworkManager.service systemd-timesyncd.service pacman-init.service aero7-installer.service aero7-oobe.service
+Wants=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/aero7/aero7-install-backend clock-bootstrap
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

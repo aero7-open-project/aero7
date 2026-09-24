@@ -59,6 +59,30 @@ still fails, Setup stops with a specific recovery message and does not modify
 the target disk. Do not bypass signature checks. Include the failing package
 name and the end of the log in a bug report.
 
+### Certificate is not yet valid or the system clock is incorrect
+
+This message means the computer's date is older than the HTTPS certificate,
+usually because the firmware clock reset after a flat RTC battery. It does not
+by itself mean that the Aero7 repository is down.
+
+Current installation media automatically advances an implausibly old clock to
+the image build date before networking and package setup. If an earlier
+installed build still shows this error, set a reasonable current date once,
+then turn network time back on:
+
+```console
+sudo timedatectl set-ntp false
+sudo timedatectl set-time 'YYYY-MM-DD HH:MM:SS'
+sudo timedatectl set-ntp true
+sudo systemctl restart systemd-timesyncd
+sudo pacman -Syyu
+```
+
+Replace the placeholder with the current local date and time. Also correct the
+date in the computer's UEFI/BIOS settings; if it resets again after power-off,
+the RTC/CMOS battery may need replacement. Do not disable TLS or package
+signature verification as a workaround.
+
 ## OOBE does not reach the desktop
 
 Open TTY2 and check `aero7-oobe.service`, SDDM, the shell adapter log, and the

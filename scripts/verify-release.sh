@@ -44,6 +44,8 @@ embedded_local_manifest="$verify_root/beta2-local-packages.sha256"
 embedded_optional_names="$verify_root/beta2-optional-package-names.txt"
 embedded_collector="$verify_root/aero7-collect-logs"
 embedded_variant="$verify_root/install-variant"
+embedded_build_epoch="$verify_root/build-epoch"
+embedded_clock_unit="$verify_root/aero7-clock-bootstrap.service"
 
 file "$image"
 sha256sum "$image"
@@ -60,6 +62,19 @@ unsquashfs -cat "$squashfs" usr/share/aero7/install-variant >"$embedded_variant"
   printf 'The embedded installer variant does not match the ISO name.\n' >&2
   exit 1
 }
+unsquashfs -cat "$squashfs" usr/share/aero7/build-epoch >"$embedded_build_epoch"
+grep -Eq '^[0-9]{10}$' "$embedded_build_epoch"
+build_epoch="$(cat "$embedded_build_epoch")"
+((build_epoch >= 1577836800 && build_epoch <= 4102444800))
+unsquashfs -cat "$squashfs" usr/lib/systemd/system/aero7-clock-bootstrap.service \
+  >"$embedded_clock_unit"
+cmp -s "$project_root/clock/aero7-clock-bootstrap.service" "$embedded_clock_unit" || {
+  printf 'The ISO clock bootstrap service differs from the current candidate.\n' >&2
+  exit 1
+}
+unsquashfs -ll "$squashfs" \
+  | rg -F 'etc/systemd/system/sysinit.target.wants/aero7-clock-bootstrap.service' \
+  >/dev/null
 unsquashfs -cat "$squashfs" usr/share/aero7/beta2-optional-package-names.txt \
   >"$embedded_optional_names"
 cmp -s "$project_root/config/beta2-optional-package-names.txt" "$embedded_optional_names"
@@ -101,6 +116,8 @@ unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
   | rg -F 'configure_diagnostic_logging(username)' >/dev/null
 unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
   | rg -F 'if variant == "offline"' >/dev/null
+unsquashfs -cat "$squashfs" usr/lib/aero7/aero7-install-backend \
+  | rg -F 'def enforce_build_clock_floor(' >/dev/null
 unsquashfs -cat "$squashfs" usr/lib/aero7/aero7_shell_adapter.py \
   | rg -F 'package for package in requested_packages if package not in embedded_names' \
   >/dev/null

@@ -10,9 +10,10 @@ dualboot_fixture=0
 disk_management_fixture=0
 ssh_forward=0
 no_network=0
+rtc_base=""
 
 usage() {
-  printf 'Usage: %s [--fresh] [--installed] [--dualboot-fixture] [--disk-management-fixture] [--ssh-forward|--no-network] [--iso PATH] [--display spice|spice-headless|sdl|gtk]\n' "${0##*/}"
+  printf 'Usage: %s [--fresh] [--installed] [--dualboot-fixture] [--disk-management-fixture] [--ssh-forward|--no-network] [--rtc-base YYYY-MM-DDTHH:MM:SS] [--iso PATH] [--display spice|spice-headless|sdl|gtk]\n' "${0##*/}"
 }
 
 while (($#)); do
@@ -23,6 +24,7 @@ while (($#)); do
     --disk-management-fixture) disk_management_fixture=1 ;;
     --ssh-forward) ssh_forward=1 ;;
     --no-network) no_network=1 ;;
+    --rtc-base) shift; (($#)) || { usage >&2; exit 2; }; rtc_base="$1" ;;
     --iso) shift; (($#)) || { usage >&2; exit 2; }; iso_path="$1" ;;
     --display) shift; (($#)) || { usage >&2; exit 2; }; display_backend="$1" ;;
     --help) usage; exit 0 ;;
@@ -52,6 +54,11 @@ if ((fresh && installed_only)); then
 fi
 if ((ssh_forward && no_network)); then
   printf '%s\n' '--ssh-forward and --no-network cannot be used together.' >&2
+  exit 2
+fi
+if [[ -n "$rtc_base" \
+    && ! "$rtc_base" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$ ]]; then
+  printf 'Invalid RTC base: %s (use YYYY-MM-DDTHH:MM:SS).\n' "$rtc_base" >&2
   exit 2
 fi
 
@@ -251,6 +258,10 @@ qemu_args=(
   -qmp "unix:$qmp_path,server=on,wait=off"
   -serial "file:$serial_path"
 )
+if [[ -n "$rtc_base" ]]; then
+  qemu_args+=(-rtc "base=$rtc_base,clock=vm")
+  printf 'Firmware clock test base: %s UTC\n' "$rtc_base"
+fi
 
 if ((no_network)); then
   # QEMU adds a default userspace NIC when no networking option is present.

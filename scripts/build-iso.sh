@@ -216,6 +216,18 @@ install -d -m 0750 "$profile_root/airootfs/root"
 DESTDIR="$profile_root/airootfs" cmake --install "$build_root/installer" --prefix /usr
 install -Dm755 "$project_root/backend/aero7_install_backend.py" \
   "$profile_root/airootfs/usr/lib/aero7/aero7-install-backend"
+install -Dm644 "$project_root/clock/aero7-clock-bootstrap.service" \
+  "$profile_root/airootfs/usr/lib/systemd/system/aero7-clock-bootstrap.service"
+build_epoch="${SOURCE_DATE_EPOCH:-$(date -u +%s)}"
+[[ "$build_epoch" =~ ^[0-9]{10}$ \
+    && "$build_epoch" -ge 1577836800 \
+    && "$build_epoch" -le 4102444800 ]] || {
+  printf 'Invalid installation-media build epoch: %s\n' "$build_epoch" >&2
+  exit 1
+}
+install -d -m 0755 "$profile_root/airootfs/usr/share/aero7"
+printf '%s\n' "$build_epoch" \
+  > "$profile_root/airootfs/usr/share/aero7/build-epoch"
 install -Dm755 "$project_root/backend/aero7_shell_adapter.py" \
   "$profile_root/airootfs/usr/lib/aero7/aero7_shell_adapter.py"
 install -Dm644 "$project_root/backend/firewall_defaults.py" \
@@ -375,6 +387,9 @@ ln -sfn /usr/lib/systemd/system/getty@.service \
   "$profile_root/airootfs/etc/systemd/system/getty.target.wants/getty@tty2.service"
 ln -sfn ../pacman-init.service \
   "$profile_root/airootfs/etc/systemd/system/multi-user.target.wants/pacman-init.service"
+install -d -m 0755 "$profile_root/airootfs/etc/systemd/system/sysinit.target.wants"
+ln -sfn /usr/lib/systemd/system/aero7-clock-bootstrap.service \
+  "$profile_root/airootfs/etc/systemd/system/sysinit.target.wants/aero7-clock-bootstrap.service"
 
 if rg -n -i 'install windows|windows 7 professional|microsoft software license' \
     "$project_root/installer/qml" "$project_root/installer/assets" >/dev/null 2>&1; then

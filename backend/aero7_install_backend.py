@@ -47,6 +47,8 @@ INSTALL_STAGES = (
 PROC_CMDLINE = Path("/proc/cmdline")
 LIVE_HOSTNAME = Path("/etc/hostname")
 LIVE_SOURCE_LOCK = Path("/usr/share/aero7/sources.lock")
+BUILD_EPOCH_FILE = Path("/usr/share/aero7/build-epoch")
+CLOCK_BOOTSTRAP_UNIT = Path("/usr/lib/systemd/system/aero7-clock-bootstrap.service")
 PACKAGE_MIRROR_HOSTS = (
     "geo.mirror.pkgbuild.com",
     "fastly.mirror.pkgbuild.com",
@@ -1375,6 +1377,8 @@ def copy_payload(target: Path) -> None:
         Path("/usr/lib/aero7/aero7_shell_adapter.py"): target / "usr/lib/aero7/aero7_shell_adapter.py",
         Path("/usr/lib/aero7/firewall_defaults.py"): target / "usr/lib/aero7/firewall_defaults.py",
         Path("/usr/lib/aero7/aero7-kiosk-launch"): target / "usr/lib/aero7/aero7-kiosk-launch",
+        BUILD_EPOCH_FILE: target / BUILD_EPOCH_FILE.relative_to("/"),
+        CLOCK_BOOTSTRAP_UNIT: target / CLOCK_BOOTSTRAP_UNIT.relative_to("/"),
         DIAGNOSTIC_COLLECTOR: target / DIAGNOSTIC_COLLECTOR.relative_to("/"),
         Path("/usr/lib/systemd/system/aero7-diagnostic-collect.service"): target / "usr/lib/systemd/system/aero7-diagnostic-collect.service",
         Path("/usr/lib/systemd/system/aero7-diagnostic-collect.timer"): target / "usr/lib/systemd/system/aero7-diagnostic-collect.timer",
@@ -1398,6 +1402,37 @@ def copy_payload(target: Path) -> None:
         raise RuntimeError(f"Aero7-shell source payload is missing: {shell_source}")
     shutil.copytree(shell_source, shell_target, symlinks=True, dirs_exist_ok=True)
     ensure_shell_payload_modes(shell_target)
+
+
+def enforce_build_clock_floor(
+    runner: CommandRunner,
+    floor_file: Path = BUILD_EPOCH_FILE,
+    now_epoch: int | None = None,
+) -> bool:
+    """Move a stale system clock forward to the installation-media build time.
+
+    TLS cannot bootstrap NTP or package downloads when firmware supplies a date
+    older than current certificate validity periods. The signed installation
+    media provides a conservative lower bound that also works offline. Never
+    move a plausible clock backwards; normal NTP remains responsible for exact
+    time once networking is available.
+    """
+    try:
+        value = floor_file.read_text(encoding="ascii").strip()
+    except OSError as error:
+        raise RuntimeError(f"installation-media clock floor is unavailable: {error}") from error
+    if not re.fullmatch(r"[0-9]{10}", value):
+        raise SafetyError("installation-media clock floor is invalid")
+    floor_epoch = int(value)
+    # Reject corrupted or implausible media metadata without consulting the
+    # potentially wrong machine clock. This range covers 2020 through 2100.
+    if not 1_577_836_800 <= floor_epoch <= 4_102_444_800:
+        raise SafetyError("installation-media clock floor is outside the supported range")
+    current_epoch = int(time.time()) if now_epoch is None else now_epoch
+    if current_epoch >= floor_epoch:
+        return False
+    runner.run(["date", "--utc", f"--set=@{floor_epoch}"])
+    return True
 
 
 def enable_graphical_user_service(target: Path, unit: str) -> Path:
@@ -2321,6 +2356,7 @@ def install(plan: dict[str, Any], confirm_device: str) -> None:
             copy_payload(TARGET_ROOT)
             updates_settings.advance()
             configure_target_plymouth(TARGET_ROOT, runner)
+            runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "enable", "aero7-clock-bootstrap.service"])
             runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "enable", "NetworkManager.service"])
             prepare_fresh_firewall(TARGET_ROOT, runner)
             runner.run(["arch-chroot", str(TARGET_ROOT), "systemctl", "disable", "sddm.service"])
@@ -2410,6 +2446,10 @@ def finalize_oobe(plan: dict[str, Any]) -> None:
     localtime = Path("/etc/localtime")
     localtime.unlink(missing_ok=True)
     localtime.symlink_to(zone)
+    # Do this before saving the system time to the RTC. Older images wrote a
+    # stale firmware date back first, which could make every HTTPS repository
+    # certificate appear to be from the future after an offline installation.
+    enforce_build_clock_floor(runner)
     runner.run(["hwclock", "--systohc"])
 
     settings = Path("/etc/aero7")
@@ -2487,6 +2527,10 @@ def make_parser() -> argparse.ArgumentParser:
 
     oobe_parser = sub.add_parser("oobe-finalize", help="apply first-boot account settings")
     oobe_parser.add_argument("--plan", type=Path, required=True)
+    sub.add_parser(
+        "clock-bootstrap",
+        help="advance a stale firmware clock to the installation-media build time",
+    )
     return parser
 
 
@@ -2516,6 +2560,20 @@ def main(argv: list[str] | None = None) -> int:
             load_storage_driver(args.path)
         elif args.command == "oobe-finalize":
             finalize_oobe(load_plan(args.plan))
+        elif args.command == "clock-bootstrap":
+            if os.geteuid() != 0:
+                raise SafetyError("clock bootstrap must run as root")
+            adjusted = enforce_build_clock_floor(
+                CommandRunner(Path("/var/log/aero7-clock-bootstrap.log"))
+            )
+            event(
+                "status",
+                message=(
+                    "System clock advanced to the installation-media build time"
+                    if adjusted
+                    else "System clock is already newer than the installation media"
+                ),
+            )
         return 0
     except (OSError, subprocess.SubprocessError, json.JSONDecodeError, RuntimeError) as error:
         event("status", message=f"Stopped safely: {error}")

@@ -1,12 +1,24 @@
 # Aero7 Beta 2 — QA status and evidence history
 
-Updated 23 September 2026. This engineering record supports the
+Updated 24 September 2026. This engineering record supports the
 [approved website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md). It preserves the distinction
 between frozen-media tests and later component upgrades. The release owner's
 publication approval is recorded in that handoff; this file remains technical
 evidence rather than website copy.
 
 ### Current website rollout state
+
+**Stale firmware clock candidate acceptance:** The
+[24 September report](release-evidence/2026-09-24-stale-clock-bootstrap-acceptance.md)
+records the repair for the physical-install failure where `aero7.db`, `core.db`
+and `extra.db` were rejected because HTTPS certificates appeared not yet valid.
+Both newly rebuilt candidates were booted with a deliberately stale
+`2026-08-01` firmware clock and completed clean installation, OOBE, installed
+repository synchronization and a second reboot. The embedded clock floor runs
+before networking and package initialization, is retained in the installed
+system and never moves a newer clock backwards. All 164 Python tests, all three
+C++/Qt tests, static checks and both exact image verifiers pass. The pair is
+unpublished and remains on the Friday release boundary.
 
 **The 23 September local candidate pair has passed clean-install VM acceptance,
 but remains unpublished until the planned Friday release decision.** Do not

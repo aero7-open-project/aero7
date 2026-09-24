@@ -47,6 +47,7 @@ from aero7_install_backend import (  # noqa: E402
     ensure_install_network,
     ensure_install_tools,
     enable_graphical_user_service,
+    enforce_build_clock_floor,
     enforce_light_desktop_defaults,
     enforce_execution_gate,
     esp_mount_arguments,
@@ -564,6 +565,39 @@ class DiskPlanTest(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "injected"):
                     configure_image_core_services(failing, root)
                 self.assertEqual(len(failing.calls), fail_at)
+
+    def test_clock_floor_advances_only_a_stale_clock(self):
+        with tempfile.TemporaryDirectory() as directory:
+            floor = Path(directory) / "build-epoch"
+            floor.write_text("1790200000\n", encoding="ascii")
+            runner = RecordingRunner()
+
+            self.assertTrue(
+                enforce_build_clock_floor(runner, floor, now_epoch=1_700_000_000)
+            )
+            self.assertEqual(
+                runner.calls,
+                [(["date", "--utc", "--set=@1790200000"], None)],
+            )
+
+            runner.calls.clear()
+            self.assertFalse(
+                enforce_build_clock_floor(runner, floor, now_epoch=1_800_000_000)
+            )
+            self.assertEqual(runner.calls, [])
+
+    def test_clock_floor_rejects_missing_or_untrusted_metadata(self):
+        runner = RecordingRunner()
+        with tempfile.TemporaryDirectory() as directory:
+            floor = Path(directory) / "build-epoch"
+            with self.assertRaisesRegex(RuntimeError, "clock floor is unavailable"):
+                enforce_build_clock_floor(runner, floor, now_epoch=1)
+
+            for value in ("", "tomorrow", "1577836799", "4102444801", "17902000000"):
+                floor.write_text(value + "\n", encoding="ascii")
+                with self.assertRaisesRegex(SafetyError, "clock floor"):
+                    enforce_build_clock_floor(runner, floor, now_epoch=1)
+            self.assertEqual(runner.calls, [])
 
     def test_image_core_services_leave_existing_ufw_untouched(self):
         with tempfile.TemporaryDirectory() as directory:

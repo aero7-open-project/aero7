@@ -126,6 +126,8 @@ reliable, especially on slower laptops, because setup does not wait for package
 mirrors. Choose the smaller online ISO only when download size is more important
 and the computer will have a stable Internet connection for the entire install.
 Both variants retain the configured repositories for updates after setup.
+They also bootstrap an incorrectly old firmware clock to the image build date
+before HTTPS package access, while leaving any newer clock unchanged.
 
 1. Open the [official Aero7 website](https://aero7.miku-dayo.com/).
 2. Download either the recommended offline ISO or the smaller online ISO, plus

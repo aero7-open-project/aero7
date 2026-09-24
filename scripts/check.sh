@@ -327,6 +327,8 @@ grep -Fq 'pacman -Sy --noconfirm' \
   "$project_root/scripts/prepare-offline-packages.sh"
 grep -Fq 'Aero7 Beta 2 %s image verification passed.' \
   "$project_root/scripts/verify-release.sh"
+grep -Fq -- '--rtc-base YYYY-MM-DDTHH:MM:SS' \
+  "$project_root/scripts/run-qemu.sh"
 
 printf 'Live package mirrors\n'
 mirrorlist="$project_root/archiso/airootfs/etc/pacman.d/mirrorlist"
@@ -335,8 +337,21 @@ if ! grep -Eq '^[[:space:]]*Server[[:space:]]*=' "$mirrorlist"; then
   printf 'The live Arch mirrorlist has no enabled servers.\n' >&2
   exit 1
 fi
-grep -Fqx 'Requires=pacman-init.service' \
+grep -Fqx 'Requires=aero7-clock-bootstrap.service pacman-init.service' \
   "$project_root/archiso/airootfs/etc/systemd/system/aero7-installer.service"
+clock_unit="$project_root/clock/aero7-clock-bootstrap.service"
+[[ -s "$clock_unit" ]] || {
+  printf 'The clock bootstrap unit is missing.\n' >&2
+  exit 1
+}
+grep -Fqx 'Before=network-pre.target NetworkManager.service systemd-timesyncd.service pacman-init.service aero7-installer.service aero7-oobe.service' \
+  "$clock_unit"
+grep -Fqx 'ExecStart=/usr/lib/aero7/aero7-install-backend clock-bootstrap' \
+  "$clock_unit"
+grep -Fq 'usr/share/aero7/build-epoch' \
+  "$project_root/backend/aero7_install_backend.py"
+grep -Fq 'sysinit.target.wants/aero7-clock-bootstrap.service' \
+  "$project_root/scripts/build-iso.sh"
 grep -Fqx 'Wants=systemd-logind.service systemd-resolved.service NetworkManager.service' \
   "$project_root/archiso/airootfs/etc/systemd/system/aero7-installer.service"
 grep -Fqx 'dns=systemd-resolved' \
