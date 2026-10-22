@@ -2,9 +2,10 @@
 
 ## Current publication status
 
-Beta 2 source, release notes and handbook updates were published on
-22 September 2026. GitHub contains no ISO attachments; exact online and offline
-media plus checksums are distributed through the official Aero7 website.
+**Beta 2 has NOT been publicly released.** Historical source documentation
+was pushed on 22 September 2026, and internal online/offline ISO images were
+validated, but remaining bug fixes and stability testing block publication.
+The September source tag is not an announcement of public ISO availability.
 
 Beta releases use four gates: source validation, image validation, a fresh
 installation, and a second installed-system boot.
@@ -85,7 +86,7 @@ Boot the same VM disk again. OOBE must remain disabled and SDDM must require the
 created account password, proving that temporary first-login autologin was
 removed.
 
-## Beta 2 artifacts
+## Historical Beta 2 candidate artifacts — not public downloads
 
 - offline file: `aero7-beta2-offline-2026.09.22-x86_64.iso`
 - offline size: `3,407,151,104` bytes
@@ -100,7 +101,9 @@ the automated and VM acceptance scope for this release line.
 
 ## Beta 2 release gate
 
-The source, exact-media, fresh-install and second-boot gates are complete. See
-[Beta 2 Release Notes](Beta-2-Release-Notes.md) for the tested scope and known
-boundaries. Each website upload must still be downloaded again and checked
-against the published byte size and SHA-256 before its button is enabled.
+The source, exact-media, fresh-install and second-boot tests described above
+passed for the **September candidate pair only**. More bugs and stability tests
+must be addressed before public Beta 2 release approval. See the
+[draft Beta 2 Release Notes](Beta-2-Release-Notes.md) for prior test boundaries.
+Any newly approved website upload must be downloaded again and verified
+against its current byte size and SHA-256 before public downloads are enabled.
