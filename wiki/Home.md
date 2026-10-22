@@ -17,17 +17,17 @@ news, downloads, screenshots, and an overview of the complete system.
 > important data, disconnect unrelated disks, and verify the selected disk:
 > Beta software and partition changes can still cause data loss.
 
-> **Beta 2 was released on 22 September 2026.** GitHub contains the source tag
-> and release notes without ISO attachments. Download the recommended offline
-> or smaller online installation image only through the official website and
-> verify its complete SHA-256 checksum before booting it.
+> **Beta 2 is NOT publicly released.** Remaining bugs and stability checks
+> are still being worked on. The September 22 source tag and local ISO
+> checksums document previous engineering work, not a public launch.
+> The official release date is to be announced.
 
 ## Start here
 
 | I want to… | Read… |
 | --- | --- |
-| Download and install Beta 2 | [Installation](Installation.md) |
-| Review the Beta 2 release | [Beta 2 Release Notes](Beta-2-Release-Notes.md) |
+| Read Beta 2 candidate installation guidance | [Installation](Installation.md) |
+| Review draft Beta 2 release notes | [Beta 2 Release Notes](Beta-2-Release-Notes.md) |
 | Learn the Beta 2 desktop and image choices | [Beta 2 Desktop Guide](Beta-2-Desktop-Guide) |
 | Check whether my VM or test PC is supported | [System Requirements](System-Requirements.md) |
 | Understand every setup page | [Installer Guide](Installer-Guide.md) |
@@ -48,7 +48,7 @@ news, downloads, screenshots, and an overview of the complete system.
 - [Credits and Licensing](Credits-and-Licensing.md)
 - [FAQ](FAQ.md)
 
-## Beta 2 installation images
+## September Beta 2 test images — not publicly released
 
 | | |
 | --- | --- |
@@ -60,9 +60,11 @@ news, downloads, screenshots, and an overview of the complete system.
 | Desktop | KDE Plasma 6 Wayland |
 | Intended target | UEFI test PC or disposable QEMU/KVM VM |
 
-Download installation media from the [official website](https://aero7.miku-dayo.com/).
-The [GitHub Beta 2 release](https://github.com/aero7-open-project/aero7/releases/tag/v0.2.0-beta.2)
-contains source and release notes, not ISO attachments.
+These filenames and SHA-256 values identify **previously tested local images**.
+They are not an announcement that Beta 2 downloads are available. The
+[September GitHub source tag](https://github.com/aero7-open-project/aero7/releases/tag/v0.2.0-beta.2)
+does not constitute the public Beta 2 release; watch the
+[official website](https://aero7.miku-dayo.com/) for a later announcement.
 
 ## Project links
 
