@@ -1,8 +1,9 @@
 # Included Software
 
-This page describes the released Beta 2 package selection. See
-[Beta 2 Release Notes](Beta-2-Release-Notes) for exact media identities and the
-tested scope.
+This page describes the proposed **Beta 2 candidate package selection**.
+Beta 2 is **not yet publicly released**; bugs and stability tests remain.
+See the [draft Beta 2 Release Notes](Beta-2-Release-Notes) for historical
+media identities and the tested scope.
 
 Aero7 installs a focused desktop foundation rather than the broad
 `plasma-meta` or `kde-applications-meta` collections. Runtime dependencies are
