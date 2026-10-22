@@ -1,6 +1,10 @@
 # Installation
 
-Beta 2 can be installed on an x86-64 UEFI PC or in a virtual machine. Back up
+> **Beta 2 is not publicly released.** This page documents the September
+> engineering test media, not approved public Beta 2 downloads. Installation
+> details and checksums may change before the official release.
+
+Beta 2 test candidates can be installed on an x86-64 UEFI PC or in a virtual machine. Back up
 important data, disconnect unrelated drives, and verify the model and size of
 the selected target before continuing. Whole-disk installation permanently
 erases the selected disk.
@@ -14,9 +18,10 @@ erases the selected disk.
 > ISO only when download size matters and reliable Internet will remain
 > available throughout setup.
 
-Open the [official Aero7 website](https://aero7.miku-dayo.com/) and download
-either Beta 2 ISO plus the matching checksum file. GitHub contains the source
-release and documentation, not ISO attachments.
+**Once Beta 2 is publicly released**, use the
+[official Aero7 website](https://aero7.miku-dayo.com/) to download the final
+ISO and matching checksum. Until then the filenames below identify earlier
+engineering test builds; the source tag and docs are not a public ISO release.
 
 - `aero7-beta2-offline-2026.09.22-x86_64.iso` — recommended
 - `aero7-beta2-online-2026.09.22-x86_64.iso`
