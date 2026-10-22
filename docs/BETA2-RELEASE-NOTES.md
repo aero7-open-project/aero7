@@ -1,11 +1,12 @@
-# Aero7 Beta 2 — release notes
+# Aero7 Beta 2 — draft release notes (unreleased)
 
-Released 22 September 2026. The exact final online and offline images passed
-fresh-install VM acceptance. GitHub publishes the source tag and release notes
-without ISO attachments; installation media and checksums are distributed only
-through the official Aero7 website.
+**Release status as of 22 October 2026: IN PROGRESS / TESTING, NOT RELEASED.**
+Earlier September 22 online and offline images passed the recorded scoped
+fresh-install VM tests, but bug fixing and broader stability testing remain.
+The existing source tag and local ISO acceptance are not a public release,
+and these notes remain a draft until renewed release approval.
 
-The [approved website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website
+The [draft website handoff](BETA2-WEBSITE-MAKER-HANDOFF.md) supplies website
 copy, download-card requirements, feature explanations and announcement text.
 The [QA status record](BETA2-QA-STATUS.md) is the evidence index. Historical
 candidate results must not be presented as tests of a later image.
@@ -29,8 +30,10 @@ The accepted local identities are:
 | Offline — recommended | `aero7-beta2-offline-2026.09.22-x86_64.iso` | 3,407,151,104 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` |
 | Online | `aero7-beta2-online-2026.09.22-x86_64.iso` | 1,604,804,608 | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 
-The release date is 22 September 2026. Website publication must re-hash the
-hosted bytes before download buttons are enabled.
+These September 22 ISO identities are historical test artifacts, **not
+publicly released Beta 2 downloads**. The public release date is **TBA**.
+Any later approved build must be revalidated and the hosted bytes re-hashed
+before public download buttons are enabled.
 
 ## Desktop and application changes
 
@@ -165,12 +168,14 @@ branding, Explorer identity, optional package install/removal and the complete
 screenshot save/clipboard/notification path. Vault 7 retains its separate native
 overlap, retained-content and isolated backend evidence.
 
-The source bug-test pass and exact-media VM acceptance are complete. The
+The recorded September bug-test pass and exact-media VM acceptance are complete
+for those specific candidates only. The
 [final-media report](release-evidence/2026-09-22-final-online-offline-media-acceptance.md)
 records clean connected-online and no-network offline installation, OOBE,
 first-login PolicyKit/UAC readiness, optional Programs Center install/removal,
-reboot/login and pinned File Explorer launch. GitHub publication includes only
-the tagged source and release notes. Before enabling website downloads:
+reboot/login and pinned File Explorer launch. The prior GitHub source tag does not constitute public Beta 2 publication.
+Before enabling website downloads, fix the remaining bugs and complete stability
+testing, then obtain new release approval and follow these steps:
 
 1. Upload both exact artifacts and the matching checksum file to the website.
 2. Re-download and verify byte size plus SHA-256 for both website-hosted files.
