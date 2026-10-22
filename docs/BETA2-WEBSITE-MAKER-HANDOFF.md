@@ -1,15 +1,17 @@
-# Aero7 Beta 2 — approved website release handoff
+# Aero7 Beta 2 — draft website release handoff (on hold)
 
-**Release approved 22 September 2026. Upload and verify the exact files before
-enabling either download button.**
+**Beta 2 has NOT been publicly released. Bug fixing and stability testing are
+ongoing. The previous September approval is superseded; keep downloads disabled
+until explicit renewed approval after all release gates pass.**
 
 Updated 22 September 2026. Rebuilt online and offline test candidates have
 completed clean-install acceptance, and the exact final local image pair has now
 passed the same connected-online and disconnected-offline VM gate. The artifacts
 are not GitHub release assets: hosted-file verification and the website rollout
-remain to be completed. This document is the approved website copy,
-implementation requirements and release checklist. Public availability begins
-only after the uploaded files and download paths pass the checks below.
+remain to be completed. This document is **draft** website copy,
+implementation requirements and a release checklist. Public availability
+requires a renewed owner go-ahead after further testing as well as verified
+hosted files and download paths.
 
 Current QA status and package identities are recorded in the
 [QA status and evidence history](BETA2-QA-STATUS.md). Its linked reports distinguish
@@ -91,8 +93,9 @@ Do not claim warning-free logs or verified physical-hardware compatibility.
 No security checks were weakened or failed units cleared to suppress diagnostics.
 
 The final local images contain the selected fixes and passed fresh exact-media
-online/offline installation. Use sections 1–9 below as approved website copy.
-Keep downloads disabled until upload and hosted-file verification are complete.
+online/offline installation. Use sections 1–9 below as **draft website copy only**.
+Keep downloads disabled until outstanding bugs and stability testing are closed,
+new publication approval is recorded, and hosted files are verified.
 
 ## 1. What the website team should change
 
@@ -171,7 +174,7 @@ connection. Other feature dependencies may require downloads.
 | Display size | 3.17 GiB | 1.49 GiB |
 | SHA-256 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 | Direct HTTPS download URL | Website owner to provide | Website owner to provide |
-| Release date | 22 September 2026 | 22 September 2026 |
+| Public release date | To be announced | To be announced |
 
 Do not reuse the hashes from the failed 4/5 September candidates. Rebuilt files
 can have the same filename but different contents. After upload, verify the
@@ -457,7 +460,7 @@ installer, OOBE, desktop-shell and application screenshot sets were also
 replaced with final-ISO captures at the same native resolution. Preview images
 are no longer substitutes for the release gallery.
 
-## 8. Approved announcement copy — publish after download verification
+## 8. Draft announcement copy — do not publish until renewed approval and verification
 
 ### Long announcement
 
@@ -543,7 +546,7 @@ Use project website download URLs for ISO buttons, not repository archive links.
 - [x] Final artifact table and local checksum file are complete. Exact local
   bytes and hashes are recorded in the final-media acceptance report; hosted
   URLs and download-back verification remain separate checks.
-- [x] Release owner explicitly approved Beta 2 publication on 22 September 2026.
+- [ ] Release owner approves Beta 2 publication again after remaining bug fixes and stability gates.
 - [ ] Website owner provides the final download URLs.
 - [ ] Uploaded ISO downloads match the published byte sizes and SHA-256 values.
 - [ ] Download cards, checksum links, mobile layout and help links are tested.
