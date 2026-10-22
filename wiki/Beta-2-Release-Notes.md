@@ -1,10 +1,12 @@
-# Aero7 Beta 2
+# Aero7 Beta 2 — draft release notes (unreleased)
 
-Released 22 September 2026. GitHub contains the tagged source and release notes
-without ISO attachments. Official installation media and checksum information
-are distributed through the [Aero7 website](https://aero7.miku-dayo.com/).
+**Beta 2 is still in progress and testing, NOT publicly released.**
+The September 22 source tag and image records describe historical test
+candidates rather than a public launch. Release date: **to be announced**.
+When ready, official media and checksums will be announced through the
+[Aero7 website](https://aero7.miku-dayo.com/).
 
-## Choose an image
+## Planned image choices (not yet public downloads)
 
 The offline ISO is recommended. It contains the complete base installation
 package set, works without internet during setup and avoids mirror/download
@@ -17,9 +19,10 @@ for later updates.
 | Offline — recommended | `aero7-beta2-offline-2026.09.22-x86_64.iso` | 3,407,151,104 | `f44c52bf8171fd2842e2c6150909e9ca70a577f4e3ac9f6444baeea45f1676a5` |
 | Online | `aero7-beta2-online-2026.09.22-x86_64.iso` | 1,604,804,608 | `e1744b3be9692af6252bfdc42b83a1bc4c309f33f300771dd3b26cfeacafc936` |
 
-Verify the complete checksum of the exact file you download. Do not use
-unofficial mirrors. See [Installation](Installation.md) for USB, VM and safety
-instructions.
+The filenames and checksums listed above identify previously tested
+candidate images; they are **not currently approved public Beta 2 media**.
+After a later release announcement, verify the checksums of the actual published
+images and avoid unofficial mirrors. See [Installation](Installation.md).
 
 ## Highlights
 
