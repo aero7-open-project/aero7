@@ -29,8 +29,8 @@ pin is updated only after those checks pass.
 
 ## Beta 2 release boundary
 
-Beta 2 source, package recipes, documentation and CI checks are published in
-the project repository. The online ISO, offline ISO and checksums are separate
-website release artifacts and are never attached to GitHub Releases. Exact
-website-hosted bytes must match the accepted release hashes before their
-download buttons are enabled.
+Beta 2 source, package recipes, documentation and CI checks are available in
+the project repository, but **Beta 2 has NOT been publicly released**.
+Bug fixes and stability testing continue. The online ISO, offline ISO and
+checksums will be separate website release artifacts (not attached to GitHub
+Releases), following new approval and verification of final hosted files.
