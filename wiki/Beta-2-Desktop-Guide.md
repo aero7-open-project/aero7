@@ -1,8 +1,10 @@
 # Beta 2 Desktop Guide
 
-This guide describes the released Beta 2 desktop. Read
-[Beta 2 Release Notes](Beta-2-Release-Notes) and download official installation
-media only through the [Aero7 website](https://aero7.miku-dayo.com/).
+This guide describes the **Beta 2 desktop under active development and testing**.
+Beta 2 has **not** been publicly released. Read the
+[draft Beta 2 Release Notes](Beta-2-Release-Notes) for the recorded test scope;
+future official media will be announced on the
+[Aero7 website](https://aero7.miku-dayo.com/).
 
 ## Choose an installation image
 
