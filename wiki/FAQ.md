@@ -1,5 +1,9 @@
 # Frequently Asked Questions
 
+> **Beta 2 is still in development and testing and is NOT publicly released.**
+> Any September test image references below describe engineering work, not
+> a downloadable official Beta 2 launch.
+
 ## Is Aero7 Windows?
 
 No. Aero7 is an independent Arch Linux-based operating system with KDE Plasma
@@ -8,7 +12,8 @@ Microsoft Windows.
 
 ## Can I install Beta 2 on a real PC?
 
-Yes. Beta 2 supports guarded physical installation on x86-64 UEFI systems using
+Not as a public release yet. Beta 2 test builds support guarded physical
+installation on x86-64 UEFI systems using
 non-removable SATA, NVMe, or MMC storage. Disable Secure Boot, use AHCI instead
 of RAID On/Intel RST, and keep a verified backup. Beta software and partition
 changes can still cause data loss.
